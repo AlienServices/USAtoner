@@ -1,0 +1,155 @@
+.footer {
+    display: flex;
+    justify-content: space-around;
+    height: fit-content;
+    min-height: 300px;
+    padding: 10px;
+    background-color: rgb(2,50,92);
+    color: white;
+    align-items: center;
+  }
+  .titleWhy{
+    padding-right: 8px;
+    font-size: 30px 
+  }
+  .titleWhyBlue{
+    padding-right: 8px;
+    font-size: 30px;
+    color: rgb(2,50,92);
+  }
+  .h4 {
+    font-weight: 100;
+    font-size: 13px;
+  }
+  .exploreContainer {
+    
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: column;
+    
+  }
+  .even{
+    display: flex;
+    justify-content: space-evenly;
+    width: 60%;
+  }
+  .exploreContainer2 {
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+  }
+  .exploreContainerGood {
+    display: flex;
+    flex-direction: column;
+  }
+  .line{
+    width: 1px;
+    height: 90%;
+    background-color: white;
+  }
+  .smallerContainer{
+    display: flex;
+    justify-content: space-evenly;
+    width: 100%;
+    height: 70%;
+    
+  }
+  
+  .footerTitle {
+    font-weight: 250;
+    font-size: 23px;
+  }
+  .footerContainer{
+    display: flex;
+    flex-direction: column;
+    height: 70%;
+    justify-content: space-evenly;
+} 
+.flex{
+  display: flex;
+  height: 100%;
+}
+  
+  .column {
+    display: flex;
+  }
+  
+  .halfContainer {
+    width: 100px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .svgContainer {
+    height: 50px;
+    width: 50px;
+  }
+  .section{
+    height: fit-content;
+    display: flex;
+    justify-content: center;
+    min-height: 350px;
+    color: black;
+    background-color: rgb(242,249,255);
+  }
+  .row{
+    display: flex;
+    align-items: center;
+  }
+  .space{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-evenly;
+  }
+
+  
+  .logo {
+    height: 150px;
+  }
+  
+  .footerTags {
+    font-weight: 100;
+    font-size: 13px;
+
+    padding: 1px;
+    cursor: pointer;
+  }
+  
+  .socialsText {
+    font-size: 30px;
+    font-weight: 250;
+  }
+  
+  @media(max-width:1200px) {
+    .footer{
+      flex-direction:column-reverse;
+      height: fit-content;
+    }
+  }
+  @media (max-width: 650px) {
+    
+    .footerTags {
+      font-size: 13px;
+    }
+    .footerTitle {
+      font-size: 25px;
+    }
+    .exploreContainer2{
+      display: none;
+    }
+    .row div{
+      font-size: 12px;
+    }
+    .titleWhy{
+      font-size: 20px;
+    }
+    .titleWhyBlue{
+      padding-right: 8px;
+      font-size: 20px;
+      color: rgb(2,50,92);
+    }
+   
+  }
+  

@@ -1,0 +1,186 @@
+.contactHeader {
+    background-color: white;
+    width: 100%;
+    display: flex;
+    color: black;
+    overflow: hidden;
+    justify-content: flex-end;
+    align-items: center;
+    height: fit-content;
+    flex-direction: column;
+    object-fit: cover;
+  }
+  .Flex{
+    display: flex;
+    padding: 20px;
+    align-items: center;
+    color: black;
+    justify-content: flex-start;
+    width: 97%;
+    font-size: 25px;
+    height: 10%;
+    font-weight: 500;
+}
+.black{
+  color: black;
+}
+.iconFlex{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 13%;
+}
+
+  .logoContainer{
+    position: relative;
+    width: 100px;
+    height: 75px;
+  }
+  .cartNumber{
+    color: rgb(240,136,6);
+     font-size: 20px
+  }
+    
+  .logoSpace {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-evenly;
+  }
+
+  
+  .logoSpaceContainer {
+    height: 15vh;
+    display: flex;
+    width: 80%;
+    justify-content: center;
+    position: sticky;
+  }
+  .columnContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    width: 80%;
+    height: 30vh;
+  }
+    
+  .infoBig {
+    color: black;
+    font-weight: 700;
+    font-size: 30px;
+  }
+  
+  .logoSpace {
+    width: 95%;
+    justify-content: space-around;
+    align-items: center;
+  }
+  .pieceContainer {
+
+    color: white;
+    display: flex;
+    border-radius: 10px;
+  }
+  
+  /* .pieceContainer:hover {
+    background-color: black;
+    color: white;
+    transition: all 0.3s ease-in-out;
+  } */
+  
+  
+  .logo {
+    height: 25px;
+    width: 25px;
+  }
+  
+  .picture {
+    height: 400px;
+    object-fit: cover;
+    width: 100%;
+    filter: brightness(60%);
+  }
+  
+  .headerPieces {
+    margin: 0px;
+    color: rgb(115,115,115);
+    font-weight: 300;
+    cursor: pointer;
+    /* text-decoration: none;
+    transition-delay: 100ms;
+    transition-timing-function: ease-out; */
+    padding: 10px;
+  }
+
+  .headerContainer {
+    display: flex;
+    width: 100%;
+    height: 70%;
+    justify-content: space-evenly;
+    color: white;
+    background-color: rgb(34, 48, 62);
+    align-items: center;
+  }
+  .line{
+    width: 100%;
+    height: 1px;
+    background-color: rgb(237,237,237);
+    opacity: 1;
+    
+  }
+  .lineSmall{
+    width: 100%;
+    height: 1px;
+    background-color: rgb(237,237,237);
+    opacity: 0;
+    
+  }
+  .cartContainer{
+    position: relative;
+    width: 30px;
+    height: 30px;
+  }
+
+  .headerPieces:hover{
+    color: black;
+  }
+  
+  .pic {
+    height: 400px;
+    object-fit: cover;
+    width: 100%;
+  }
+  
+  @media (max-width: 600px) {
+    .headerPieces {
+      font-size: 10px;
+      padding: 5px;
+    }
+    .logoSpace{
+      width: 100%;
+    }
+    .hidden{
+      display: none;
+    }
+    .logoSpaceContainer{
+      width: 95%;
+    }
+    .logoContainer{
+      position: relative;
+      width: 50px;
+      height: 25px;
+    }
+    .cartContainer{
+      position: relative;
+      width: 15px;
+      height: 15px;
+    }
+    .cartNumber{
+      font-size: 15px;
+    }
+    .cartNumberContainer{
+      display: flex;
+    }
+  }
+  
