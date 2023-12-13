@@ -9,7 +9,7 @@ export default function Footer() {
       <div className={styles.smallerContainer}>
         <div className={styles.exploreContainerGood}>
         <div style={{paddingBottom:"15px"}} className={styles.exploreContainerGood}>
-          <Image src={"/static/logo.webp"} width={100} height={75} />
+          <Image src={"/static/download.png"} width={100} height={75} />
          </div>
           
           <div className={styles.footerTags}>

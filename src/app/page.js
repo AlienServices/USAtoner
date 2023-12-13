@@ -197,7 +197,7 @@ export default function Data() {
                 We provide a variety of high-quality american made toners for your business needs at an affordable price.
               </div>
               <div className={styles.buttonCenter}>
-                <Link href={'/buy'}>
+                <Link href={'/contact'}>
                   <button className={styles.buttonBlue}>Get A Quote Now</button>
                 </Link>
               </div>

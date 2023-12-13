@@ -27,7 +27,7 @@
   box-shadow: rgba(27, 31, 35, .1) 0 1px 0;
   box-sizing: border-box;
   cursor: pointer;
-  width: 100%;
+  width: 75%;
   display: inline-block;
   font-family: -apple-system,system-ui,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
   font-size: 14px;
@@ -333,8 +333,8 @@
 .homepageTitle {
   font-weight: 700;
   padding-bottom: 15px;
-  width: 80%;
-  font-size: 40px;
+  width: 100%;
+  font-size: 50px;
 }
 .serviceTitle{
   font-size: 25px;
@@ -472,7 +472,7 @@ padding-left: 8px
   background-color: white;
 }
 .mainContainer{
-  width: 50%;
+  width: 60%;
 }
 
 .paragraphSmall{

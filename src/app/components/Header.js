@@ -14,7 +14,7 @@ export default function Header() {
             <div className={styles.logoContainer}>
               <Link href={'/'}>
                 <Image
-                  src="/static/logo.webp"
+                  src="/static/download.png"
                   alt="buy a used or new business copier"
                   fill={true}
                 />

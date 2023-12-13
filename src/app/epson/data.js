@@ -192,11 +192,11 @@ export default function Data() {
                             </div>
                             <h1>
                                 <div className={styles.homepageTitle}>
-                                    Shop from our American Made toners
+                                    Epson Toner Cartridges
               </div>
                             </h1>
                             <div className={styles.paragraphSmall}>
-                                We provide a variety of high-quality american made toners for your business needs at an affordable price.
+                                We provide the highest quality Epson Toner cartidges
               </div>
                             <div className={styles.buttonCenter}>
                                 <Link href={'/buy'}>
