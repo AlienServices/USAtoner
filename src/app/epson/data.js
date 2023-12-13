@@ -188,16 +188,16 @@ export default function Data() {
                             <div className={styles.buttonCenter}>
                                 <div className={styles.bubble}>
                                     USA Toner
-                </div>
+                                </div>
                             </div>
                             <h1>
                                 <div className={styles.homepageTitle}>
                                     Epson Toner Cartridges
-              </div>
+                                </div>
                             </h1>
                             <div className={styles.paragraphSmall}>
                                 We provide the highest quality Epson Toner cartidges
-              </div>
+                            </div>
                             <div className={styles.buttonCenter}>
                                 <Link href={'/buy'}>
                                     <button className={styles.buttonBlue}>Get A Quote Now</button>
@@ -272,7 +272,7 @@ export default function Data() {
                                                             className={styles.price}
                                                         >
                                                             $
-                            </div>
+                                                        </div>
                                                         <div style={{ color: "rgb(2,50,92)" }} className={styles.modelSmallish}>
                                                             {toner.price}
                                                         </div>
@@ -284,7 +284,7 @@ export default function Data() {
                                                         className={styles.priceSmall}
                                                     >
                                                         OEM:
-                          </div>
+                                                    </div>
                                                     <div className={styles.modelSmall}>{toner.oem}</div>
                                                 </div>
                                             </div>
@@ -297,7 +297,7 @@ export default function Data() {
                                                     className={styles.priceMedium}
                                                 >
                                                     Models:
-                        </div>
+                                                </div>
                                                 <div className={styles.modelSmall}>{toner.models}</div>
 
                                             </div>

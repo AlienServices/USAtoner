@@ -1,4 +1,4 @@
-import Data from './data'
+import Data from '../contact/data'
 export const metadata = {
     title: 'Short-Term Copier Rentals | Copiers Utah',
     description: 'Need a copier for a short-term project or event? Copiers Utah offers flexible short-term copier rentals with advanced features and affordable prices. Contact us today to learn more',
