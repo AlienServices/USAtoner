@@ -1,9 +1,9 @@
 "use client";
-
 import React, { useEffect, useRef, useState, useContext } from "react";
 import Header from "../components/Header";
 import Image from "next/image";
 import styles from "../styles/fileChoice.module.css";
+import { TonerContext } from "@/providers/toner";
 import Footer from "../components/Footer";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -16,6 +16,7 @@ const TonerChoice = (props) => {
 
     const [recaptchaResponse, setRecaptchaResponse] = useState(false);
     const [aboveOne, setAboveOne] = useState(false);
+    const toners = useContext(TonerContext);
     const [quantity, setQuantity] = useState(1);
     const [data, setData] = useState("");
     const [name, setName] = useState("");
