@@ -247,6 +247,7 @@ export default function Data() {
                     href={`/tonerChoice?oem=${toner.oem}`}
                   >
                     <Image
+                    alt={'image of toner'}
                       style={{ borderRadius: "5px" }}
                       src={toner.image}
                       width={180}

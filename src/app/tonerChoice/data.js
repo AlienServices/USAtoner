@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState, useContext } from "react";
 import Header from "../components/Header";
 import Image from "next/image";
 import styles from "../styles/fileChoice.module.css";
-import { TonerContext } from "@/providers/toner";
+import { TonerContext } from "../toner/index";
 import Footer from "../components/Footer";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -11,12 +11,11 @@ import { useSearchParams } from "next/navigation";
 
 const TonerChoice = (props) => {
     const searchParams = useSearchParams();
-    const oem = searchParams.get("oem");
-    // const toner = toners.find((toner) => toner.oem === oem);
-
+    const oem = searchParams.get("oem");    
     const [recaptchaResponse, setRecaptchaResponse] = useState(false);
     const [aboveOne, setAboveOne] = useState(false);
     const toners = useContext(TonerContext);
+    const toner = toners?.find((toner) => toner.oem === oem);
     const [quantity, setQuantity] = useState(1);
     const [data, setData] = useState("");
     const [name, setName] = useState("");
@@ -177,6 +176,10 @@ const TonerChoice = (props) => {
     //         });
     // }
 
+
+
+    console.log(toners, "this is a test")
+
     const breadCrumbs = [
         { name: "Home", url: "/" },
         { name: `Toners`, url: `/toner` },
@@ -192,19 +195,19 @@ const TonerChoice = (props) => {
                 <div className={styles.center}>
                     <div className={styles.column}>
 
-                        {/* <div className={styles.titleSmall}> OEM #: {toner.oem}</div> */}
+                        <div className={styles.titleSmall}> OEM #: {toner.oem}</div>
                         <div className={styles.imageContainer}>
-                            {/* <Image src={toner.image} width={300} height={250} /> */}
+                            <Image src={toner.image} width={300} height={250} />
                         </div>
                     </div>
                     <div className={styles.centerFeature}>
                         <div className={styles.aContainer}>
-                            {/* <div className={styles.titleLarge}>{toner.name}</div> */}
+                            <div className={styles.titleLarge}>{toner.name}</div>
                             <div className={styles.something}>
                                 <div className={styles.titleSmall}>
-                                    {/* <div className={styles.small}>
+                                    <div className={styles.small}>
                                         ${aboveOne ? newPrice : toner.price}
-                                    </div> */}
+                                    </div>
                                 </div>
                                 <div className={styles.line}></div>
                                 <div style={{ color: "black" }}>Features:</div>
