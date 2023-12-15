@@ -1,6 +1,6 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
-import { TonerProvider } from "../app/toner/index";
+import { TonerProvider } from "../app/providers/toner/index";
 
 const inter = Inter({ subsets: ['latin'] })
 
