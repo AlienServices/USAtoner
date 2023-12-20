@@ -6,7 +6,7 @@ import Head from "next/head";
 import styles from "../styles/cart.module.css";
 import Link from "next/link";
 // import BreadCrumbs from "../components/BreadCrumbs";
-import { CartContext } from "../../app/providers/cart";
+import { CartContext } from "../providers/cart";
 import Footer from "../components/Footer";
 // import TawkMessengerReact from "@tawk.to/tawk-messenger-react";
 
@@ -125,115 +125,115 @@ const Cart = () => {
             <div className={styles.bottomMain}>
                 <div className={styles.hundred}>
                     <div className={styles.mainTitleBig}>Your Shopping Cart</div>
-                    {/* {cart.length === 0 ? (
-                        <div style={{ color: "black", textAlign: "center", paddingTop: "25px"}}>Your cart is empty</div>
+                    {cart.length === 0 ? (
+                        <div style={{ color: "black", textAlign: "center", paddingTop: "25px" }}>Your cart is empty</div>
                     ) : (
-                            <div style={{ color: "black" }}></div>
-                        )} */}
+                        <div style={{ color: "black" }}></div>
+                    )}
                     {cart?.map((toner, index) => {
                         return (
                             <div key={index} className={styles.thirdSection}>
                                 <div>
-                                <div
-                                                style={{ color: "black", cursor: "pointer", textAlign:"end", width:"93%" }}
-                                                onClick={() => {
-                                                    setCart(cart.filter((t) => t.oem !== toner.oem));
-                                                }}
-                                            >
-                                                X
-                      </div>
+                                    <div
+                                        style={{ color: "black", cursor: "pointer", textAlign: "end", width: "93%" }}
+                                        onClick={() => {
+                                            setCart(cart.filter((t) => t.oem !== toner.oem));
+                                        }}
+                                    >
+                                        X
+                                    </div>
                                     <div className={styles.buggy}>
-                                        <div style={{width:"200px"}}>
-                                            <Image src={toner.image} width={150} height={150}/>
+                                        <div style={{ width: "200px" }}>
+                                            <Image alt={"image of toner"} src={toner.image} width={150} height={150} />
+                                        </div>
+                                        <div className={styles.priceBox}>
+                                            <div className={styles.cartTitle}>{toner.name}</div>
+                                            <div
+                                                className={styles.oemContainer}
+                                            >
+                                                <div
+                                                    style={{
+                                                        color: "black",
+                                                        fontSize: "15px",
+                                                        fontWeight: "600",
+                                                        paddingRight: "8px",
+                                                    }}
+                                                >
+                                                    OEM:
+                                                </div>
+                                                <div style={{ color: "black", fontSize: "14px" }}>
+                                                    {" "}
+                                                    {toner.oem}
+                                                </div>
                                             </div>
-                                    <div className={styles.priceBox}>
-                                        <div className={styles.cartTitle}>{toner.name}</div>
-                                        <div
-                                            className={styles.oemContainer}
-                                        >
+                                        </div>
+                                        <div className={styles.cartRow}>
                                             <div
                                                 style={{
-                                                    color: "black",
-                                                    fontSize: "15px",
-                                                    fontWeight: "600",
-                                                    paddingRight: "8px",
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    justifyContent: "center",
+                                                    width: "100px"
                                                 }}
                                             >
-                                                OEM:
-                                    </div>
-                                            <div style={{ color: "black", fontSize: "14px" }}>
-                                                {" "}
-                                                {toner.oem}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className={styles.cartRow}>
-                                        <div
-                                            style={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                                width:"100px"
-                                            }}
-                                        >
-                                            <div 
-                                                onClick={() => {
-                                                    setTotal(0)
-                                                    setCart(
+                                                <div
+                                                    onClick={() => {
+                                                        setTotal(0)
+                                                        setCart(
 
-                                                        cart.map((t) => {
-                                                            if (t.oem === toner.oem && t.quantity >= 1) {
-                                                                return {
-                                                                    ...t,
-                                                                    quantity: t.quantity - 1,
-                                                                };
-                                                            }
-                                                            return t;
-                                                        })
-                                                    );
-                                                }}
-                                                className={styles.plusButton}
-                                                style={{
-                                                    color: "black",
-                                                    fontSize: "23px",
-                                                    fontWeight: "300",
-                                                }}
-                                            >
-                                                -
-                                </div>
-                                            <div style={{ color: "black", padding: "5px" }}>
-                                                {toner.quantity}
-                                            </div>
-                                                <div style={{ color: "black", cursor:"pointer"}}
-                                                onClick={() => {
-                                                    setTotal(0)
-                                                    setCart(
+                                                            // cart.map((t) => {
+                                                            //     if (t.oem === toner.oem && t.quantity >= 1) {
+                                                            //         return {
+                                                            //             ...t,
+                                                            //             quantity: t.quantity - 1,
+                                                            //         };
+                                                            //     }
+                                                            //     return t;
+                                                            // })
+                                                        );
+                                                    }}
+                                                    className={styles.plusButton}
+                                                    style={{
+                                                        color: "black",
+                                                        fontSize: "23px",
+                                                        fontWeight: "300",
+                                                    }}
+                                                >
+                                                    -
+                                                </div>
+                                                <div style={{ color: "black", padding: "5px" }}>
+                                                    {toner.quantity}
+                                                </div>
+                                                <div style={{ color: "black", cursor: "pointer" }}
+                                                    onClick={() => {
+                                                        setTotal(0)
+                                                        setCart(
 
-                                                        cart.map((t) => {
-                                                            if (t.oem === toner.oem) {
-                                                                return {
-                                                                    ...t,
-                                                                    quantity: t.quantity + 1,
-                                                                };
-                                                            }
-                                                            return t;
-                                                        })
-                                                    );
-                                                }}
-                                                className={styles.plusButton}>
-                                                
+                                                            cart.map((t) => {
+                                                                if (t.oem === toner.oem) {
+                                                                    return {
+                                                                        ...t,
+                                                                        quantity: t.quantity + 1,
+                                                                    };
+                                                                }
+                                                                return t;
+                                                            })
+                                                        );
+                                                    }}
+                                                    className={styles.plusButton}>
+
                                                     +
-                                                
+
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className={styles.removeBox}>
-                                  
-                                            <div className={styles.priceRight}>
-                                                ${decimal(toner.price * toner.quantity)}
+                                            <div className={styles.removeBox}>
+
+                                                <div className={styles.priceRight}>
+                                                    ${decimal(toner.price * toner.quantity)}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
                                 </div>
                                 <div className={styles.line}></div>
                             </div>
@@ -256,7 +256,8 @@ const Cart = () => {
                         <div className={styles.buttonContainterB}>
                             <Link href={'/toner'}>
                                 <button onClick={() => { }} className={styles.buttonCheck}>
-                                    Add More Items
+
+                                    More Items
                                 </button>
                             </Link>
                             <Link href={'/checkout'}>

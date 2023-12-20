@@ -6,7 +6,7 @@ export default function BestSellers() {
         <div className={styles.Flex}>
             <div className={styles.iconFlex}>
                 <div className={styles.black}>Best Sellers</div>
-                <Image height={30} width={30} src={'/static/arrow-right.webp'} />
+                <Image alt={'right arrow logo'} height={30} width={30} src={'/static/arrow-right.webp'} />
             </div>
         </div >
     )

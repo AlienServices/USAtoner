@@ -1,11 +1,12 @@
 "use client"
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useContext, useEffect } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import Header from "./components/Header";
 import BestSellers from "./components/BestSellers";
 import Link from "next/link";
 import styles from "./page.module.css";
+import { CartContext } from "../app/providers/cart";
 import Footer from "./components/Footer";
 import { useRouter } from "next/navigation";
 export default function Data() {
@@ -123,9 +124,11 @@ export default function Data() {
   ]);
 
   const [name, setName] = useState("");
+  const { cart, setCart, cartLook, setRealPrice, tonerOem } = useContext(CartContext);
   const [recaptchaResponse, setRecaptchaResponse] = useState(false);
   const [email, setEmail] = useState("");
   const [number, setNumber] = useState("");
+  const [token, setToken] = useState();
   const [message, setMessage] = useState("this is the test message");
   const tawkMessengerRef = useRef();
   const captchaRef = useRef(null);
@@ -174,10 +177,28 @@ export default function Data() {
       }
     });
   };
+  async function getToken() {
+    const requestOptions = {
+      method: "POST",
+    }
+    try {
+      const response = await fetch('/api/email', requestOptions);
+      const data1 = await response.json();
+      console.log(data1.cancel, "this is the response")
+      setToken(data1)
+    } catch (err) {
+    }
+  }
+  useEffect(() => {    
+    if(!token?.cancel) {          
+      getToken()
+    } else if(token?.cancel.loginStatus ) {      
+      getToken()
+    }
+  }, [token])
 
   return (
     <div className={styles.main}>
-
       <Header />
       <div className={styles.secondSection}>
         <div className={styles.flexSomething}>
@@ -191,7 +212,7 @@ export default function Data() {
               <h1>
                 <div className={styles.homepageTitle}>
                   Shop from our American Made toners
-              </div>
+                </div>
               </h1>
               <div className={styles.paragraphSmall}>
                 We provide a variety of high-quality american made toners for your business needs at an affordable price.
@@ -213,7 +234,6 @@ export default function Data() {
             </div>
           </div>
         </div>
-
         <div className={styles.lineContainer}>
           <div className={styles.line}></div>
         </div>
@@ -236,7 +256,6 @@ export default function Data() {
                   // }}
                   className={styles.box}
                 >
-
                   <Link
                     onClick={() => {
                       setTonerOem(toner.oem)
@@ -247,7 +266,7 @@ export default function Data() {
                     href={`/tonerChoice?oem=${toner.oem}`}
                   >
                     <Image
-                    alt={'image of toner'}
+                      alt={'image of toner'}
                       style={{ borderRadius: "5px" }}
                       src={toner.image}
                       width={180}
@@ -265,7 +284,6 @@ export default function Data() {
                             }}
                           >
                             <div
-
                               style={{ paddingRight: "5px", color: "rgb(2,50,92)" }}
                               className={styles.price}
                             >
@@ -300,6 +318,21 @@ export default function Data() {
 
                       </div>
                     </div>
+                  </Link>
+                  <Link href={'/carts'}>
+                    <button className={styles.buttonBlue} onClick={() => {
+                      const updatedCart = [
+                        ...cart,
+                        {
+                          name: toner.name,
+                          oem: toner.oem,
+                          price: toner.price,
+                          // quantity: quantity,
+                          image: toner.image,
+                        },
+                      ];
+                      setCart(updatedCart)
+                    }}>Add to cart</button>
                   </Link>
                 </div>
               );
@@ -338,7 +371,7 @@ export default function Data() {
                 </div>
               </div>
               <div className={styles.paragraphReview}>Great company to work with. They have friendly staff and were able to get me up and running within a few days.
-            </div>
+              </div>
             </div>
             <div className={styles.boxReview}>
               <div className={styles.starRow}>

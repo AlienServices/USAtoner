@@ -117,6 +117,7 @@ export const TonerProvider = ({ children }) => {
     },
   ]);
 
+  
   return (
     <TonerContext.Provider value={toners}>{children}</TonerContext.Provider>
   );

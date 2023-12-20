@@ -14,13 +14,10 @@ export const CartProvider = ({ children }) => {
   let [personInfo, setPersonInfo] = useState({});
   let [totalAmount, setTotalAmount] = useState();
 
-
-
   useEffect(() => {
     if (cart.length > 0) {
       localStorage.setItem("cart", JSON.stringify(cart))
     }
-
   }, [cart]);
 
   useEffect(() => {
@@ -41,9 +38,7 @@ export const CartProvider = ({ children }) => {
   useEffect(() => {
     setCart(JSON.parse(localStorage.getItem("cart")) ?? [])
     setTonerOem((localStorage.getItem("tonerOem")))
-
   }, [])
-
 
 
   return (
