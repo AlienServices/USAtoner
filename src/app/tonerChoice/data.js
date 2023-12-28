@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState, useContext } from "react";
 import Header from "../components/Header";
 import Image from "next/image";
 import styles from "../styles/fileChoice.module.css";
-import { TonerContext } from "../toner/index";
+// import { TonerContext } from "../toner/index";
 import Footer from "../components/Footer";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";

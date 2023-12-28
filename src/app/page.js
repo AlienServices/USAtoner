@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useRef, useContext, useEffect } from "react";
+import React, { useState, useRef, useContext, useEffect, useDebugValue } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import Header from "./components/Header";
@@ -128,6 +128,7 @@ export default function Data() {
   const [recaptchaResponse, setRecaptchaResponse] = useState(false);
   const [email, setEmail] = useState("");
   const [number, setNumber] = useState("");
+  const [products, setProducts] = useState("");
   const [token, setToken] = useState();
   const [message, setMessage] = useState("this is the test message");
   const tawkMessengerRef = useRef();
@@ -177,6 +178,8 @@ export default function Data() {
       }
     });
   };
+
+
   async function getToken() {
     const requestOptions = {
       method: "POST",
@@ -184,16 +187,38 @@ export default function Data() {
     try {
       const response = await fetch('/api/email', requestOptions);
       const data1 = await response.json();
-      console.log(data1.cancel, "this is the response")
-      setToken(data1)
+      // console.log(data1.cancel, "this is the response")
+      setToken(data1.cancel)
     } catch (err) {
     }
   }
-  useEffect(() => {    
-    if(!token?.cancel) {          
+
+
+  async function getProducts() {
+    const requestOptions = {
+      method: "POST",
+
+      body: JSON.stringify(token.accessToken)
+    }
+    try {
+      const response = await fetch('/api/products', requestOptions);
+      const data1 = await response.json();
+      console.log(data1.cancel.products, "this is the product response")
+      setProducts(data1.cancel.products)
+    } catch (err) {
+    }
+  }
+  useEffect(() => {
+    if (token?.cancel?.accessToken === undefined) {
       getToken()
-    } else if(token?.cancel.loginStatus ) {      
+    } else if (token?.cancel?.loginStatus) {
       getToken()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (token?.accessToken) {
+      getProducts()
     }
   }, [token])
 
@@ -220,6 +245,9 @@ export default function Data() {
               <div className={styles.buttonCenter}>
                 <Link href={'/contact'}>
                   <button className={styles.buttonBlue}>Get A Quote Now</button>
+                  <button onClick={() => {
+                    getProducts()
+                  }} className={styles.buttonBlue}>testing</button>
                 </Link>
               </div>
             </div>
@@ -240,39 +268,33 @@ export default function Data() {
         <div className={styles.center}>
           <BestSellers />
           <div className={styles.boxContainer}>
-            {toners.slice(0, 7).map((toner) => {
-              return (
-                <div
-                  key={toner.oem}
-                  // onClick={() => {
-                  //   setCartLook({
-                  //     name: toner.name,
-                  //     oem: toner.oem,
-                  //     price: toner.price,
-                  //     color: toner.color,
-                  //     photo: toner.image,
-                  //     yield: toner.yield,
-                  //   });
-                  // }}
-                  className={styles.box}
-                >
-                  <Link
-                    onClick={() => {
-                      setTonerOem(toner.oem)
-                      localStorage.setItem("tonerOem", toner.oem)
+            {products && <>
 
-                    }}
-                    className={styles.somethingElse}
-                    href={`/tonerChoice?oem=${toner.oem}`}
+              {products?.map((toner) => {
+                return (
+                  <div
+                    key={toner.oem}
+                    // onClick={() => {
+                    //   setCartLook({
+                    //     name: toner.name,
+                    //     oem: toner.oem,
+                    //     price: toner.price,
+                    //     color: toner.color,
+                    //     photo: toner.image,
+                    //     yield: toner.yield,
+                    //   });
+                    // }}
+                    className={styles.box}
                   >
+
                     <Image
                       alt={'image of toner'}
                       style={{ borderRadius: "5px" }}
-                      src={toner.image}
+                      src={toner.images[0]}
                       width={180}
                       height={180}
                     ></Image>
-                    <div className={styles.titleSmallBlack}>{toner.name}</div>
+                    <div className={styles.titleSmallBlack}>{toner.title}</div>
                     <div style={{ width: "100%" }}>
                       <div style={{ paddingRight: "15px" }} className={styles.row}>
                         <div className={styles.row}>
@@ -290,7 +312,7 @@ export default function Data() {
                               $
                             </div>
                             <div style={{ color: "rgb(2,50,92)" }} className={styles.modelSmallish}>
-                              {toner.price}
+                              {toner.serviceLevels[0].price}
                             </div>
                           </div>
                         </div>
@@ -301,7 +323,7 @@ export default function Data() {
                           >
                             OEM:
                           </div>
-                          <div className={styles.modelSmall}>{toner.oem}</div>
+                          <div className={styles.modelSmall}>{toner.oemNos[0].oemNo}</div>
                         </div>
                       </div>
                       <div
@@ -318,25 +340,50 @@ export default function Data() {
 
                       </div>
                     </div>
-                  </Link>
-                  <Link href={'/carts'}>
-                    <button className={styles.buttonBlue} onClick={() => {
-                      const updatedCart = [
-                        ...cart,
-                        {
-                          name: toner.name,
-                          oem: toner.oem,
-                          price: toner.price,
-                          // quantity: quantity,
-                          image: toner.image,
-                        },
-                      ];
-                      setCart(updatedCart)
-                    }}>Add to cart</button>
-                  </Link>
-                </div>
-              );
-            })}
+                    <Link
+                      onClick={() => {
+                        setTonerOem(toner.oem)
+                        localStorage.setItem("tonerOem", toner.oem)
+
+                      }}
+                      className={styles.somethingElse}
+                      href={`/tonerChoice?oem=${toner.oem}`}
+                    ></Link>
+                    <Link href={'/carts'}>
+                      <button className={styles.buttonBlue} onClick={() => {
+                        const updatedCart = [
+                          ...cart,
+                          {
+                            name: toner.name,
+                            oem: toner.oem,
+                            price: toner.price,
+                            // quantity: quantity,
+                            image: toner.image,
+                          },
+                        ];
+                        setCart(updatedCart)
+                      }}>Add to cart</button>
+                    </Link>
+                    <Link href={'/carts'}>
+                      <button className={styles.buttonBlue} onClick={() => {
+                        const updatedCart = [
+                          ...cart,
+                          {
+                            name: toner.name,
+                            oem: toner.oem,
+                            price: toner.price,
+                            // quantity: quantity,
+                            image: toner.image,
+                          },
+                        ];
+                        setCart(updatedCart)
+                      }}>Add to cart</button>
+                    </Link>
+                  </div>
+                );
+              })}
+            </>}
+
           </div>
         </div>
         <div className={styles.reviewSection}>

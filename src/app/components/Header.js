@@ -31,7 +31,7 @@ export default function Header() {
                 <div className={styles.headerPieces}>Konika</div>
                 <div className={styles.lineSmall}></div>
               </Link>
-            </div>            
+            </div>
             <div className={styles.pieceContainer}>
               <Link href="/lexmark">
                 <div className={styles.headerPieces}>Lexmark</div>
@@ -55,14 +55,16 @@ export default function Header() {
                 <div className={styles.headerPieces}>Dell</div>
                 <div className={styles.lineSmall}></div>
               </Link>
-            </div>            
-            <div className={styles.cartContainer}>
-              <Image
-                src="/static/cart.webp"
-                alt="buy a used or new business copier"
-                fill={true}
-              />
             </div>
+            <Link href={'/carts'}>
+              <div className={styles.cartContainer}>
+                <Image
+                  src="/static/cart.webp"
+                  alt="buy a used or new business copier"
+                  fill={true}
+                />
+              </div>
+            </Link>
             {/* <div className={styles.cartNumber}>{cart.length}</div> */}
           </div>
         </div >
