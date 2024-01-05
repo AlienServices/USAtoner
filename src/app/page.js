@@ -354,11 +354,11 @@ export default function Data() {
                         const updatedCart = [
                           ...cart,
                           {
-                            name: toner.name,
-                            oem: toner.oem,
-                            price: toner.price,
-                            // quantity: quantity,
-                            image: toner.image,
+                            name: toner.title,
+                            oem: toner.oemNos[0].oemNo,
+                            price: toner.serviceLevels[0].price,
+                            quantity: 1,
+                            image: toner.images[0],
                           },
                         ];
                         setCart(updatedCart)

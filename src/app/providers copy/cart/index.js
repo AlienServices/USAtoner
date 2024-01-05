@@ -1,8 +1,10 @@
 "use client";
-import { createContext, useEffect, useState } from "react";
-export const CartContext = createContext(undefined);
-export const CartProvider = ({ children }) => {
 
+import { createContext, useEffect, useState } from "react";
+
+export const CartContext = createContext(undefined);
+
+export const CartProvider = ({ children }) => {
   let [realPrice, setRealPrice] = useState();
   let [cart, setCart] = useState([]);
   let [tonerOem, setTonerOem] = useState();
@@ -19,10 +21,6 @@ export const CartProvider = ({ children }) => {
   }, [cart]);
 
   useEffect(() => {
-    setCart(JSON.parse(localStorage.getItem("cart")) ?? [])
-    setTonerOem((localStorage.getItem("tonerOem")))
-  }, [])
-  useEffect(() => {
     var price = 0
     cart.map((item) => {
       price = price + item.price * item.quantity
@@ -37,8 +35,12 @@ export const CartProvider = ({ children }) => {
     }
   }, [realPrice])
 
+  useEffect(() => {
+    setCart(JSON.parse(localStorage.getItem("cart")) ?? [])
+    setTonerOem((localStorage.getItem("tonerOem")))
+  }, [])
 
-    
+
   return (
     <CartContext.Provider value={{ cart, setCart, setRealPrice, cardInfo, setCardInfo, personInfo, setPersonInfo, totalAmount, billingInfo, setBillingInfo, tonerOem, setTonerOem }}>
       {children}

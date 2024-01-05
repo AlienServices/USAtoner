@@ -13,7 +13,7 @@ import Footer from "../components/Footer";
 const Cart = () => {
     const [recaptchaResponse, setRecaptchaResponse] = useState(false);
     const [name, setName] = useState("");
-    const [orderId, setOrderId] = useState("");
+    const [orderId, setOrderId] = useState("");    
     const { cart, setCart, cartLook, setRealPrice, tonerOem } = useContext(CartContext);
     const [noChange, setFalse] = useState(false);
     const [something, setSomething] = useState(false);
@@ -94,6 +94,9 @@ const Cart = () => {
         setTotal(addedResult.toFixed(2))
 
     }
+    useEffect(() => {
+        newPriceAction()
+    }, [cart])
 
     const decimal = function (item) {
         setRealPrice(item.toFixed(2))
@@ -109,6 +112,8 @@ const Cart = () => {
         // { name: `${tonerOem}`, url: `/tonerChoice?oem=${tonerOem}` }
     ]
 
+    console.log(cart, "this is cart")
+    
     return (
         <div className={styles.main}>
 
@@ -181,15 +186,15 @@ const Cart = () => {
                                                         setTotal(0)
                                                         setCart(
 
-                                                            // cart.map((t) => {
-                                                            //     if (t.oem === toner.oem && t.quantity >= 1) {
-                                                            //         return {
-                                                            //             ...t,
-                                                            //             quantity: t.quantity - 1,
-                                                            //         };
-                                                            //     }
-                                                            //     return t;
-                                                            // })
+                                                            cart.map((t) => {
+                                                                if (t.oem === toner.oem && t.quantity >= 1) {
+                                                                    return {
+                                                                        ...t,
+                                                                        quantity: t.quantity - 1,
+                                                                    };
+                                                                }
+                                                                return t;
+                                                            })
                                                         );
                                                     }}
                                                     className={styles.plusButton}
@@ -255,7 +260,7 @@ const Cart = () => {
                         </div>
                         <div className={styles.buttonContainterB}>
                             <Link href={'/toner'}>
-                                <button onClick={() => { }} className={styles.buttonCheck}>
+                                <button style={{height:"42px"}} onClick={() => { }} className={styles.buttonCheck}>
 
                                     More Items
                                 </button>
