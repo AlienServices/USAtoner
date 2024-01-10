@@ -120,8 +120,7 @@ const TonerChoice = (props) => {
         setState(data.administrative_district_level_1);
         setZip(data.postal_code);
     }
-    // useEffect(() => {
-    //     debugger
+    // useEffect(() => {    
     //     if (orderId !== "") {
     //         getOrderData()
     //     }

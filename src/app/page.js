@@ -11,118 +11,6 @@ import Footer from "./components/Footer";
 import { useRouter } from "next/navigation";
 export default function Data() {
 
-  const [toners] = useState([
-    {
-      price: "81.50",
-      color: "Black",
-      name: "LEXMARK High Yield Black Return Program Toner Cartridge (25000 Yield)",
-      yield: "25000 Pages",
-      oem: "24B6511",
-      models: "XC6152, XC6153, XC8155",
-      image: "/static/blackLexmark.webp",
-    },
-    {
-      price: "219.41",
-      color: "Yellow",
-      name: "LEXMARK  Yellow Return Program Toner Cartridge (20000 Yield)",
-      yield: "20000 pages",
-      oem: "24B6510",
-      models: "XC6152, XC6153, XC8155",
-      image: "/static/yellowLexmark.webp",
-    },
-    {
-      price: "219.41",
-      color: "Cyan",
-      yield: "20000 pages",
-      name: "LEXMARK Cyan Return Program Toner Cartridge (20000 Yield)",
-      models: "20000",
-      oem: "24B6508",
-      models: "XC6152, XC6153, XC8155 ",
-      image: "/static/cyanLexmark.jpeg",
-    },
-    {
-      price: "219.41",
-      color: "Magenta",
-      name: "LEXMARK Magenta Return Program Toner Cartridge (20000 Yield)",
-      yield: "20000 pages",
-      oem: "24B6509",
-      models: "XC6152, XC6153, XC8155",
-      image: "/static/magentaLexmark.webp",
-    },
-    {
-      price: "117.54",
-      color: "Black",
-      name: "LEXMARK Extra High Yield Black Return Program Toner Cartridge (50000 Yield)",
-      yield: "50000",
-      oem: "24B6515",
-      models: "XC8160, XC8163",
-      image: "/static/blackLexmark.webp",
-    },
-    {
-      price: "352.62",
-      color: "Yellow",
-      name: "LEXMARK Extra High Yield Yellow Return Program Toner Cartridge (50000 Yield)",
-      yield: "50000 pages",
-      oem: "24B6514",
-      models: "XC8160, XC8163",
-      image: "/static/yellowLexmark.webp",
-    },
-    {
-      price: "352.62",
-      color: "Cyan",
-      name: "LEXMARK Extra High Yield Cyan Return Program Toner Cartridge (50000 Yield)",
-      yield: "50000 pages",
-      oem: "24B6512",
-      models: "XC8160, XC8163",
-      image: "/static/cyanLexmark.jpeg",
-    },
-    {
-      price: "352.62",
-      color: "Magenta",
-      name: "LEXMARK Extra High Yield Magenta Return Program Toner Cartridge (50000 Yield)",
-      yield: "50000 pages",
-      oem: "24B6513",
-      models: "XC8160, XC8163",
-      image: "/static/magentaLexmark.webp",
-    },
-    {
-      price: "120.3",
-      color: "Black",
-      name: "LEXMARK Black Toner Cartridge (9000 Yield). Save Time Money and the Environment with Genuine Lexmark Supplies.",
-      yield: "9000 pages",
-      oem: "24B7157",
-      models: "C2240, XC2235",
-      image: "/static/blackLexmark.webp",
-    },
-    {
-      price: "134.26",
-      color: "Yellow",
-      name: "LEXMARK Yellow Toner Cartridge (6000 Yield). Save Time Money and the Environment with Genuine Lexmark Supplies.",
-      yield: "6000",
-      oem: "24B7156",
-      models: "C2240, XC2235",
-      image: "/static/yellowLexmark.webp",
-    },
-    {
-      price: "134.26",
-      color: "Cyan",
-      name: "LEXMARK Cyan Toner Cartridge (6000 Yield). Save Time Money and the Environment with Genuine Lexmark Supplies.",
-      oem: "24B7154",
-      yield: "6000",
-      models: "C2240, XC2235",
-      image: "/static/cyanLexmark.jpeg",
-    },
-    {
-      price: "134.26",
-      color: "Magenta",
-      yield: "6000",
-      name: "LEXMARK Magenta Toner Cartridge (6000 Yield). Save Time Money and the Environment with Genuine Lexmark Supplies.",
-      oem: "24B7155",
-      models: "C2240, XC2235",
-      image: "/static/magentaLexmark.webp",
-    },
-  ]);
-
   const [name, setName] = useState("");
   const { cart, setCart, cartLook, setRealPrice, tonerOem } = useContext(CartContext);
   const [recaptchaResponse, setRecaptchaResponse] = useState(false);
@@ -189,6 +77,18 @@ export default function Data() {
       const data1 = await response.json();
       // console.log(data1.cancel, "this is the response")
       setToken(data1.cancel)
+      localStorage.setItem("token", JSON.stringify(data1.cancel))
+    } catch (err) {
+    }
+  }
+  async function test() {
+    const requestOptions = {
+      method: "GET",
+    }
+    try {
+      const response = await fetch('/api/models', requestOptions);
+      const data1 = await response.json();
+      console.log(data1.cancel, "this is the response")            
     } catch (err) {
     }
   }
@@ -197,12 +97,13 @@ export default function Data() {
   async function getProducts() {
     const requestOptions = {
       method: "POST",
+      body:  JSON.stringify({ token: token.accessToken, search: "" }) 
 
-      body: JSON.stringify(token.accessToken)
     }
     try {
       const response = await fetch('/api/products', requestOptions);
       const data1 = await response.json();
+      console.log(data1, "this is data1")
       console.log(data1.cancel.products, "this is the product response")
       setProducts(data1.cancel.products)
     } catch (err) {
@@ -221,6 +122,13 @@ export default function Data() {
       getProducts()
     }
   }, [token])
+
+
+
+
+
+
+
 
   return (
     <div className={styles.main}>
@@ -246,8 +154,8 @@ export default function Data() {
                 <Link href={'/contact'}>
                   <button className={styles.buttonBlue}>Get A Quote Now</button>
                   <button onClick={() => {
-                    getProducts()
-                  }} className={styles.buttonBlue}>testing</button>
+                    test()
+                  }} className={styles.buttonBlue}>Testing</button>
                 </Link>
               </div>
             </div>
@@ -296,7 +204,7 @@ export default function Data() {
                     ></Image>
                     <div className={styles.titleSmallBlack}>{toner.title}</div>
                     <div style={{ width: "100%" }}>
-                      <div style={{ paddingRight: "15px" }} className={styles.row}>
+                      <div className={styles.row}>
                         <div className={styles.row}>
                           <div
                             style={{
@@ -330,14 +238,6 @@ export default function Data() {
                         style={{ paddingTop: "10px" }}
                         className={styles.rowOem}
                       >
-                        <div
-                          style={{ paddingRight: "8px", paddingBottom: "5px" }}
-                          className={styles.priceMedium}
-                        >
-                          Models:
-                        </div>
-                        <div className={styles.modelSmall}>{toner.models}</div>
-
                       </div>
                     </div>
                     <Link
@@ -349,36 +249,38 @@ export default function Data() {
                       className={styles.somethingElse}
                       href={`/tonerChoice?oem=${toner.oem}`}
                     ></Link>
-                    <Link href={'/carts'}>
-                      <button className={styles.buttonBlue} onClick={() => {
-                        const updatedCart = [
-                          ...cart,
-                          {
-                            name: toner.title,
-                            oem: toner.oemNos[0].oemNo,
-                            price: toner.serviceLevels[0].price,
-                            quantity: 1,
-                            image: toner.images[0],
-                          },
-                        ];
-                        setCart(updatedCart)
-                      }}>Add to cart</button>
-                    </Link>
-                    <Link href={'/carts'}>
-                      <button className={styles.buttonBlue} onClick={() => {
-                        const updatedCart = [
-                          ...cart,
-                          {
-                            name: toner.name,
-                            oem: toner.oem,
-                            price: toner.price,
-                            // quantity: quantity,
-                            image: toner.image,
-                          },
-                        ];
-                        setCart(updatedCart)
-                      }}>Add to cart</button>
-                    </Link>
+                    <div style={{ width: "85%" }} className={styles.row}>
+                      <Link href={'/carts'}>
+                        <button className={styles.buttonBlue} onClick={() => {
+                          const updatedCart = [
+                            ...cart,
+                            {
+                              name: toner.title,
+                              oem: toner.oemNos[0].oemNo,
+                              price: toner.serviceLevels[0].price,
+                              quantity: 1,
+                              image: toner.images[0],
+                            },
+                          ];
+                          setCart(updatedCart)
+                        }}>Add to cart</button>
+                      </Link>
+                      <Link href={'/carts'}>
+                        <button style={{ backgroundColor: "rgb(131,208,130)" }} className={styles.buttonBlue} onClick={() => {
+                          const updatedCart = [
+                            ...cart,
+                            {
+                              name: toner.title,
+                              oem: toner.oemNos[0].oemNo,
+                              price: toner.serviceLevels[0].price,
+                              quantity: 1,
+                              image: toner.images[0],
+                            },
+                          ];
+                          setCart(updatedCart)
+                        }}>Add to cart</button>
+                      </Link>
+                    </div>
                   </div>
                 );
               })}
@@ -447,3 +349,15 @@ export default function Data() {
     </div >
   );
 }
+
+// import Toners from "./api/models/Toners"
+// (async () => {
+//   try{
+//     await Toners.create({name: "kale", email: "gmail.com"})
+//     await Toners.create({name: "jason", email: "j@gmail.com"})
+//     const toners = await Toner.findAll()
+//     console.log(toners, "these is tonersss")
+//   } catch(err){
+//     console.log(err)
+//   }
+// })

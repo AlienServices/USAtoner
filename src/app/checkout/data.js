@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState, useContext } from "react";
 import Header from "../components/Header";
 import axios from 'axios';
 import Image from "next/image";
-// import { CartContext } from "../../providers/cart";
+import { CartContext } from "../providers/cart/index";
 // import BreadCrumbs from "../components/BreadCrumbs";
 import Head from "next/head";
 import styles from "../styles/checkout.module.css";
@@ -11,6 +11,7 @@ import Footer from "../components/Footer";
 // import TawkMessengerReact from "@tawk.to/tawk-messenger-react";
 import { useRouter } from "next/navigation";
 const Checkout = (props) => {
+    const { cart, setCart, cartLook, setRealPrice, tonerOem, totalAmount } = useContext(CartContext);
     const router = useRouter()
     const [recaptchaResponse, setRecaptchaResponse] = useState(false);
     const [identity, setIdentity] = useState({});
@@ -49,6 +50,7 @@ const Checkout = (props) => {
     const [zip, setZip] = useState();
     const [items, setItems] = useState(false);
     const [message, setMessage] = useState("");
+    
     const tawkMessengerRef = useRef();
 
     // useEffect(() => {
@@ -141,9 +143,9 @@ const Checkout = (props) => {
 
     }, [])
 
-    // useEffect(() => {
-    //     setTotal(totalAmount - 2.99)
-    // }, [totalAmount])
+    useEffect(() => {
+        setTotal(totalAmount - 2.99)
+    }, [totalAmount])
 
 
     async function createDistribution() {
@@ -254,13 +256,13 @@ const Checkout = (props) => {
                     </div>
                 </> : <div className={styles.container}>
                         <div className={styles.title}>Toner Order</div>
-                        {/* <div className={styles.titleSmall}>${totalAmount}</div> */}
+                        <div className={styles.titleSmall}>${totalAmount}</div>
                         <div className={styles.line}></div>
                         <div className={styles.checkoutEighty}>
                             <div className={styles.beginning}>
                                 <div style={{ display: "flex" }}>
                                     <div style={{ paddingRight: "5px", paddingBottom: "10px", paddingTop: "10px" }} >ORDER SUMMARY</div>
-                                    {/* <div style={{ paddingTop: "10px" }}>({cart.length}) Item</div> */}
+                                    <div style={{ paddingTop: "10px" }}>({cart.length}) Item</div>
                                 </div>
                                 {items ? <></> : <div style={{ paddingTop: "10px", cursor: "pointer" }} onClick={() => {
                                     setHidden(!hidden)
@@ -270,7 +272,7 @@ const Checkout = (props) => {
 
 
                             <div>
-                                {/* {cart.map((item, index) => {
+                                {cart.map((item, index) => {
 
                                     return <div key={index} className={`${styles.dataResult} ${hidden ? styles.showing : styles.hidden}`}>
                                         <div style={{ display: "flex" }}>
@@ -279,7 +281,7 @@ const Checkout = (props) => {
                                         </div>
                                         <div className={styles.priceText}>${item.price * item.quantity}</div>
                                     </div>
-                                })} */}
+                                })}
                             </div>
 
                         </div>
@@ -295,7 +297,7 @@ const Checkout = (props) => {
                             </div>
                             <div className={styles.rowTop}>
                                 <div style={{ textAlign: "start" }}>Order Total:</div>
-                                {/* <div>${totalAmount}</div> */}
+                                <div>${totalAmount}</div>
                             </div>
                         </div>
 

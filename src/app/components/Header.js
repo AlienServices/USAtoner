@@ -28,7 +28,7 @@ export default function Header() {
             </div>
             <div className={styles.pieceContainer}>
               <Link href="/konika">
-                <div className={styles.headerPieces}>Konika</div>
+                <div className={styles.headerPieces}>Konica</div>
                 <div className={styles.lineSmall}></div>
               </Link>
             </div>
