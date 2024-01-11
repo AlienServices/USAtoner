@@ -75,53 +75,55 @@ export default function Data() {
     try {
       const response = await fetch('/api/email', requestOptions);
       const data1 = await response.json();
-      // console.log(data1.cancel, "this is the response")
-      setToken(data1.cancel)
+      console.log(data1.cancel, "this is the response")
+      
       localStorage.setItem("token", JSON.stringify(data1.cancel))
     } catch (err) {
     }
   }
-  async function test() {
-    const requestOptions = {
-      method: "GET",
-    }
-    try {
-      const response = await fetch('/api/models', requestOptions);
-      const data1 = await response.json();
-      console.log(data1.cancel, "this is the response")            
-    } catch (err) {
-    }
-  }
 
 
-  async function getProducts() {
-    const requestOptions = {
-      method: "POST",
-      body:  JSON.stringify({ token: token.accessToken, search: "" }) 
+  // async function test() {
+  //   const requestOptions = {
+  //     method: "GET",
+  //   }
+  //   try {
+  //     const response = await fetch('/api/models', requestOptions);
+  //     const data1 = await response.json();
+  //     console.log(data1.cancel, "this is the response")            
+  //   } catch (err) {
+  //   }
+  // }
 
-    }
-    try {
-      const response = await fetch('/api/products', requestOptions);
-      const data1 = await response.json();
-      console.log(data1, "this is data1")
-      console.log(data1.cancel.products, "this is the product response")
-      setProducts(data1.cancel.products)
-    } catch (err) {
-    }
-  }
-  useEffect(() => {
-    if (token?.cancel?.accessToken === undefined) {
-      getToken()
-    } else if (token?.cancel?.loginStatus) {
-      getToken()
-    }
-  }, [])
 
-  useEffect(() => {
-    if (token?.accessToken) {
-      getProducts()
-    }
-  }, [token])
+  // async function getProducts() {
+  //   const requestOptions = {
+  //     method: "POST",
+  //     body:  JSON.stringify({ token: token.accessToken, search: "" }) 
+
+  //   }
+  //   try {
+  //     const response = await fetch('/api/products', requestOptions);
+  //     const data1 = await response.json();
+  //     console.log(data1, "this is data1")
+  //     console.log(data1.cancel.products, "this is the product response")
+  //     setProducts(data1.cancel.products)
+  //   } catch (err) {
+  //   }
+  // }
+  // useEffect(() => {
+  //   if (token?.cancel?.accessToken === undefined) {
+  //     getToken()
+  //   } else if (token?.cancel?.loginStatus) {
+  //     getToken()
+  //   }
+  // }, [])
+
+  // useEffect(() => {
+  //   if (token?.accessToken) {
+  //     getProducts()
+  //   }
+  // }, [token])
 
 
 
@@ -154,7 +156,7 @@ export default function Data() {
                 <Link href={'/contact'}>
                   <button className={styles.buttonBlue}>Get A Quote Now</button>
                   <button onClick={() => {
-                    test()
+                    getToken()
                   }} className={styles.buttonBlue}>Testing</button>
                 </Link>
               </div>
