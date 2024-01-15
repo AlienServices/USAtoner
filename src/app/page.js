@@ -68,21 +68,6 @@ export default function Data() {
   };
 
 
-  async function getToken() {
-    const requestOptions = {
-      method: "POST",
-    }
-    try {
-      const response = await fetch('/api/email', requestOptions);
-      const data1 = await response.json();
-      console.log(data1.cancel, "this is the response")
-      
-      localStorage.setItem("token", JSON.stringify(data1.cancel))
-    } catch (err) {
-    }
-  }
-
-
   // async function test() {
   //   const requestOptions = {
   //     method: "GET",
@@ -96,41 +81,53 @@ export default function Data() {
   // }
 
 
-  // async function getProducts() {
-  //   const requestOptions = {
-  //     method: "POST",
-  //     body:  JSON.stringify({ token: token.accessToken, search: "" }) 
 
-  //   }
-  //   try {
-  //     const response = await fetch('/api/products', requestOptions);
-  //     const data1 = await response.json();
-  //     console.log(data1, "this is data1")
-  //     console.log(data1.cancel.products, "this is the product response")
-  //     setProducts(data1.cancel.products)
-  //   } catch (err) {
-  //   }
-  // }
-  // useEffect(() => {
-  //   if (token?.cancel?.accessToken === undefined) {
-  //     getToken()
-  //   } else if (token?.cancel?.loginStatus) {
-  //     getToken()
-  //   }
-  // }, [])
+  async function getToken() {    
+    const requestOptions = {
+      method: "POST",
+    }
+    try {
+      const response = await fetch('/api/token', requestOptions);
+      const data1 = await response.json();
+      setToken(data1.cancel.accessToken)
+      console.log(data1, "data ran")
+      localStorage.setItem("token", JSON.stringify(data1.cancel))
+    } catch (err) {
+    }
+  }
 
-  // useEffect(() => {
-  //   if (token?.accessToken) {
-  //     getProducts()
-  //   }
-  // }, [token])
+  async function getProducts() {
+    const aToken = JSON.parse(localStorage.getItem("token"))
+    console.log(aToken, "this is a token we need")
+    // aToken = localStorage.getItem("token")
+
+    const requestOptions = {
+      method: "POST",
+      body: JSON.stringify({ token: aToken.accessToken, search: "" })
+
+    }
+    try {
+      const response = await fetch('/api/products', requestOptions);
+      const data1 = await response.json();
+      console.log(data1, "this is data1")
+      console.log(data1.cancel.products, "this is the product response")
+      setProducts(data1.cancel.products)
+    } catch (err) {
+    }
+  }
+
+  useEffect(() => {
+    if (token?.cancel?.accessToken === undefined) {      
+      getToken()
+    } else if (token?.cancel?.loginStatus) {
+      getToken()
+    }
+  }, [])
 
 
-
-
-
-
-
+  useEffect(() => {        
+      getProducts()    
+  }, [token])
 
   return (
     <div className={styles.main}>

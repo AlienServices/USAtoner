@@ -15,6 +15,7 @@ export default function Data() {
   const [recaptchaResponse, setRecaptchaResponse] = useState(false);
   const [products, setProducts] = useState("");
   const [email, setEmail] = useState("");
+  const [inputData, setInputData] = useState("");
   const [number, setNumber] = useState("");
   const [message, setMessage] = useState("this is the test message");
   const tawkMessengerRef = useRef();
@@ -67,6 +68,25 @@ export default function Data() {
       }
     });
   };
+  async function search() {
+    const requestOptions = {
+      method: "POST",
+
+      body:
+        JSON.stringify({
+          token: token.accessToken,
+          search: inputData
+        })
+
+    }
+    try {
+      const response = await fetch('/api/products', requestOptions);
+      const data1 = await response.json();
+      console.log(data1.cancel.products, "this is the product response")
+      setProducts(data1.cancel.products)
+    } catch (err) {
+    }
+  }
 
   async function getProducts() {
     const requestOptions = {
@@ -75,7 +95,7 @@ export default function Data() {
       body:
         JSON.stringify({
           token: token.accessToken,
-          search: "Konica"
+          search: "Brother"
         })
 
     }
@@ -137,10 +157,15 @@ export default function Data() {
           <div className={styles.line}></div>
         </div>
         <div className={styles.center}>
-        <div className={styles.beginning}>
+          <div className={styles.beginning}>
             <div className={styles.flexSmall}>
               <BestSellers />
-              <input className={styles.search} placeholder="OEM or Name"></input>
+              <input onChange={(event) => {
+                setInputData(event.target.value)
+              }} onKeyDown={(e) => {
+                if (e.key === "Enter")
+                  search()
+              }} className={styles.search} placeholder="OEM or Name"></input>
             </div>
           </div>
           <div className={styles.boxContainer}>

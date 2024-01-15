@@ -19,13 +19,7 @@ export default function Header() {
                   fill={true}
                 />
               </Link>
-            </div>
-            <div className={styles.pieceContainer}>
-              <Link href="/epson">
-                <div className={styles.headerPieces}>Epson</div>
-                <div className={styles.lineSmall}></div>
-              </Link>
-            </div>
+            </div>            
             <div className={styles.pieceContainer}>
               <Link href="/konika">
                 <div className={styles.headerPieces}>Konica</div>

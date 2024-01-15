@@ -498,6 +498,22 @@ padding-left: 8px
   display: flex;
   justify-content: space-around;
 }
+.beginning{
+  width: 88%;
+  display: flex;
+  justify-content: left;
+}
+.flexSmall{
+  display: flex;
+  height: 15vh;
+  width: 68%;
+  align-items: center;
+}
+.iconFlex{
+  display: flex;
+  width: 250px;
+  justify-content: space-around;
+}
 .flexCenter{
   display: flex;
   align-items: center;
@@ -563,6 +579,13 @@ padding-left: 8px
   padding: 1px;
   width: 100%;
   padding: 5px;
+}
+.search{
+  border-radius: 100px;
+  padding: 18px;
+  height: 70px;
+  font-size: 20px;
+  width: 550px
 }
 .buttonBlue {
   appearance: none;
