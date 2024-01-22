@@ -13,6 +13,7 @@ export const CartProvider = ({ children }) => {
   let [totalAmount, setTotalAmount] = useState();
 
   useEffect(() => {
+    
     if (cart.length > 0) {
       localStorage.setItem("cart", JSON.stringify(cart))
     }

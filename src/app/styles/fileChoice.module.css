@@ -304,9 +304,7 @@
   .titleSmall{
     font-size: 20px;
     font-weight: 300;
-    display: flex;
-    justify-content: space-evenly;
-    
+    display: flex;    
     line-height: 25px;
     color: rgb(138, 138, 138);
     padding-bottom: 5px;
@@ -383,7 +381,7 @@
 
   @media(max-width: 700px) {
     .center{
-      flex-direction: column-reverse;
+      flex-direction: column;
       width: 100%;
     }
     .centerFeature{

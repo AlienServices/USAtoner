@@ -102,7 +102,7 @@ export default function Data() {
       <div className={styles.secondSection}>
         <div className={styles.flexSomething}>
           <div className={styles.flex}>
-            <div className={styles.mainContainer}>
+          <div className={styles.mainContainer}>
               <div className={styles.buttonCenter}>
                 <div className={styles.bubble}>
                   USA Toner
@@ -113,14 +113,30 @@ export default function Data() {
                   HP Toner Cartridges
                 </div>
               </h1>
-              <div className={styles.paragraphSmall}>
-                We provide the highest quality HP Toner cartidges
-              </div>
-              <div className={styles.buttonCenter}>
-                <Link href={'/buy'}>
-                  <button className={styles.buttonBlue}>Get A Quote Now</button>
-                </Link>
-              </div>
+              {/* <select name="dog-names" id="dog-names">
+                <option value="rigatoni">Choose a brand</option>
+                <option value="rigatoni">Konica</option>
+                <option value="dave">Dell</option>
+                <option value="pumpernickel">Lexmark</option>
+                <option value="reeses">HP</option>
+              </select>
+              <select name="dog-names" id="dog-names">
+                <option value="rigatoni">Choose a Model</option>
+                <option value="rigatoni">Rigatoni</option>
+                <option value="dave">Dave</option>
+                <option value="pumpernickel">Pumpernickel</option>
+                <option value="reeses">Reeses</option>
+              </select>               */}
+              <input onChange={(event) => {
+                setInputData(event.target.value)
+              }} onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  window.location.replace('http://localhost:3000/#toner')
+                  search()
+
+                }
+
+              }} className={styles.search} placeholder="Shop by OEM, Brand, or Model"></input>
             </div>
 
             <div className={styles.displayNone}>
@@ -138,17 +154,7 @@ export default function Data() {
           <div className={styles.line}></div>
         </div>
         <div className={styles.center}>
-          <div className={styles.beginning}>
-            <div className={styles.flexSmall}>
-              <BestSellers />
-              <input onChange={(event) => {
-                setInputData(event.target.value)
-              }} onKeyDown={(e) => {
-                if (e.key === "Enter")
-                  search()
-              }} className={styles.search} placeholder="OEM or Name"></input>
-            </div>
-          </div>
+          
           <div className={styles.boxContainer}>
             {products && <>
 

@@ -10,6 +10,15 @@
     flex-direction: column;
     object-fit: cover;
   }
+  .bigInput{
+    border-radius: 25px;
+    width: 50%;
+    padding: 15px;
+    border: 1px solid black;     
+  }
+  .bigInput:focus{
+    outline: none;
+  }
   .Flex{
     display: flex;
     padding: 40px;

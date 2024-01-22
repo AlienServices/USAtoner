@@ -4,12 +4,14 @@
   color: black;
   background-color: white;
 }
-.boxContainer{
+
+.boxContainer {
   display: flex;
   justify-content: space-evenly;
   width: 100%;
 }
-.logoSpace {  
+
+.logoSpace {
   height: 30%;
   width: 90%;
   display: flex;
@@ -20,16 +22,16 @@
 .buttonBlue {
   appearance: none;
   margin-top: 20px;
-  color: rgb(2,50,92);
+  color: rgb(2, 50, 92);
   background-color: white;
-  border: 1px solid rgb(2,50,92);
+  border: 1px solid rgb(2, 50, 92);
   border-radius: 6px;
   box-shadow: rgba(27, 31, 35, .1) 0 1px 0;
   box-sizing: border-box;
   cursor: pointer;
   width: 75%;
   display: inline-block;
-  font-family: -apple-system,system-ui,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
+  font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
   font-size: 14px;
   font-weight: 600;
   line-height: 20px;
@@ -43,17 +45,18 @@
   vertical-align: middle;
   white-space: nowrap;
 }
+
 .button {
   appearance: none;
   margin-top: 20px;
-  color: rgb(2,50,92);
+  color: rgb(2, 50, 92);
   background-color: white;
   border-radius: 10px;
   box-sizing: border-box;
   cursor: pointer;
   width: 150px;
   display: inline-block;
-  font-family: -apple-system,system-ui,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
+  font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
   font-size: 14px;
   font-weight: 600;
   line-height: 20px;
@@ -65,11 +68,13 @@
   -webkit-user-select: none;
   touch-action: manipulation;
   vertical-align: middle;
-  
+
 }
+
 .button:disabled {
   opacity: 0.5;
 }
+
 .phoneNumber {
   background-color: transparent;
   outline: none;
@@ -79,19 +84,21 @@
   width: 100%;
   font-size: 20px;
 }
+
 .phoneNumber:focus {
   border: none;
 }
 
 .center {
   display: flex;
+  min-height: 700px;
   flex-direction: column;
   height: 100%;
-  padding: 20px;
+  padding: 50px;
   width: 100%;
   font-size: 40px;
   font-weight: 400;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: flex-end;
   letter-spacing: 1.5px;
 }
@@ -145,6 +152,7 @@
   display: flex;
   flex-direction: column-reverse;
 }
+
 .paragraphContainerBottom {
   display: flex;
   flex-direction: column;
@@ -164,6 +172,7 @@
   font-size: 25px;
   font-weight: 200;
 }
+
 .paragraphReview {
   color: black;
   text-align: center;
@@ -171,7 +180,8 @@
   line-height: 30px;
   font-weight: 200;
 }
-.starRow{
+
+.starRow {
   display: flex;
   align-items: center;
   justify-content: space-evenly;
@@ -205,9 +215,11 @@
   flex-direction: column;
   justify-content: space-evenly;
 }
-.buttonCenter{
+
+.buttonCenter {
   width: 50%;
 }
+
 .repair {
   background-image: url("/static/tech.webp");
   height: 30vh;
@@ -275,8 +287,7 @@
   border-radius: 10px;
 }
 
-.shade:hover {
-}
+.shade:hover {}
 
 .sectionBig {
   box-shadow: 1px 1px 9px gray;
@@ -319,6 +330,7 @@
   text-align: center;
   letter-spacing: 1.5px;
 }
+
 .copiersTitle {
   font-size: 25px;
   font-weight: 500;
@@ -330,23 +342,28 @@
   text-align: center;
   letter-spacing: 1.5px;
 }
+
 .homepageTitle {
   font-weight: 700;
   padding-bottom: 15px;
   width: 100%;
   font-size: 50px;
 }
-.serviceTitle{
+
+.serviceTitle {
   font-size: 25px;
   padding: 20px;
   font-weight: 600;
 }
-.serviceParagraph{
+
+.serviceParagraph {
   font-weight: 300;
-  padding:10px;
+  padding: 10px;
 }
-.box{
+
+.box {
   width: 350px;
+  min-height: 430px;
   display: flex;
   justify-content: space-evenly;
   flex-direction: column;
@@ -355,7 +372,8 @@
   border-radius: 20px;
   box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
-.boxReview{
+
+.boxReview {
   width: 300px;
   display: flex;
   justify-content: space-evenly;
@@ -365,35 +383,41 @@
   height: 250px;
   border-radius: 15px;
 }
-.boxReview div{
+
+.boxReview div {
   color: black;
   padding: 5px
 }
 
-.box div{
+.box div {
   color: black;
 }
-.centerStuff{
-  text-align: center;    
+
+.centerStuff {
+  text-align: center;
 }
-.blue{
-color: rgb(2,50,92); 
-padding-left: 15px 
+
+.blue {
+  color: rgb(2, 50, 92);
+  padding-left: 15px
 }
-.blueSmall{
-color: rgb(2,50,92); 
-padding-left: 8px 
+
+.blueSmall {
+  color: rgb(2, 50, 92);
+  padding-left: 8px
 }
+
 .titleBig {
   color: black;
   font-size: 50px;
-  display: flex; 
-  justify-content: center; 
+  display: flex;
+  justify-content: center;
   padding: 30px;
   text-align: center;
   padding-top: 20px;
   letter-spacing: 1.5px;
 }
+
 .titleMed {
   color: black;
   font-size: 35px;
@@ -448,6 +472,7 @@ padding-left: 8px
   align-items: center;
   width: 100%;
 }
+
 .rowSpaced {
   display: flex;
   justify-content: space-around;
@@ -462,7 +487,8 @@ padding-left: 8px
   width: 100%;
   height: 30vh;
 }
-.paddingSmall{
+
+.paddingSmall {
   padding: 10px;
 }
 
@@ -471,20 +497,25 @@ padding-left: 8px
   height: 350px;
   background-color: white;
 }
-.mainContainer{
-  width: 60%;
+
+.mainContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  height: 35%;
 }
 
-.paragraphSmall{
+.paragraphSmall {
   font-size: 14px;
   width: 80%;
   font-weight: 200;
   line-height: 30px;
 }
-.bubble{
+
+.bubble {
   padding: 8px;
   margin-bottom: 25px;
-  background-color: rgb(24,75,125);
+  background-color: rgb(24, 75, 125);
   width: fit-content;
   border-radius: 25px;
 }
@@ -498,26 +529,30 @@ padding-left: 8px
   display: flex;
   justify-content: space-around;
 }
-.beginning{
+
+.beginning {
   width: 88%;
   display: flex;
   justify-content: left;
 }
-.flexSmall{
+
+.flexSmall {
   display: flex;
-  height: 15vh;
-  width: 68%;
+  height: 15vh;  
   align-items: center;
 }
-.iconFlex{
+
+.iconFlex {
   display: flex;
   width: 250px;
   justify-content: space-around;
 }
-.flexCenter{
+
+.flexCenter {
   display: flex;
   align-items: center;
 }
+
 .flexSomething {
   display: flex;
   background-image: url("/static/hompage.webp");
@@ -528,69 +563,87 @@ padding-left: 8px
   justify-content: center;
   width: 100%;
 }
-.somethingElse{
+
+.somethingElse {
   display: flex;
-  width: 96%;
-  height: 100%;
+  /* width: 96%;
+  height: 100%; */
   flex-direction: column;
   justify-content: space-evenly;
   align-items: center;
 }
-.priceMedium{
+
+.priceMedium {
   font-size: 16px;
   font-weight: 400;
-  color: rgb(47,51,63);
+  color: rgb(47, 51, 63);
 }
-.modelSmallish{
+
+.modelSmallish {
   font-size: 15px;
-  
-  color: rgb(47,51,63);
+
+  color: rgb(47, 51, 63);
 }
-.rowOem{
+
+.audioContainer {
+  display: flex;
+  width: 100vw;
+  justify-content: center;
+}
+
+.rowOem {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
 }
-.modelSmall{
+
+.modelSmall {
   font-size: 16px;
-  color: rgb(47,51,63);
+  color: rgb(47, 51, 63);
 }
-.priceSmall{
+
+.priceSmall {
   font-size: 18px;
   font-weight: 500;
-  color: rgb(47,51,63);
+  color: rgb(47, 51, 63);
 }
-.price{
+
+.price {
   font-size: 18px;
   font-weight: 500;
-  color: rgb(47,51,63);
+  color: rgb(47, 51, 63);
 }
-.row{
+
+.row {
   display: flex;
   align-items: center;
   width: 100%;
   height: 55%;
 }
-.titleSmallBlack{
+
+.titleSmallBlack {
   font-size: 16px;
   font-weight: 400;
   color: black;
   padding: 1px;
+  word-wrap: break-word;
   width: 100%;
   padding: 5px;
 }
-.search{
+
+.search {
   border-radius: 100px;
   padding: 18px;
   height: 70px;
   font-size: 20px;
   width: 550px
 }
+
 .buttonBlue {
   appearance: none;
   border: none;
-  background-color: rgb(1,51,93);
+  background-color: rgb(1, 51, 93);
   width: 100%;
   box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
   border: none;
@@ -608,7 +661,11 @@ padding-left: 8px
   text-decoration: none;
   will-change: transform;
 }
-.box{
+.width{
+  width: 80%;
+}
+
+.box {
   width: 350px;
   display: flex;
   border-radius: 20px;
@@ -617,33 +674,37 @@ padding-left: 8px
   align-items: center;
   flex-direction: column;
   height: fit-content;
-  padding: 15px;
+  padding: 5px;
   /* box-shadow: rgba(0, 0, 0, 0.15) 0px 15px 25px, rgba(0, 0, 0, 0.05) 0px 5px 10px; */
-  
+
 }
-.boxContainer{
+
+.boxContainer {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   column-gap: 20px;
   width: 90%;
   justify-items: center;
   gap: 15px;
-  
+
 }
-.center{
+
+.center {
   display: flex;
   justify-content: space-evenly;
   align-items: center;
   height: fit-content;
-  padding-bottom: 20px ;
+  padding-bottom: 20px;
   width: 100%;
 }
-.background{
+
+.background {
   display: flex;
   justify-content: center;
   width: 50%;
 }
-.side{
+
+.side {
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -696,7 +757,8 @@ padding-left: 8px
   font-size: 25px;
   color: black;
 }
-.bottomRow{
+
+.bottomRow {
   display: flex;
   align-items: center;
 }
@@ -708,6 +770,15 @@ padding-left: 8px
   background-color: transparent;
   border-color: rgb(169, 172, 173);
   font-size: 17px;
+}
+.bigInput{
+  margin: 15px;
+  border-radius: 35px;
+  width: 80%;
+  font-size: 20px;
+  height: 70px;
+  padding: 15px;
+  border: 2px solid black;     
 }
 
 .numberContainer {
@@ -731,20 +802,23 @@ padding-left: 8px
   border-bottom: 1px solid black;
   color: black;
 }
-.copierRow{
+
+.copierRow {
   display: flex;
   width: 80%;
-    justify-content: space-evenly;
+  justify-content: space-evenly;
 }
-.imageContainerSmall{
+
+.imageContainerSmall {
   width: 126px;
   height: 164px;
   position: relative;
 }
+
 .copierContainer {
   display: flex;
   flex-direction: column;
-  border: 1px solid rgb(214,215,227);
+  border: 1px solid rgb(214, 215, 227);
   border-radius: 25px;
   width: 250px;
   height: 350px;
@@ -753,7 +827,8 @@ padding-left: 8px
   justify-content: space-evenly;
   align-items: center;
 }
-.iconContainer{
+
+.iconContainer {
   position: relative;
   height: 50px;
   width: 50px;
@@ -805,6 +880,7 @@ padding-left: 8px
   display: flex;
   align-items: center;
 }
+
 .cartoon {
   background-image: url("/static/copierCartoon.webp");
   height: 65vh;
@@ -822,18 +898,21 @@ padding-left: 8px
   display: flex;
   justify-content: center;
 }
-.whoBox{
+
+.whoBox {
   height: 250px;
   width: 400px;
   border-radius: 15px;
   border: 1px solid black;
 }
-.sectionMedium{
+
+.sectionMedium {
   height: 500px;
   display: flex;
   width: 100%;
   justify-content: space-evenly;
 }
+
 .fourthSection {
   height: 550px;
   background-color: white;
@@ -852,7 +931,7 @@ padding-left: 8px
   color: rgb(119, 119, 119);
 }
 
-.reviewSection{
+.reviewSection {
   height: 600px;
   width: 80%;
   display: flex;
@@ -860,6 +939,7 @@ padding-left: 8px
   justify-content: space-evenly;
   align-items: center;
 }
+
 .contactHeader {
   background-color: white;
   width: 100%;
@@ -871,10 +951,11 @@ padding-left: 8px
   height: 7.5vh;
   object-fit: cover;
 }
-.tonerTitle{
-font-size: 35px;
- font-weight: 600; 
- width: 55%
+
+.tonerTitle {
+  font-size: 35px;
+  font-weight: 600;
+  width: 55%
 }
 
 .pieceContainer {
@@ -945,6 +1026,7 @@ font-size: 35px;
   display: flex;
   justify-content: center;
 }
+
 .copiersLine {
   height: 1px;
   width: 30%;
@@ -982,7 +1064,8 @@ font-size: 35px;
   font-weight: 700;
   font-size: 30px;
 }
-.customerTitle{
+
+.customerTitle {
   color: black;
   display: flex;
   font-size: 35px;
@@ -1036,11 +1119,13 @@ font-size: 35px;
   display: flex;
   flex-direction: column;
 }
+
 .thirdSectionRow {
   display: flex;
   align-items: center;
   width: 100%;
 }
+
 .h3 {
   font-size: 17px;
   color: black;
@@ -1049,6 +1134,7 @@ font-size: 35px;
   padding: 12px;
   letter-spacing: 1.5px;
 }
+
 .front {
   display: flex;
   height: 75%;
@@ -1058,16 +1144,19 @@ font-size: 35px;
 }
 
 @media(max-width: 1200px) {
-  .paragraphSmall{
+  .paragraphSmall {
     width: 100%;
   }
-  .homepageTitle{
+
+  .homepageTitle {
     font-size: 27px;
   }
-  .serviceTitle{
+
+  .serviceTitle {
     font-size: 20px;
   }
-  .box{
+
+  .box {
     height: 300px;
     width: 250px;
   }
@@ -1077,57 +1166,73 @@ font-size: 35px;
   .mediumColumn {
     flex-direction: column;
   }
-  .bottomRow{
+
+  .bottomRow {
     flex-direction: column;
     align-items: center;
   }
 }
+
 @media (max-width: 1000px) {
   .container {
     width: 50vw;
   }
-  .sectionMedium{
+
+  .sectionMedium {
     align-items: center;
     height: 800px;
   }
+
   .main {
     height: fit-content;
   }
+  
+
   .flex {
     align-items: center;
-    height: 600px;
+    height: 450px;
   }
+
   .secondSection {
     align-items: center;
     height: fit-content;
     width: 100%;
   }
-  .copiersTitle{
+
+  .copiersTitle {
     width: 30%;
   }
+
   .shadeBig {
     width: fit-content;
   }
+
   .woman {
     height: 55vh;
     width: 64vw;
     margin-left: 0px;
   }
+
   .toner {
     width: 35vw;
   }
+
   .repair {
     width: 35vw;
   }
+
   .construction {
     width: 35vw;
   }
+
   .itWork {
     width: 35vw;
   }
+
   .somethingContainer {
     width: 76%;
   }
+
   .shadeBig:hover {
     padding: 10px;
     padding-bottom: 10px;
@@ -1136,48 +1241,59 @@ font-size: 35px;
 }
 
 @media (max-width: 950px) {
-  .displayNoneSmall{
+  .displayNoneSmall {
     display: none;
   }
-  .side{
+
+  .side {
     width: 100%;
   }
+
   .cartoon {
     height: 46vh;
     width: 41vw;
   }
-  .serviceParagraph{
+
+  .serviceParagraph {
     font-size: 15px;
   }
-  .needSpace{
+
+  .needSpace {
     width: 98%;
   }
-  .customerTitle{
+
+  .customerTitle {
     font-size: 25px;
   }
+
   .front {
     height: 63%;
   }
+
   .container {
     margin: 10px;
     width: 50vw;
   }
-  .displayNone{
+
+  .displayNone {
     display: none;
   }
- 
-  .homepageTitle{
+
+  .homepageTitle {
     width: 100%;
     text-align: center
   }
-  .mainContainer{
+
+  .mainContainer {
     width: 75%;
   }
-  .paragraphSmall{
-    width: 100% ;
+
+  .paragraphSmall {
+    width: 100%;
     text-align: center;
   }
-  .buttonCenter{
+
+  .buttonCenter {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -1185,23 +1301,27 @@ font-size: 35px;
   }
 }
 
-@media(max-width: 800px){
-  .box{
+@media(max-width: 800px) {
+  .box {
     height: 250px;
     width: 200px;
   }
 }
+
 @media (max-width: 700px) {
   .container {
     width: 45vw;
     font-size: 27px;
   }
-  .row{
-    flex-direction: column;
+
+  .row {
+    /* flex-direction: column; */
     justify-content: space-evenly;
-    height: 700px;
+    height: fit-content;
+    /* height: 700px; */
   }
-  .needSpace{
+
+  .needSpace {
     height: 750px;
     justify-content: space;
   }
@@ -1214,18 +1334,22 @@ font-size: 35px;
     width: 80vw;
     font-size: 27px;
   }
-  .needSpace{
+
+  .needSpace {
     height: fit-content;
   }
+
   .columnContainer {
     flex-direction: column;
     align-items: flex-end;
     text-align: end;
   }
-  .customerTitle{
+
+  .customerTitle {
     font-size: 20px;
   }
-  .boxReview{
+
+  .boxReview {
     margin: 10px;
   }
 
@@ -1233,138 +1357,195 @@ font-size: 35px;
     width: 95%;
     justify-content: space-around;
   }
+
   .container {
     width: 85vw;
   }
 }
 
 @media (max-width: 790px) {
+  .center{
+    padding: 20px;
+  }
+  .boxContainer{
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
   .woman {
     width: 100%;
   }
-  .customerTitle{
+
+  .customerTitle {
     font-size: 13px;
     padding-bottom: 10px;
   }
-  .customerTitleLarge{
+
+  .customerTitleLarge {
     font-size: 20px;
     padding-bottom: 10px;
   }
+
   .toner {
     width: 45vw;
   }
+
   .construction {
     width: 45vw;
   }
+
   .itWork {
     width: 45vw;
   }
+
   .repair {
     width: 45vw;
   }
+
   .somethingContainer {
     width: 87%;
   }
+
   .centerLarge {
     font-size: 45px;
   }
 }
 
 @media (max-width: 600px) {
-  .hideBox{
+  /* .price{
+    font-size: 16px;
+  } */
+  .centerFont{
+    font-size: 16px;
+  }
+  .search{
+    width: 100%;    
+  }
+  .hideBox {
     display: none;
   }
-  .box{
-    width: 175px;
-    height: 200px;
+
+  .box {
+    /* flex-direction: row; */
+    min-height: 200px;
+    justify-content: center;
+    width: 100%;
+    height: fit-content;
+    padding: 20px;
   }
-  .iconContainer{
+
+  .iconContainer {
     width: 45px;
     height: 45px;
   }
-  .buttonContainer{
+
+  .buttonContainer {
     width: 45%;
   }
-  .tonerTitle{
+
+  .tonerTitle {
     font-size: 35px;
-    font-weight: 600; 
-     width: 95%
-    }
-  .mainContainer{
+    font-weight: 600;
+    width: 95%
+  }
+
+  .mainContainer {
     width: 100%;
   }
-  .row div{
-    font-size: 10px;
+
+  .row div {
+    font-size: 16px;
   }
-  .reviewSection{
+
+  .reviewSection {
     height: 450px;
   }
-  .paragraphReview{
+
+  .paragraphReview {
     font-size: 12px;
     line-height: 17px;
   }
+
   .infoMedium {
     font-size: 17px;
   }
-  .copierRow{
+
+  .copierRow {
     flex-direction: column;
     align-items: center;
     height: fit-content;
   }
-  .fourthSection{
+
+  .fourthSection {
     height: 1300px;
     justify-content: space-evenly;
   }
-  .centerReview{
+
+  .centerReview {
     align-items: flex-end;
   }
-  .titleMed{
+
+  .titleMed {
     font-size: 27px;
     padding-bottom: 10px;
   }
+
   .reviewBig {
     font-size: 20px;
   }
+
   .titleSmall {
     line-height: 21px;
     font-size: 13px;
   }
-  .copierRow{
+
+  .copierRow {
     height: 1250px;
   }
+
   .middle {
     height: 55%;
   }
+
   .thirdSectionRow {
     flex-direction: column;
   }
+
   .cartoon {
     width: 63vw;
     height: 39vh;
   }
+
   .title {
     font-size: 19px;
   }
+
   .secondSection {
     height: fit-content;
-  } 
-  .section{
+  }
+
+  .section {
     height: 350px;
   }
+
   .middle {
     height: 15%;
   }
+
   .front {
     height: 47%;
   }
+
   .infoBig {
     font-size: 25px;
   }
-  .woman{
+
+  .woman {
     margin-left: 0px;
   }
-  .row{
-    height: 500px;
+
+  .row {
+    font-size: 16px;
+    /* height: 500px; */
   }
 
 }

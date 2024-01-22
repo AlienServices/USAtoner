@@ -13,7 +13,7 @@ import Footer from "../components/Footer";
 const Cart = () => {
     const [recaptchaResponse, setRecaptchaResponse] = useState(false);
     const [name, setName] = useState("");
-    const [orderId, setOrderId] = useState("");    
+    const [orderId, setOrderId] = useState("");
     const { cart, setCart, cartLook, setRealPrice, tonerOem } = useContext(CartContext);
     const [noChange, setFalse] = useState(false);
     const [something, setSomething] = useState(false);
@@ -113,7 +113,7 @@ const Cart = () => {
     ]
 
     console.log(cart, "this is cart")
-    
+
     return (
         <div className={styles.main}>
 
@@ -152,22 +152,21 @@ const Cart = () => {
                                             <Image alt={"image of toner"} src={toner.image} width={150} height={150} />
                                         </div>
                                         <div className={styles.priceBox}>
-                                            <div className={styles.cartTitle}>{toner.name}</div>
+                                            <div className={styles.cartTitle}>{toner.title}</div>
                                             <div
                                                 className={styles.oemContainer}
                                             >
                                                 <div
                                                     style={{
                                                         color: "black",
-                                                        fontSize: "15px",
-                                                        fontWeight: "600",
+                                                        fontSize: "23px",
+                                                        fontWeight: "500",
                                                         paddingRight: "8px",
                                                     }}
                                                 >
                                                     OEM:
                                                 </div>
-                                                <div style={{ color: "black", fontSize: "14px" }}>
-                                                    {" "}
+                                                <div style={{ color: "black", fontSize: "16px" }}>
                                                     {toner.oem}
                                                 </div>
                                             </div>
@@ -259,10 +258,10 @@ const Cart = () => {
                             </div>
                         </div>
                         <div className={styles.buttonContainterB}>
-                            <Link href={'/toner'}>
-                                <button style={{height:"42px"}} onClick={() => { }} className={styles.buttonCheck}>
+                            <Link href={'/'}>
+                                <button style={{ height: "42px" }} onClick={() => { }} className={styles.buttonCheck}>
 
-                                    More Items
+                                    Add More Items
                                 </button>
                             </Link>
                             <Link href={'/checkout'}>
