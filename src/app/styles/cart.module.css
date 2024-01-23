@@ -841,6 +841,9 @@
   }
   
   @media (max-width: 640px) {
+    .mainTitleBig{
+      font-size: 35px;
+    }
     .woman {
       display: none;
     }

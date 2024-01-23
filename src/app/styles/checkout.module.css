@@ -932,6 +932,15 @@
   }
   
   @media (max-width: 640px) {
+    .bottomMain{
+      padding: 30px;
+    }
+    .paddingBottom{
+      display: flex;
+      flex-direction: column;
+      width: 80%;
+      padding-bottom: 15px;
+    }
     .woman {
       display: none;
     }

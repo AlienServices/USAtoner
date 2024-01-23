@@ -183,7 +183,7 @@ const Checkout = (props) => {
 
                 stuff: cart.map((item) => {
                     return {
-                        name: item.name,
+                        name: item.title,
                         qty: item.quantity,
                         price: item.price
                     }
@@ -220,7 +220,7 @@ const Checkout = (props) => {
                 email: email,
                 toner: cart.map((item) => {
                     return {
-                        name: item.name,
+                        name: item.title,
                     }
                 }),
 
@@ -277,7 +277,7 @@ const Checkout = (props) => {
                                     return <div key={index} className={`${styles.dataResult} ${hidden ? styles.showing : styles.hidden}`}>
                                         <div style={{ display: "flex" }}>
                                             <div className={styles.quantityText}>({item.quantity})</div>
-                                            <div style={{ fontSize: "12px" }}>{item.name}</div>
+                                            <div style={{ fontSize: "12px" }}>{item.title}</div>
                                         </div>
                                         <div className={styles.priceText}>${item.price * item.quantity}</div>
                                     </div>
@@ -303,7 +303,7 @@ const Checkout = (props) => {
 
                         <div className={styles.line}></div>
                         <div style={{ width: "80%", fontSize: "17px", paddingTop: "10px", paddingBottom: "10px" }} className={styles.titleSmall}>Contact</div>
-                        <div style={{ paddingBottom: "20px" }} >
+                        <div className={styles.paddingBottom} >
                             <div style={{ paddingBottom: "20px" }} className={styles.row}>
                                 <input onChange={(event) => {
                                     setFirstName(event.target.value)
