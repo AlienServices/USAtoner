@@ -172,20 +172,6 @@ export default function Data() {
                   Shop from our American Made toners
                 </div>
               </h1>
-              {/* <select name="dog-names" id="dog-names">
-                <option value="rigatoni">Choose a brand</option>
-                <option value="rigatoni">Konica</option>
-                <option value="dave">Dell</option>
-                <option value="pumpernickel">Lexmark</option>
-                <option value="reeses">HP</option>
-              </select>
-              <select name="dog-names" id="dog-names">
-                <option value="rigatoni">Choose a Model</option>
-                <option value="rigatoni">Rigatoni</option>
-                <option value="dave">Dave</option>
-                <option value="pumpernickel">Pumpernickel</option>
-                <option value="reeses">Reeses</option>
-              </select>               */}
               <input onChange={(event) => {
                 setInputData(event.target.value)
               }} onKeyDown={(e) => {
@@ -214,15 +200,7 @@ export default function Data() {
         <section id={"toner"}></section>
         <div className={styles.center}>
           {products ? <>
-            {/* <div className={styles.flexSmall}>              
-              <input onChange={(event) => {
-                setInputData(event.target.value)
-              }} onKeyDown={(e) => {
-                if (e.key === "Enter")
-                  search()
-              }} className={styles.search} placeholder="Shop by OEM, Brand, or Model"></input>
-            </div> */}
-            <div className={styles.boxContainer}>
+            {products.length > 0 ? <div className={styles.boxContainer}>
               {products?.slice(0, 24).map((toner) => {
                 return (
                   <div
@@ -317,74 +295,19 @@ export default function Data() {
                     </div>
                   </div>
                 );
-              })}</div> </> : <div className={''}><Audio
-                height="150"
-                width="100"
-                radius="10"
-                color="rgb(47,51,63)"
-                ariaLabel="loading"
-                wrapperStyle
-                wrapperClass
-              /></div>}
-
-
+              })}</div> : <div>
+              <div className={styles.nothing}>No Products Found, Search Something Else</div>
+              </div>}
+          </> : <div className={''}><Audio
+            height="150"
+            width="100"
+            radius="10"
+            color="rgb(47,51,63)"
+            ariaLabel="loading"
+            wrapperStyle
+            wrapperClass
+          /></div>}
         </div>
-        {/* <div className={styles.reviewSection}>
-          <div className={styles.customerTitle} >Trusted by hundreds of <div className={styles.blueSmall}>happy customers</div></div>
-          <div className={styles.rowSpaced}>
-            <div className={styles.boxReview}>
-              <div className={styles.starRow}>
-                <div className={styles.titleSmall}>Tara Bennets</div>
-                <div className={styles.flexCenter}>
-                  <div>5.0</div>
-                  <Image
-                    src="/static/star.webp"
-                    alt="buy a used or new business copier"
-                    width={20}
-                    height={20}
-                  />
-                </div>
-              </div>
-              <div className={styles.paragraphReview}>These guys do not disappoint! I have done business with them for a few years now. They have great customer service and amazing pricing on copy machines!</div>
-            </div>
-            <div className={`${styles.boxReview} ${styles.hideBox}`}>
-              <div className={styles.starRow}>
-                <div className={styles.titleSmall}>Kyle Francis</div>
-                <div className={styles.flexCenter}>
-                  <div>5.0</div>
-                  <Image
-                    src="/static/star.webp"
-                    alt="buy a used or new business copier"
-                    width={20}
-                    height={20}
-                  />
-                </div>
-              </div>
-              <div className={styles.paragraphReview}>Great company to work with. They have friendly staff and were able to get me up and running within a few days.
-              </div>
-            </div>
-            <div className={styles.boxReview}>
-              <div className={styles.starRow}>
-                <div className={styles.titleSmall}>Carley Ward</div>
-                <div className={styles.flexCenter}>
-                  <div>5.0</div>
-                  <Image
-                    src="/static/star.webp"
-                    alt="buy a used or new business copier"
-                    width={20}
-                    height={20}
-                  />
-                </div>
-              </div>
-              <div className={styles.paragraphReview}>This company is the best to do work with. They are very friendly and very helpful. I will be recommending them to everyone. I will never go anywhere else!</div>
-            </div>
-          </div>
-          <div>
-            <Link href={'https://www.google.com/maps/place/Copiers+for+Less/@40.599545,-111.9091041,17z/data=!4m8!3m7!1s0x87528bb3da9348f5:0x52af9011e571a1bf!8m2!3d40.599545!4d-111.9065292!9m1!1b1!16s%2Fg%2F1hc90lr04?entry=ttu'} target={'_blank'}>
-              <button className={styles.buttonBlue}>See All Google Reviews</button>
-            </Link>
-          </div>
-        </div> */}
       </div >
       <Footer />
     </div >

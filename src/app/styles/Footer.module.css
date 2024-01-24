@@ -4,7 +4,7 @@
     height: fit-content;
     min-height: 300px;
     padding: 10px;
-    background-color: rgb(2,50,92);
+    background-color: white;
     color: white;
     align-items: center;
   }
@@ -21,11 +21,12 @@
     font-weight: 100;
     font-size: 13px;
   }
-  .exploreContainer {
-    
+  .exploreContainer {    
     display: flex;
+    height: 275px;
     justify-content: space-evenly;
     flex-direction: column;
+    align-items: center;
     
   }
   .even{
@@ -34,14 +35,17 @@
     width: 60%;
   }
   .exploreContainer2 {
-    
+    padding-top: 25px;
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
+    justify-content: normal;
   }
-  .exploreContainerGood {
+  .exploreContainerGood{
     display: flex;
     flex-direction: column;
+    height: 300px;
+    width: 150px;
+    position: relative;
   }
   .line{
     width: 1px;
@@ -55,6 +59,11 @@
     height: 70%;
     
   }
+  .smallerContainer div{
+    color: black;
+    font-size: 16px;
+    /* font-weight: 300; */
+  }
   
   .footerTitle {
     font-weight: 250;
@@ -63,12 +72,12 @@
   .footerContainer{
     display: flex;
     flex-direction: column;
-    height: 70%;
+    height: 50%;
     justify-content: space-evenly;
 } 
 .flex{
   display: flex;
-  height: 100%;
+  height: 50%;
 }
   
   .column {
@@ -109,7 +118,7 @@
     height: 150px;
   }
   
-  .footerTags {
+  .footerTags {line-height: 25px;
     font-weight: 100;
     font-size: 13px;
 
@@ -129,13 +138,29 @@
     }
   }
   @media (max-width: 650px) {
+    .smallerContainer{
+      height: 200px;
+    }
+    .exploreContainerGood{
+      height: 275px;
+      width: 170px;
+      position: relative;
+    }
+    .footerTitle{
+      font-size: 15px;
+      font-weight: 400;
+    }
+    .h4{
+      font-weight: 250;
+      font-size: 13px;
+    }
     
     .footerTags {
       font-size: 13px;
+      
+      line-height: 25px;
     }
-    .footerTitle {
-      font-size: 25px;
-    }
+  
     .exploreContainer2{
       display: none;
     }

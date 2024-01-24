@@ -1,30 +1,26 @@
 "use client"
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useContext, useEffect, useDebugValue } from "react";
 import Head from "next/head";
 import Image from "next/image";
+import { Audio } from 'react-loader-spinner'
 import Header from "../components/Header";
-import BestSellers from "../components/BestSellers";
-import AllOptions from "../components/AllOptions";
 import Link from "next/link";
 import styles from "../page.module.css";
+import { CartContext } from "../providers/cart";
 import Footer from "../components/Footer";
 import { useRouter } from "next/navigation";
-import { useSearchParams } from "next/navigation";
-
 export default function Data() {
-  const searchParams = useSearchParams();
-  const playlistId = searchParams.get("id");
+
   const [name, setName] = useState("");
+  const { cart, setCart, cartLook, setRealPrice, tonerOem } = useContext(CartContext);
   const [recaptchaResponse, setRecaptchaResponse] = useState(false);
-  const [products, setProducts] = useState("");
-  const [email, setEmail] = useState("");
-  const [inputData, setInputData] = useState("");
+  const [inputData, setInputData] = useState()
   const [number, setNumber] = useState("");
+  const [products, setProducts] = useState("");
+  const [token, setToken] = useState();
   const [message, setMessage] = useState("this is the test message");
   const tawkMessengerRef = useRef();
   const captchaRef = useRef(null);
-  const token = JSON.parse(localStorage.getItem("token"))
-
 
   const onLoad = () => {
     console.log("onLoad works!");
@@ -72,14 +68,30 @@ export default function Data() {
     });
   };
 
-  async function getProducts() {
+
+  // async function test() {
+  //   const requestOptions = {
+  //     method: "GET",
+  //   }
+  //   try {
+  //     const response = await fetch('/api/models', requestOptions);
+  //     const data1 = await response.json();
+  //     console.log(data1.cancel, "this is the response")            
+  //   } catch (err) {
+  //   }
+  // }
+
+
+  async function search() {
+    setProducts()
+    const aToken = JSON.parse(localStorage.getItem("token"))
     const requestOptions = {
       method: "POST",
 
       body:
         JSON.stringify({
-          token: token.accessToken,
-          search: "Dell"
+          token: aToken.accessToken,
+          search: inputData
         })
 
     }
@@ -91,39 +103,64 @@ export default function Data() {
     } catch (err) {
     }
   }
-  async function search() {
+  async function getToken() {
     const requestOptions = {
       method: "POST",
+    }
+    try {
+      const response = await fetch('/api/token', requestOptions);
+      const data1 = await response.json();
+      setToken(data1.cancel.accessToken)
+      console.log(data1, "data ran")
+      localStorage.setItem("token", JSON.stringify(data1.cancel))
+    } catch (err) {
+    }
+  }
 
-      body:
-      {
-        token: token.accessToken,
-        search: inputData
-      }
+  async function getProducts() {
+    const aToken = JSON.parse(localStorage.getItem("token"))
+    console.log(aToken, "this is a token we need")
+    // aToken = localStorage.getItem("token")
+
+    const requestOptions = {
+      method: "POST",
+      body: JSON.stringify({ token: aToken.accessToken, search: "dell" })
 
     }
     try {
       const response = await fetch('/api/products', requestOptions);
       const data1 = await response.json();
+      console.log(data1, "this is data1")
       console.log(data1.cancel.products, "this is the product response")
       setProducts(data1.cancel.products)
     } catch (err) {
     }
   }
+
   useEffect(() => {
-    getProducts()
+    if (token?.cancel?.accessToken === undefined) {
+      getToken()
+    } else if (token?.cancel?.loginStatus) {
+      getToken()
+    }
   }, [])
 
-  // console.log(token)
+
+  useEffect(() => {
+    getProducts()
+  }, [token])
+
+
 
   return (
     <div className={styles.main}>
-
       <Header />
+
+
       <div className={styles.secondSection}>
         <div className={styles.flexSomething}>
           <div className={styles.flex}>
-          <div className={styles.mainContainer}>
+            <div className={styles.mainContainer}>
               <div className={styles.buttonCenter}>
                 <div className={styles.bubble}>
                   USA Toner
@@ -131,23 +168,9 @@ export default function Data() {
               </div>
               <h1>
                 <div className={styles.homepageTitle}>
-                  Dell Toner Cartridges
+                  Dell Toner Cartridges  
                 </div>
               </h1>
-              {/* <select name="dog-names" id="dog-names">
-                <option value="rigatoni">Choose a brand</option>
-                <option value="rigatoni">Konica</option>
-                <option value="dave">Dell</option>
-                <option value="pumpernickel">Lexmark</option>
-                <option value="reeses">HP</option>
-              </select>
-              <select name="dog-names" id="dog-names">
-                <option value="rigatoni">Choose a Model</option>
-                <option value="rigatoni">Rigatoni</option>
-                <option value="dave">Dave</option>
-                <option value="pumpernickel">Pumpernickel</option>
-                <option value="reeses">Reeses</option>
-              </select>               */}
               <input onChange={(event) => {
                 setInputData(event.target.value)
               }} onKeyDown={(e) => {
@@ -170,15 +193,14 @@ export default function Data() {
             </div>
           </div>
         </div>
-
         <div className={styles.lineContainer}>
           <div className={styles.line}></div>
         </div>
-        <div className={styles.center}>          
-          <div className={styles.boxContainer}>
-            {products && <>
-
-              {products?.map((toner) => {
+        <section id={"toner"}></section>
+        <div className={styles.center}>
+          {products ? <>
+            {products.length > 0 ? <div className={styles.boxContainer}>
+              {products?.slice(0, 24).map((toner) => {
                 return (
                   <div
                     key={toner.oem}
@@ -206,7 +228,7 @@ export default function Data() {
                     <div style={{ width: "100%" }}>
                       <div className={styles.row}>
                         <div className={styles.row}>
-                          <div
+                          <div className={styles.centerFont}
                             style={{
                               display: "flex",
                               justifyContent: "center",
@@ -231,7 +253,7 @@ export default function Data() {
                           >
                             OEM:
                           </div>
-                          <div className={styles.modelSmall}>{toner.oemNos[0].oemNo}</div>
+                          <div className={styles.modelSmall}>{toner.oemNos[0]?.oemNo}</div>
                         </div>
                       </div>
                       <div
@@ -250,20 +272,9 @@ export default function Data() {
                       href={`/tonerChoice?oem=${toner.oem}`}
                     ></Link>
                     <div style={{ width: "85%" }} className={styles.row}>
-                      <Link href={'/carts'}>
+                      <Link href={`/tonerChoice?oem=${toner.oemNos[0].oemNo}`}>
                         <button className={styles.buttonBlue} onClick={() => {
-                          const updatedCart = [
-                            ...cart,
-                            {
-                              name: toner.title,
-                              oem: toner.oemNos[0].oemNo,
-                              price: toner.serviceLevels[0].price,
-                              quantity: 1,
-                              image: toner.images[0],
-                            },
-                          ];
-                          setCart(updatedCart)
-                        }}>Add to cart</button>
+                        }}>See Details</button>
                       </Link>
                       <Link href={'/carts'}>
                         <button style={{ backgroundColor: "rgb(131,208,130)" }} className={styles.buttonBlue} onClick={() => {
@@ -283,13 +294,33 @@ export default function Data() {
                     </div>
                   </div>
                 );
-              })}
-            </>}
-          </div>
+              })}</div> : <div>
+              <div className={styles.nothing}>No Products Found, Search Something Else</div>
+              </div>}
+          </> : <div className={''}><Audio
+            height="150"
+            width="100"
+            radius="10"
+            color="rgb(47,51,63)"
+            ariaLabel="loading"
+            wrapperStyle
+            wrapperClass
+          /></div>}
         </div>
-        <AllOptions />
       </div >
       <Footer />
     </div >
   );
 }
+
+// import Toners from "./api/models/Toners"
+// (async () => {
+//   try{
+//     await Toners.create({name: "kale", email: "gmail.com"})
+//     await Toners.create({name: "jason", email: "j@gmail.com"})
+//     const toners = await Toner.findAll()
+//     console.log(toners, "these is tonersss")
+//   } catch(err){
+//     console.log(err)
+//   }
+// })

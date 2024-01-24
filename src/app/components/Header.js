@@ -32,19 +32,19 @@ export default function Header() {
                 <div className={styles.lineSmall}></div>
               </Link>
             </div>
-            <div className={`${styles.pieceContainer} ${styles.hidden}`}>
+            <div className={`${styles.pieceContainer} `}>
               <Link href="/xerox">
                 <div className={styles.headerPieces}>Xerox</div>
                 <div className={styles.lineSmall}></div>
               </Link>
             </div>
-            <div className={`${styles.pieceContainer} ${styles.hidden}`}>
+            <div className={`${styles.pieceContainer} `}>
               <Link href="/hp">
                 <div className={styles.headerPieces}>HP</div>
                 <div className={styles.lineSmall}></div>
               </Link>
             </div>
-            <div className={`${styles.pieceContainer} ${styles.hidden}`}>
+            <div className={`${styles.pieceContainer} `}>
               <Link href="/dell">
                 <div className={styles.headerPieces}>Dell</div>
                 <div className={styles.lineSmall}></div>
