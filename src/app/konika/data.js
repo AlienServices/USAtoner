@@ -4,9 +4,10 @@ import Head from "next/head";
 import Image from "next/image";
 import { Audio } from 'react-loader-spinner'
 import Header from "../components/Header";
+// import BestSellers from "./components/BestSellers";
 import Link from "next/link";
 import styles from "../page.module.css";
-import { CartContext } from "../providers/cart";
+import { CartContext } from "../providers/cart/index";
 import Footer from "../components/Footer";
 import { useRouter } from "next/navigation";
 export default function Data() {
@@ -16,12 +17,13 @@ export default function Data() {
   const [recaptchaResponse, setRecaptchaResponse] = useState(false);
   const [inputData, setInputData] = useState()
   const [number, setNumber] = useState("");
+  const [searching, setSearching] = useState(true);
   const [products, setProducts] = useState("");
   const [token, setToken] = useState();
   const [message, setMessage] = useState("this is the test message");
   const tawkMessengerRef = useRef();
   const captchaRef = useRef(null);
-
+  const toner = JSON.parse(localStorage.getItem("toner"))
   const onLoad = () => {
     console.log("onLoad works!");
   };
@@ -99,6 +101,8 @@ export default function Data() {
       const response = await fetch('/api/products', requestOptions);
       const data1 = await response.json();
       console.log(data1.cancel.products, "this is the product response")
+      setSearching(true)
+      localStorage.setItem("toner", JSON.stringify(data1.cancel.products))
       setProducts(data1.cancel.products)
     } catch (err) {
     }
@@ -132,6 +136,7 @@ export default function Data() {
       const data1 = await response.json();
       console.log(data1, "this is data1")
       console.log(data1.cancel.products, "this is the product response")
+      localStorage.setItem("toner", JSON.stringify(data1.cancel.products))
       setProducts(data1.cancel.products)
     } catch (err) {
     }
@@ -168,13 +173,14 @@ export default function Data() {
               </div>
               <h1>
                 <div className={styles.homepageTitle}>
-                  Konica Minolta Toner Cartridges  
+                  Konica Minolta Cartridges
                 </div>
               </h1>
               <input onChange={(event) => {
                 setInputData(event.target.value)
               }} onKeyDown={(e) => {
                 if (e.key === "Enter") {
+                  setSearching(!searching)
                   window.location.replace('http://localhost:3000/#toner')
                   search()
 
@@ -198,9 +204,9 @@ export default function Data() {
         </div>
         <section id={"toner"}></section>
         <div className={styles.center}>
-          {products ? <>
-            {products.length > 0 ? <div className={styles.boxContainer}>
-              {products?.slice(0, 24).map((toner) => {
+          {searching ? <>
+            {toner.length > 0 ? <div className={styles.boxContainer}>
+              {toner?.slice(0, 24).map((toner) => {
                 return (
                   <div
                     key={toner.oem}
@@ -296,7 +302,7 @@ export default function Data() {
                 );
               })}</div> : <div>
               <div className={styles.nothing}>No Products Found, Search Something Else</div>
-              </div>}
+            </div>}
           </> : <div className={''}><Audio
             height="150"
             width="100"
