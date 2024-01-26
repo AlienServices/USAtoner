@@ -8,9 +8,9 @@ export async function POST(req, res) {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${newData.token}`
     };
-    const url = 'https://www.cloverimaging.com/access-point/products';
+    const url = 'https://apisandbox.cloverimaging.com/access-point/products';
     const data = {
-        apiKey: "yiidRf8FHTYTJlBtJY4oTsKhELkOJ3LRdvequPhYY5Mhpt4vApBM03LPXxpqPkfO8Z03UXWJhAhH3EqSYYzUhV5iS38B3YezSDHEmJmdgkyMc3YmjEmIacWuYRd4kZ0KqVChrABdCOm1YwyHP6smBgP1DbhzphRYWftX4tJnbB2nPXmPvuZuBoSDKGQbYGlC89JHQsbnciQLAednwQztuK0CqmvWfZR8H5eHqZw1O9ApOmE1KGybUqGLeH",
+        apiKey: "InxNPYlpXTDX4xTxiyBBvqcrcD8CvAWMQ8lnhkWx9Wz17bka4HowdTXsY1lzLqQYuDxPpH6FRPmJ5WQeJk6I7ZurwowMQzMoxHAH8Fh8EeAcpnq5pvaqgsCKpxWaJQtRuhnLtf7apZuywH0On7sbjODBeYab8o5rbZgRtza8Nb0A6u8LCTQem6efaPF9Uhy0zOZCELxU10yPa0E8HclZXtKNEYKCZWH2IEp8z0ZhJ8K4LmqqY6AcFcxvMj",
         page: 1,
         filters: {
             search: `${newData.search}`,

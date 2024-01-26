@@ -138,7 +138,7 @@ const Cart = () => {
                     {cart?.map((toner, index) => {
                         return (
                             <div key={index} className={styles.thirdSection}>
-                                <div>
+                                <div className={styles.buggyContainer}>
                                     <div
                                         style={{ color: "black", cursor: "pointer", textAlign: "end", width: "93%" }}
                                         onClick={() => {
@@ -148,11 +148,11 @@ const Cart = () => {
                                         X
                                     </div>
                                     <div className={styles.buggy}>
-                                        <div style={{ width: "200px" }}>
+                                        <div className={styles.left} style={{ width: "200px" }}>
                                             <Image alt={"image of toner"} src={toner.image} width={150} height={150} />
                                         </div>
                                         <div className={styles.priceBox}>
-                                            <div className={styles.cartTitle}>{toner.title}</div>
+                                            <div className={styles.cartTitle}>{toner.name}</div>
                                             <div
                                                 className={styles.oemContainer}
                                             >
@@ -166,7 +166,7 @@ const Cart = () => {
                                                 >
                                                     OEM:
                                                 </div>
-                                                <div style={{ color: "black", fontSize: "16px" }}>
+                                                <div className={styles.OemMobile}>
                                                     {toner.oem}
                                                 </div>
                                             </div>
@@ -205,7 +205,7 @@ const Cart = () => {
                                                 >
                                                     -
                                                 </div>
-                                                <div style={{ color: "black", padding: "5px" }}>
+                                                <div className={styles.quantity}>
                                                     {toner.quantity}
                                                 </div>
                                                 <div style={{ color: "black", cursor: "pointer" }}
