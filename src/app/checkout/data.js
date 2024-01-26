@@ -277,7 +277,7 @@ const Checkout = (props) => {
                                     return <div key={index} className={`${styles.dataResult} ${hidden ? styles.showing : styles.hidden}`}>
                                         <div style={{ display: "flex" }}>
                                             <div className={styles.quantityText}>({item.quantity})</div>
-                                            <div style={{ fontSize: "12px" }}>{item.title}</div>
+                                            <div style={{ fontSize: "12px" }}>{item.name}</div>
                                         </div>
                                         <div className={styles.priceText}>${item.price * item.quantity}</div>
                                     </div>
