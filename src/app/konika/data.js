@@ -23,7 +23,7 @@ export default function Data() {
   const [message, setMessage] = useState("this is the test message");
   const tawkMessengerRef = useRef();
   const captchaRef = useRef(null);
-  const toner = JSON.parse(localStorage.getItem("toner"))
+  const [toner, setToner] = useState()
   const onLoad = () => {
     console.log("onLoad works!");
   };
@@ -155,7 +155,9 @@ export default function Data() {
     getProducts()
   }, [token])
 
-
+  useEffect(() => {
+    if (localStorage) { setToner(JSON.parse(localStorage.getItem("toner")) )}
+  }, [])
 
   return (
     <div className={styles.main}>
@@ -205,7 +207,7 @@ export default function Data() {
         <section id={"toner"}></section>
         <div className={styles.center}>
           {searching ? <>
-            {toner.length > 0 ? <div className={styles.boxContainer}>
+            {toner?.length > 0 ? <div className={styles.boxContainer}>
               {toner?.slice(0, 24).map((toner) => {
                 return (
                   <div

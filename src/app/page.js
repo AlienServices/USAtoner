@@ -22,8 +22,9 @@ export default function Data() {
   const [token, setToken] = useState();
   const [message, setMessage] = useState("this is the test message");
   const tawkMessengerRef = useRef();
+  const [toner, setToner]= useState()
   const captchaRef = useRef(null);
-  const toner = JSON.parse(localStorage.getItem("toner"))
+
   const onLoad = () => {
     console.log("onLoad works!");
   };
@@ -71,17 +72,17 @@ export default function Data() {
   };
 
 
-  // async function test() {
-  //   const requestOptions = {
-  //     method: "GET",
-  //   }
-  //   try {
-  //     const response = await fetch('/api/models', requestOptions);
-  //     const data1 = await response.json();
-  //     console.log(data1.cancel, "this is the response")            
-  //   } catch (err) {
-  //   }
-  // }
+  async function test() {
+    const requestOptions = {
+      method: "GET",
+    }
+    try {
+      const response = await fetch('/api/models', requestOptions);
+      const data1 = await response.json();
+      console.log(data1.cancel, "this is the response")            
+    } catch (err) {
+    }
+  }
 
 
   async function search() {
@@ -155,12 +156,13 @@ export default function Data() {
     getProducts()
   }, [token])
 
-
-
+  useEffect(() => {
+    if (localStorage) { setToner(JSON.parse(localStorage.getItem("toner")) )}
+  }, [])
+  console.log(toner)
   return (
     <div className={styles.main}>
       <Header />
-
 
       <div className={styles.secondSection}>
         <div className={styles.flexSomething}>
@@ -205,7 +207,7 @@ export default function Data() {
         <section id={"toner"}></section>
         <div className={styles.center}>
           {searching ? <>
-            {toner.length > 0 ? <div className={styles.boxContainer}>
+            {toner?.length > 0 ? <div className={styles.boxContainer}>
               {toner?.slice(0, 24).map((toner) => {
                 return (
                   <div
@@ -319,14 +321,18 @@ export default function Data() {
   );
 }
 
-// import Toners from "./api/models/Toners"
-// (async () => {
-//   try{
-//     await Toners.create({name: "kale", email: "gmail.com"})
-//     await Toners.create({name: "jason", email: "j@gmail.com"})
-//     const toners = await Toner.findAll()
-//     console.log(toners, "these is tonersss")
-//   } catch(err){
-//     console.log(err)
-//   }
-// })
+// // // import Toners from "./api/models/Toners"
+// // // (async () => {
+// // //   try{
+// // //     await Toners.create({name: "kale", email: "gmail.com"})
+// // //     await Toners.create({name: "jason", email: "j@gmail.com"})
+// // //     const toners = await Toner.findAll()
+// // //     console.log(toners, "these is tonersss")
+// // //   } catch(err){
+// // //     console.log(err)
+// // //   }
+// // // })
+
+// export default function Test() {
+//   return <div></div>
+// }
