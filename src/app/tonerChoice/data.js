@@ -25,7 +25,7 @@ const TonerChoice = (props) => {
     const [message, setMessage] = useState("");
     const [orderId, setOrderId] = useState("");
     const [newPrice, setNewPrice] = useState();
-    const token = JSON.parse(localStorage.getItem("token"))
+    const[token, setToken] = useState()
     const tawkMessengerRef = useRef();
 
     // useEffect(() => {
@@ -110,6 +110,11 @@ const TonerChoice = (props) => {
     useEffect(() => {
         getProducts()
     }, [])
+
+    
+    useEffect(() => {
+        if (localStorage) setToken(JSON.parse(localStorage.getItem("token")))
+      }, [])
 
     return (
         <div className={styles.main}>            
