@@ -8,8 +8,10 @@ export const metadata = {
 const konika = () => {
 
     return (
-        
-        <Data />
+
+        <Suspense>
+            <Data />
+        </Suspense>
     )
 }
 

@@ -9,6 +9,7 @@ import Link from "next/link";
 import { CartContext } from "../providers/cart";
 import { Suspense } from 'react'
 import { useSearchParams } from "next/navigation";
+// export const dynamic = "force-dynamic"
 // import BreadCrumbs from "../components/BreadCrumbs";
 
 const TonerChoice = (props) => {
