@@ -18,11 +18,12 @@ export default function Data() {
   const [inputData, setInputData] = useState()
   const [number, setNumber] = useState("");
   const [searching, setSearching] = useState(true);
-  const [products, setProducts] = useState("");
+  const [products, setProducts] = useState([]);
   const [token, setToken] = useState();
+  const [searchResult, setSearchResult] = useState();
   const [message, setMessage] = useState("this is the test message");
   const tawkMessengerRef = useRef();
-  const [toner, setToner]= useState()
+  const [toner, setToner] = useState()
   const captchaRef = useRef(null);
 
   const onLoad = () => {
@@ -79,14 +80,14 @@ export default function Data() {
     try {
       const response = await fetch('/api/models', requestOptions);
       const data1 = await response.json();
-      console.log(data1.cancel, "this is the response")            
+      console.log(data1.cancel, "this is the response")
     } catch (err) {
     }
   }
 
 
   async function search() {
-    setProducts()
+
     const aToken = JSON.parse(localStorage.getItem("token"))
     const requestOptions = {
       method: "POST",
@@ -104,7 +105,7 @@ export default function Data() {
       console.log(data1.cancel.products, "this is the product response")
       setSearching(true)
       localStorage.setItem("toner", JSON.stringify(data1.cancel.products))
-      setProducts(data1.cancel.products)
+      setSearchResult(data1.cancel.products)
     } catch (err) {
     }
   }
@@ -124,9 +125,7 @@ export default function Data() {
 
   async function getProducts() {
     const aToken = JSON.parse(localStorage.getItem("token"))
-    console.log(aToken, "this is a token we need")
     // aToken = localStorage.getItem("token")
-
     const requestOptions = {
       method: "POST",
       body: JSON.stringify({ token: aToken.accessToken, search: "" })
@@ -134,7 +133,7 @@ export default function Data() {
     }
     try {
       const response = await fetch('/api/products', requestOptions);
-      const data1 = await response.json();      
+      const data1 = await response.json();
       localStorage.setItem("toner", JSON.stringify(data1.cancel.products))
       setProducts(data1.cancel.products)
     } catch (err) {
@@ -155,7 +154,7 @@ export default function Data() {
   }, [token])
 
   useEffect(() => {
-    if (localStorage) { setToner(JSON.parse(localStorage.getItem("toner")) )}
+    if (localStorage) { setToner(JSON.parse(localStorage.getItem("toner"))) }
   }, [])
   console.log(toner)
   return (
@@ -206,7 +205,7 @@ export default function Data() {
         <div className={styles.center}>
           {searching ? <>
             {toner?.length > 0 ? <div className={styles.boxContainer}>
-              {toner?.slice(0, 24).map((toner) => {
+              {searchResult ? <>{searchResult?.slice(0, 24)?.map((toner) => {
                 return (
                   <div
                     key={toner.oem}
@@ -300,7 +299,102 @@ export default function Data() {
                     </div>
                   </div>
                 );
-              })}</div> : <div>
+              })}</> : <>{toner?.slice(0, 24)?.map((toner) => {
+                return (
+                  <div
+                    key={toner.oem}
+                    // onClick={() => {
+                    //   setCartLook({
+                    //     name: toner.name,
+                    //     oem: toner.oem,
+                    //     price: toner.price,
+                    //     color: toner.color,
+                    //     photo: toner.image,
+                    //     yield: toner.yield,
+                    //   });
+                    // }}
+                    className={styles.box}
+                  >
+
+                    <Image
+                      alt={'image of toner'}
+                      style={{ borderRadius: "5px" }}
+                      src={toner.images[0]}
+                      width={180}
+                      height={180}
+                    ></Image>
+                    <div className={styles.titleSmallBlack}>{toner.title}</div>
+                    <div style={{ width: "100%" }}>
+                      <div className={styles.row}>
+                        <div className={styles.row}>
+                          <div className={styles.centerFont}
+                            style={{
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
+                            }}
+                          >
+                            <div
+                              style={{ paddingRight: "5px", color: "rgb(2,50,92)" }}
+                              className={styles.price}
+                            >
+                              $
+                            </div>
+                            <div style={{ color: "rgb(2,50,92)" }} className={styles.modelSmallish}>
+                              {toner.serviceLevels[0].price}
+                            </div>
+                          </div>
+                        </div>
+                        <div className={styles.row}>
+                          <div
+                            style={{ paddingRight: "5px" }}
+                            className={styles.priceSmall}
+                          >
+                            OEM:
+                          </div>
+                          <div className={styles.modelSmall}>{toner.oemNos[0]?.oemNo}</div>
+                        </div>
+                      </div>
+                      <div
+                        style={{ paddingTop: "10px" }}
+                        className={styles.rowOem}
+                      >
+                      </div>
+                    </div>
+                    <Link
+                      onClick={() => {
+                        setTonerOem(toner.oem)
+                        localStorage.setItem("tonerOem", toner.oem)
+
+                      }}
+                      className={styles.somethingElse}
+                      href={`/tonerChoice?oem=${toner.oem}`}
+                    ></Link>
+                    <div style={{ width: "85%" }} className={styles.row}>
+                      <Link href={`/tonerChoice?oem=${toner.oemNos[0].oemNo}`}>
+                        <button className={styles.buttonBlue} onClick={() => {
+                        }}>See Details</button>
+                      </Link>
+                      <Link href={'/carts'}>
+                        <button style={{ backgroundColor: "rgb(131,208,130)" }} className={styles.buttonBlue} onClick={() => {
+                          const updatedCart = [
+                            ...cart,
+                            {
+                              name: toner.title,
+                              oem: toner.oemNos[0].oemNo,
+                              price: toner.serviceLevels[0].price,
+                              quantity: 1,
+                              image: toner.images[0],
+                            },
+                          ];
+                          setCart(updatedCart)
+                        }}>Add to cart</button>
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}</>}
+            </div> : <div>
               <div className={styles.nothing}>No Products Found, Search Something Else</div>
             </div>}
           </> : <div className={''}><Audio
