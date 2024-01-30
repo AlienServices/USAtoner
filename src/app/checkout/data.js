@@ -402,7 +402,7 @@ const Checkout = (props) => {
                             </div>
                         </div>
 
-                        <button onClick={() => {
+                        {/* <button onClick={() => {
                             chargeCard().then(() => {
                                 createDistribution().then(() => {
                                     sendEmailBoss()
@@ -411,7 +411,8 @@ const Checkout = (props) => {
                             })
 
 
-                        }} style={{ marginBottom: "15px" }} className={styles.button}>Checkout!</button>
+                        }} style={{ marginBottom: "15px" }} className={styles.button}>Checkout!</button> */}
+                        <button style={{ marginBottom: "15px" }} className={styles.button}>Not Functional For Now!</button>
 
 
 

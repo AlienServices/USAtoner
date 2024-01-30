@@ -134,9 +134,7 @@ export default function Data() {
     }
     try {
       const response = await fetch('/api/products', requestOptions);
-      const data1 = await response.json();
-      console.log(data1, "this is data1")
-      console.log(data1.cancel.products, "this is the product response")
+      const data1 = await response.json();      
       localStorage.setItem("toner", JSON.stringify(data1.cancel.products))
       setProducts(data1.cancel.products)
     } catch (err) {

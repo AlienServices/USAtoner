@@ -17,7 +17,7 @@ export default function Data() {
   const [recaptchaResponse, setRecaptchaResponse] = useState(false);
   const [inputData, setInputData] = useState()
   const [number, setNumber] = useState("");
-  const [searching, setSearching] = useState(true);
+  const [searching, setSearching] = useState(false);
   const [products, setProducts] = useState("");
   const [token, setToken] = useState();
   const [message, setMessage] = useState("this is the test message");
@@ -133,10 +133,9 @@ export default function Data() {
     }
     try {
       const response = await fetch('/api/products', requestOptions);
-      const data1 = await response.json();
-      console.log(data1, "this is data1")
-      console.log(data1.cancel.products, "this is the product response")
+      const data1 = await response.json();      
       localStorage.setItem("toner", JSON.stringify(data1.cancel.products))
+      setSearching(!searching)
       setProducts(data1.cancel.products)
     } catch (err) {
     }
@@ -207,8 +206,8 @@ export default function Data() {
         <section id={"toner"}></section>
         <div className={styles.center}>
           {searching ? <>
-            {toner?.length > 0 ? <div className={styles.boxContainer}>
-              {toner?.slice(0, 24).map((toner) => {
+            {products?.length > 0 ? <div className={styles.boxContainer}>
+              {products?.slice(0, 24).map((toner) => {
                 return (
                   <div
                     key={toner.oem}
