@@ -119,7 +119,7 @@ const TonerChoice = (props) => {
 
     return (
         <div className={styles.main}>
-            <Suspense>
+            
                 <Header />
                 <div className={styles.mainContent}>
                     <div className={styles.center}>
@@ -238,7 +238,7 @@ const TonerChoice = (props) => {
                 </div>
 
                 <Footer />
-            </Suspense>
+            
         </div>
     );
 };
