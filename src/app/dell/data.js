@@ -184,7 +184,7 @@ export default function Data() {
               }} onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   setSearching(!searching)
-                  window.location.replace('http://localhost:3000/#toner')
+                  https://www.usa-toner.com/#toner
                   search()
 
                 }
