@@ -135,7 +135,7 @@ export default function Data() {
       const response = await fetch('/api/products', requestOptions);
       const data1 = await response.json();      
       localStorage.setItem("toner", JSON.stringify(data1.cancel.products))
-      setSearching(!searching)
+      setSearching(true)
       setProducts(data1.cancel.products)
     } catch (err) {
     }
