@@ -41,19 +41,19 @@ export default function Footer() {
         <div className={styles.line}></div>
         <div className={styles.exploreContainer}>
           <div className={styles.footerTitle}>Popular Brands</div>
-          <Link href="/buy">
+          <Link href="/konica">
             <div className={styles.h4}>Konica </div>
           </Link>
-          <Link href="/shortTerm">
+          <Link href="/lexmark">
             <div className={styles.h4}>Lexmark </div>
           </Link>
-          <Link href="/fix">
+          <Link href="/hp">
             <div className={styles.h4}>HP </div>
           </Link>
-          <Link href="/fix">
+          <Link href="/xerox">
             <div className={styles.h4}>Xerox </div>
           </Link>
-          <Link href="/finance">
+          <Link href="/dell">
             <div className={styles.h4}>Dell </div>
           </Link>
         </div>
