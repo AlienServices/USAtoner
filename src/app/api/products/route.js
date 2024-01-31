@@ -20,7 +20,8 @@ export async function POST(req, res) {
         }
     }
     try {        
-        const response = await axios.post(url, data, { headers })       
+        const response = await axios.post(url, data, { headers })   
+        console.log(response, "this is the tesponse")    
         return NextResponse.json({ "cancel": response.data })          
     } catch (error) {
         console.error('Error sending email:', error);

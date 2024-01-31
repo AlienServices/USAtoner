@@ -28,7 +28,7 @@ const TonerChoice = (props) => {
     const [orderId, setOrderId] = useState("");
     const [newPrice, setNewPrice] = useState();
     const [token, setToken] = useState()
-    
+
     const tawkMessengerRef = useRef();
 
     // useEffect(() => {
@@ -91,12 +91,14 @@ const TonerChoice = (props) => {
         tawkMessengerRef.current.minimize();
     };
 
-    async function getProducts() {
+    async function getProducts() {  
+        
+        const aToken = JSON.parse(localStorage.getItem("token"))          
         const requestOptions = {
             method: "POST",
             body:
                 JSON.stringify({
-                    token: JSON.parse(token).accessToken,
+                    token: aToken.accessToken,
                     search: `${oem}`
                 })
 
@@ -109,14 +111,14 @@ const TonerChoice = (props) => {
         } catch (err) {
         }
     }
-    useEffect(() => {
-        getProducts()
-    }, [token])
-
-    useEffect(() => {
-        setToken(localStorage.getItem("token"))
+    useEffect(() => {            
+            getProducts()        
     }, [])
-    
+
+
+
+  
+console.log(toner, "this is what were seeing")
     return (
         <div className={styles.main}>
 
