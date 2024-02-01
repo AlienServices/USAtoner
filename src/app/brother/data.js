@@ -34,40 +34,7 @@ export default function Data() {
     setRecaptchaResponse(response);
   };
 
-  const sendEmail = (e) => {
-    e.preventDefault();
-    console.log("Sending");
 
-    fetch("https://api.smtp2go.com/v3/email/send", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        api_key: "api-DC44EBDEE45411ED847EF23C91C88F4E",
-        to: [`<info@copiersutah.com>`],
-        sender: "<info@copiersutah.com>",
-        subject: `This is${name}'s quote form. Their number is ${number}`,
-        text_body: `${message}`,
-        html_body: `<h1>${message}</h1>`,
-        template_id: "5120871",
-        template_data: {
-          message: message,
-          number: number,
-          name: name,
-        },
-      }),
-    }).then((res) => {
-      console.log(res);
-      if (res.status === 200) {
-        console.log("Response succeeded!");
-        // setSubmitted(true);
-        // setName("");
-        // setEmail("");
-        // setBody("");
-      }
-    });
-  };
   async function search() {
     const requestOptions = {
       method: "POST",
