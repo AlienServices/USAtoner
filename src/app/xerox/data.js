@@ -167,9 +167,7 @@ export default function Data() {
             </div>
           </div>
         </div>
-        <div className={styles.lineContainer}>
-          <div className={styles.line}></div>
-        </div>
+        
         <section id={"toner"}></section>
         <div className={styles.center}>
           {searching ? <>

@@ -17,7 +17,7 @@ export default function Data() {
   const [recaptchaResponse, setRecaptchaResponse] = useState(false);
   const [inputData, setInputData] = useState()
   const [number, setNumber] = useState("");
-  const [searching, setSearching] = useState(true);
+  const [searching, setSearching] = useState(false);
   const [products, setProducts] = useState([]);
   const [token, setToken] = useState();
   const [searchResult, setSearchResult] = useState();
@@ -101,8 +101,10 @@ export default function Data() {
     try {
       const response = await fetch('/api/products', requestOptions);
       const data1 = await response.json();
+      setSearching(true)
       localStorage.setItem("toner", JSON.stringify(data1.cancel.products))
       setProducts(data1.cancel.products)
+      setToner(data1.cancel.products)
     } catch (err) {
     }
   }
@@ -123,11 +125,10 @@ export default function Data() {
   useEffect(() => {
     if (localStorage) { setToner(JSON.parse(localStorage.getItem("toner"))) }
   }, [])
-  console.log(toner)
+
   return (
     <div className={styles.main}>
       <Header />
-
       <div className={styles.secondSection}>
         <div className={styles.flexSomething}>
           <div className={styles.flex}>
@@ -151,13 +152,11 @@ export default function Data() {
                   search()
 
                 }
-
               }} className={styles.search} placeholder="Shop by OEM, Brand, or Model"></input>
             </div>
-
             <div className={styles.displayNone}>
               <Image
-                src="/static/Group.webp"
+                src="/static/copierImage.webp"
                 alt="buy a used or new business copier"
                 width={500}
                 height={300}
@@ -165,14 +164,11 @@ export default function Data() {
             </div>
           </div>
         </div>
-        <div className={styles.lineContainer}>
-          <div className={styles.line}></div>
-        </div>
         <section id={"toner"}></section>
         <div className={styles.center}>
           {searching ? <>
             {toner?.length > 0 ? <div className={styles.boxContainer}>
-              {searchResult ? <>{searchResult?.slice(0, 24)?.map((toner) => {
+              {searchResult?.length >= 1 ? <>{searchResult?.slice(0, 24)?.map((toner) => {
                 return (
                   <div
                     key={toner.oem}

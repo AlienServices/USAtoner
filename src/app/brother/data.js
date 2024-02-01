@@ -118,11 +118,7 @@ export default function Data() {
               />
             </div>
           </div>
-        </div>
-
-        <div className={styles.lineContainer}>
-          <div className={styles.line}></div>
-        </div>
+        </div>        
         <div className={styles.center}>
           <div className={styles.beginning}>
             <div className={styles.flexSmall}>
