@@ -71,7 +71,6 @@ export default function Data() {
       const data1 = await response.json();
       console.log(data1.cancel.products, "this is the product response")
       setSearching(true)
-      localStorage.setItem("toner", JSON.stringify(data1.cancel.products))
       setSearchResult(data1.cancel.products)
     } catch (err) {
     }
@@ -102,7 +101,7 @@ export default function Data() {
       const response = await fetch('/api/products', requestOptions);
       const data1 = await response.json();
       setSearching(true)
-      localStorage.setItem("toner", JSON.stringify(data1.cancel.products))
+      localStorage.setItem("main", JSON.stringify(data1.cancel.products))
       setProducts(data1.cancel.products)
       setToner(data1.cancel.products)
     } catch (err) {
@@ -123,8 +122,11 @@ export default function Data() {
   }, [token])
 
   useEffect(() => {
-    if (localStorage) { setToner(JSON.parse(localStorage.getItem("toner"))) }
-  }, [])
+    if (localStorage.getItem("main")) {
+      setSearching(true)      
+      setToner(JSON.parse(localStorage.getItem("main")))
+    }
+  }, [searching])
 
   return (
     <div className={styles.main}>
