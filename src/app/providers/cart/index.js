@@ -39,7 +39,7 @@ export const CartProvider = ({ children }) => {
   }, [realPrice])
 
 
-    
+    console.log(cart, "this is the current cart")
   return (
     <CartContext.Provider value={{ cart, setCart, setRealPrice, cardInfo, setCardInfo, personInfo, setPersonInfo, totalAmount, billingInfo, setBillingInfo, tonerOem, setTonerOem }}>
       {children}

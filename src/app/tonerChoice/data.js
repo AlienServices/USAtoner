@@ -101,7 +101,6 @@ const TonerChoice = (props) => {
                     token: aToken.accessToken,
                     search: `${oem}`
                 })
-
         }
         try {
             const response = await fetch('/api/products', requestOptions);
@@ -215,7 +214,7 @@ console.log(toner, "this is what were seeing")
                                                 const updatedCart = [
                                                     ...cart,
                                                     {
-                                                        title: toner[0]?.title,
+                                                        name: toner[0].title,
                                                         oem: toner[0]?.oemNos[0].oemNo,
                                                         price: toner[0]?.serviceLevels[0].price,
                                                         quantity: quantity,

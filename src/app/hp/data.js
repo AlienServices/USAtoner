@@ -100,7 +100,7 @@ export default function Data() {
     }
     try {
       const response = await fetch('/api/products', requestOptions);
-      const data1 = await response.json();      
+      const data1 = await response.json();
       localStorage.setItem("toner", JSON.stringify(data1.cancel.products))
       setSearching(true)
       setProducts(data1.cancel.products)
@@ -122,7 +122,7 @@ export default function Data() {
   }, [token])
 
   useEffect(() => {
-    if (localStorage) { setToner(JSON.parse(localStorage.getItem("toner")) )}
+    if (localStorage) { setToner(JSON.parse(localStorage.getItem("toner"))) }
   }, [])
 
 
@@ -143,7 +143,7 @@ export default function Data() {
               </div>
               <h1>
                 <div className={styles.homepageTitle}>
-                  HP Minolta Cartridges
+                  HP Toner Cartridges
                 </div>
               </h1>
               <input onChange={(event) => {
@@ -151,7 +151,7 @@ export default function Data() {
               }} onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   setSearching(!searching)
-                  window.location.replace('https://www.usa-toner.com/#toner')
+                  window.location.replace('#toner')
                   search()
 
                 }
@@ -169,7 +169,7 @@ export default function Data() {
             </div>
           </div>
         </div>
-        
+
         <section id={"toner"}></section>
         <div className={styles.center}>
           {searching ? <>
