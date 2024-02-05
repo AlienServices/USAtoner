@@ -7,11 +7,18 @@
 .checkoutEighty{
   width: 80%;
 }
+.cardText{
+  padding: 20px;
+  font-size: 23px;
+  padding-bottom: 35px;
+}
 .bottomMain {
     width: 100%;
-    color: black;
-    padding: 15px;
-    padding: 50px;
+    padding-top: 50px;
+    padding: 20px;
+    font-size: 23px;
+    padding-bottom: 35px;
+    color: black;    
     min-height: 700px;
     height: fit-content;
     justify-content: space-evenly;
@@ -67,6 +74,7 @@
   .center {
     display: flex;
     width: 90%;
+    padding-bottom: 50px;
    justify-content: center;
    align-items: center;
    padding-bottom: 10px;
