@@ -11,7 +11,7 @@ import Footer from "../components/Footer";
 // import TawkMessengerReact from "@tawk.to/tawk-messenger-react";
 import { useRouter } from "next/navigation";
 const Checkout = (props) => {
-    const { cart, setCart, cartLook, setRealPrice, tonerOem, totalAmount } = useContext(CartContext);
+    const { realPrice, setPersonInfo, setCardInfo, personInfo, cardInfo, cart, totalAmount, tonerOem } = useContext(CartContext);
     const router = useRouter()
     const [recaptchaResponse, setRecaptchaResponse] = useState(false);
     const [identity, setIdentity] = useState({});
@@ -27,15 +27,14 @@ const Checkout = (props) => {
     const [csv, setCsv] = useState();
     const [card, setCard] = useState();
     const [cardType, setCardType] = useState("Mastercard");
-    const [localCart, setLocalCart] = useState();
-    const [cardInfoLocal, setCardInfoLocal] = useState({});
+    const [localCart, setLocalCart] = useState();    
     const [firstName, setFirstName] = useState();
     const [lastName, setLastName] = useState();
     const [email, setEmail] = useState();
-    const [phone, setPhone] = useState();    
-    const [total, setTotal] = useState(0);    
+    const [phone, setPhone] = useState();
+    const [total, setTotal] = useState(0);
     const [maybe, setMaybe] = useState(false);
-    const [address, setAddress] = useState("");    
+    const [address, setAddress] = useState("");
     const [billingAddress, setBillingAddress] = useState("");
     const [billingInfo, setBillingInfo] = useState("");
     const [realPriceLocal, setRealPriceLocal] = useState("");
@@ -50,34 +49,6 @@ const Checkout = (props) => {
     const [message, setMessage] = useState("");
 
     const tawkMessengerRef = useRef();
-
-    // useEffect(() => {
-    //     setTotal(JSON.parse(localStorage.getItem("total")))
-
-    //     setPersonInfo({
-    //         "firstName": firstName,
-    //         "lastName": lastName,
-    //         "email": email,
-    //         "phone": phone,
-    //         "address": address,
-    //         "city": city,
-    //         "state": state,
-    //         "zip": zip,
-    //         "id": po
-    //     })
-    //     // setPersonInfo(identity)
-
-
-    // }, [firstName, lastName, email, phone, city, address, state, zip, po])
-    // useEffect(() => {
-
-    //     setCardInfo({
-    //         "card": card,
-    //         "csv": csv,
-    //         "exp": exp
-    //     })
-
-    // }, [csv, card, exp])
     useEffect(() => {
 
         if (hiddenBottom === false) {
@@ -120,7 +91,7 @@ const Checkout = (props) => {
         };
 
         try {
-            const response = await fetch('/api/pay/card', requestOptions);
+            const response = await fetch('/api/authorize', requestOptions);
             const data1 = await response.json();
             console.log(data1, "this is the response")
             if (data1?.messageeee.transactionResponse.responseCode == 1) {
@@ -145,6 +116,32 @@ const Checkout = (props) => {
         setTotal(totalAmount - 2.99)
     }, [totalAmount])
 
+
+    useEffect(() => {
+        setCardInfo({
+            "card": card,
+            "csv": csv,
+            "exp": exp
+        })
+    }, [csv, card, exp])
+    useEffect(() => {
+        setTotal(JSON.parse(localStorage.getItem("total")))
+
+        setPersonInfo({
+            "firstName": firstName,
+            "lastName": lastName,
+            "email": email,
+            "phone": phone,
+            "address": address,
+            "city": city,
+            "state": state,
+            "zip": zip,
+            "id": po
+        })
+        // setPersonInfo(identity)
+
+
+    }, [firstName, lastName, email, phone, city, address, state, zip, po])
 
 
     async function sendEmailBoss() {
@@ -206,8 +203,7 @@ const Checkout = (props) => {
     function handleChange(event) {
         setCardType(event.target.value)
     }
-
-    console.log(selected, "this is the type of card")
+    
 
     return (
         <div className={styles.main}>
@@ -366,9 +362,9 @@ const Checkout = (props) => {
                             }} className={styles.input} type="text" placeholder={"CSV"} />
                         </div>
                         <select
-                        value={selected} onChange={(e) => {
-                            setSelected(e.target.value)
-                            
+                            value={selected} onChange={(e) => {
+                                setSelected(e.target.value)
+
                             }}>
                             {options.map((value) => (
                                 <option value={value} key={value}>
@@ -376,8 +372,10 @@ const Checkout = (props) => {
                                 </option>
                             ))}
                         </select>
-                    </div>                    
-                    <button style={{ marginBottom: "15px" }} className={styles.button}>Not Functional For Now!</button>
+                    </div>
+                    <button onClick={() => {
+                        chargeCard()
+                    }} style={{ marginBottom: "15px" }} className={styles.button}>Test Card</button>
 
 
 
