@@ -106,7 +106,7 @@ export default function Data() {
       setToner(JSON.parse(localStorage.getItem("hp")))
       setSearching(true)
     }
-  }, [searching])
+  }, [products])
 
   return (
     <div className={styles.main}>

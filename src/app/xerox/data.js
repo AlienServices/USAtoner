@@ -121,7 +121,7 @@ export default function Data() {
       setSearching(true)
       setToner(JSON.parse(localStorage.getItem("xerox")))
     }
-  }, [searching])
+  }, [products])
 
   return (
     <div className={styles.main}>
