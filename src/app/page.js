@@ -13,13 +13,12 @@ import { useRouter } from "next/navigation";
 export default function Data() {
 
   const [name, setName] = useState("");
-  const { cart, setCart, cartLook, setRealPrice, tonerOem } = useContext(CartContext);
+  const { token, cart, setCart, cartLook, setRealPrice, tonerOem } = useContext(CartContext);
   const [recaptchaResponse, setRecaptchaResponse] = useState(false);
   const [inputData, setInputData] = useState()
   const [number, setNumber] = useState("");
   const [searching, setSearching] = useState(false);
   const [products, setProducts] = useState([]);
-  const [token, setToken] = useState();
   const [searchResult, setSearchResult] = useState();
   const [message, setMessage] = useState("this is the test message");
   const tawkMessengerRef = useRef();
@@ -54,7 +53,6 @@ export default function Data() {
 
 
   async function search() {
-
     const aToken = JSON.parse(localStorage.getItem("token"))
     const requestOptions = {
       method: "POST",
@@ -64,7 +62,6 @@ export default function Data() {
           token: aToken.accessToken,
           search: inputData
         })
-
     }
     try {
       const response = await fetch('/api/products', requestOptions);
@@ -75,27 +72,12 @@ export default function Data() {
     } catch (err) {
     }
   }
-  async function getToken() {
-    const requestOptions = {
-      method: "POST",
-    }
-    try {
-      const response = await fetch('/api/token', requestOptions);
-      const data1 = await response.json();
-      setToken(data1.cancel.accessToken)
-      console.log(data1, "data ran")
-      localStorage.setItem("token", JSON.stringify(data1.cancel))
-    } catch (err) {
-    }
-  }
+
 
   async function getProducts() {
-    const aToken = JSON.parse(localStorage.getItem("token"))
-    // aToken = localStorage.getItem("token")
     const requestOptions = {
       method: "POST",
-      body: JSON.stringify({ token: aToken.accessToken, search: "" })
-
+      body: JSON.stringify({ token: token, search: "" })
     }
     try {
       const response = await fetch('/api/products', requestOptions);
@@ -109,25 +91,18 @@ export default function Data() {
   }
 
   useEffect(() => {
-    if (token?.cancel?.accessToken === undefined) {
-      getToken()
-    } else if (token?.cancel?.loginStatus) {
-      getToken()
-    }
-  }, [])
-
-
-  useEffect(() => {
     getProducts()
   }, [token])
 
+
   useEffect(() => {
-    if (localStorage.getItem("main")) {
-      setSearching(true)      
+    if (!localStorage.getItem("main")) {
+      setSearching(true)
       setToner(JSON.parse(localStorage.getItem("main")))
     }
-  }, [searching])
+  }, [products])
 
+  // console.log(token, "this is a test")
   return (
     <div className={styles.main}>
       <Header />

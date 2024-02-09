@@ -13,13 +13,12 @@ import { useRouter } from "next/navigation";
 export default function Data() {
 
   const [name, setName] = useState("");
-  const { cart, setCart, cartLook, setRealPrice, tonerOem } = useContext(CartContext);
+  const {token, cart, setCart, cartLook, setRealPrice, tonerOem } = useContext(CartContext);
   const [recaptchaResponse, setRecaptchaResponse] = useState(false);
   const [inputData, setInputData] = useState()
   const [number, setNumber] = useState("");
   const [searching, setSearching] = useState(false);
-  const [products, setProducts] = useState("");
-  const [token, setToken] = useState();
+  const [products, setProducts] = useState("");  
   const [searchResult, setSearchResult] = useState();
   const [message, setMessage] = useState("this is the test message");
   const tawkMessengerRef = useRef();
@@ -54,13 +53,13 @@ export default function Data() {
 
   async function search() {
     setProducts()
-    const aToken = JSON.parse(localStorage.getItem("token"))
+    // const aToken = JSON.parse(localStorage.getItem("token"))
     const requestOptions = {
       method: "POST",
 
       body:
         JSON.stringify({
-          token: aToken.accessToken,
+          token: token,
           search: inputData
         })
 
@@ -73,20 +72,6 @@ export default function Data() {
     } catch (err) {
     }
   }
-  async function getToken() {
-    const requestOptions = {
-      method: "POST",
-    }
-    try {
-      const response = await fetch('/api/token', requestOptions);
-      const data1 = await response.json();
-      setToken(data1.cancel.accessToken)
-      console.log(data1, "data ran")
-      localStorage.setItem("token", JSON.stringify(data1.cancel))
-    } catch (err) {
-    }
-  }
-
   async function getProducts() {
     const aToken = JSON.parse(localStorage.getItem("token"))
     console.log(aToken, "this is a token we need")
@@ -109,16 +94,7 @@ export default function Data() {
     }
   }
 
-  useEffect(() => {
-    if (token?.cancel?.accessToken === undefined) {
-      getToken()
-    } else if (token?.cancel?.loginStatus) {
-      getToken()
-    }
-  }, [])
-
-
-  useEffect(() => {
+  useEffect(() => {    
     getProducts()
   }, [token])
 

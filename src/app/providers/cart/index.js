@@ -1,19 +1,20 @@
 "use client";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useMemo, useState } from "react";
 export const CartContext = createContext(undefined);
 export const CartProvider = ({ children }) => {
 
   let [realPrice, setRealPrice] = useState();
   let [cart, setCart] = useState([]);
+  let [token, setToken] = useState([]);
   let [tonerOem, setTonerOem] = useState();
-  let [cartLook, setCartLook] = useState([]);
+  let [called, setCalled] = useState(false)
   let [cardInfo, setCardInfo] = useState({});
   let [billingInfo, setBillingInfo] = useState({});
   let [personInfo, setPersonInfo] = useState({});
   let [totalAmount, setTotalAmount] = useState();
 
   useEffect(() => {
-    
+
     if (cart.length > 0) {
       localStorage.setItem("cart", JSON.stringify(cart))
     }
@@ -38,10 +39,28 @@ export const CartProvider = ({ children }) => {
     }
   }, [realPrice])
 
+  async function getToken() {  
+    const requestOptions = {
+      method: "POST",
+    }
+    try {
+      const response = await fetch('/api/token', requestOptions);
+      const data1 = await response.json();
+      setToken(data1.token.accessToken)
+      console.log(data1.token.accessToken, "data ran")
+      localStorage.setItem("token", JSON.stringify(data1.token))
+    } catch (err) {
+    }
+  }
 
-    console.log(cart, "this is the current cart")
+
+useEffect(() => {
+  getToken()
+},[])
+
+  
   return (
-    <CartContext.Provider value={{ cart, setCart, setRealPrice, cardInfo, setCardInfo, personInfo, setPersonInfo, totalAmount, billingInfo, setBillingInfo, tonerOem, setTonerOem }}>
+    <CartContext.Provider value={{ token, cart, setCart, setRealPrice, cardInfo, setCardInfo, personInfo, setPersonInfo, totalAmount, billingInfo, setBillingInfo, tonerOem, setTonerOem }}>
       {children}
     </CartContext.Provider>
   );

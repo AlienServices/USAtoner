@@ -109,13 +109,7 @@ export default function Data() {
     }
   }
 
-  useEffect(() => {
-    if (token?.cancel?.accessToken === undefined) {
-      getToken()
-    } else if (token?.cancel?.loginStatus) {
-      getToken()
-    }
-  }, [])
+
 
 
   useEffect(() => {

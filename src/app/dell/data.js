@@ -73,19 +73,6 @@ export default function Data() {
     } catch (err) {
     }
   }
-  async function getToken() {
-    const requestOptions = {
-      method: "POST",
-    }
-    try {
-      const response = await fetch('/api/token', requestOptions);
-      const data1 = await response.json();
-      setToken(data1.cancel.accessToken)
-      console.log(data1, "data ran")
-      localStorage.setItem("token", JSON.stringify(data1.cancel))
-    } catch (err) {
-    }
-  }
 
   async function getProducts() {
     const aToken = JSON.parse(localStorage.getItem("token"))
@@ -108,15 +95,6 @@ export default function Data() {
     } catch (err) {
     }
   }
-
-  useEffect(() => {
-    if (token?.cancel?.accessToken === undefined) {
-      getToken()
-    } else if (token?.cancel?.loginStatus) {
-      getToken()
-    }
-  }, [])
-
 
   useEffect(() => {
     getProducts()
