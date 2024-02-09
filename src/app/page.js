@@ -84,8 +84,7 @@ export default function Data() {
       const data1 = await response.json();
       setSearching(true)
       localStorage.setItem("main", JSON.stringify(data1.cancel.products))
-      setProducts(data1.cancel.products)
-      setToner(data1.cancel.products)
+      setProducts(data1.cancel.products)      
     } catch (err) {
     }
   }
@@ -96,7 +95,7 @@ export default function Data() {
 
 
   useEffect(() => {
-    if (!localStorage.getItem("main")) {
+    if (localStorage.getItem("main")) {
       setSearching(true)
       setToner(JSON.parse(localStorage.getItem("main")))
     }

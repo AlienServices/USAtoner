@@ -110,8 +110,6 @@ export default function Data() {
   return (
     <div className={styles.main}>
       <Header />
-
-
       <div className={styles.secondSection}>
         <div className={styles.flexSomething}>
           <div className={styles.flex}>
