@@ -41,7 +41,7 @@ const Cart = () => {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                api_key: "api-DC44EBDEE45411ED847EF23C91C88F4E",
+                api_key: """",
                 to: [`<info@copiersutah.com>`],
                 sender: "<info@copiersutah.com>",
                 subject: `This is${name}'s quote form. Her number is ${number}`,
