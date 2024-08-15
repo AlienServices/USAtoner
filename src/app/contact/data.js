@@ -152,7 +152,7 @@ export default function Data() {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                api_key: """",
+                api_key: "''",
                 to: [`<info@copiersutah.com>`],
                 sender: "<info@copiersutah.com>",
                 subject: `This is${name}'s quote form. Their number is ${number}`,
