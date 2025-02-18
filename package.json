@@ -13,6 +13,7 @@
     "@sequelize/core": "^7.0.0-alpha.29",
     "authorizenet": "^1.0.8",
     "axios": "^1.6.5",
+    "dotenv": "^16.4.7",
     "fs": "^0.0.1-security",
     "next": "^15.0.3",
     "pg": "^8.11.3",
