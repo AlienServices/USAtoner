@@ -88,24 +88,29 @@ export default function Data() {
   }
 
   async function getProducts() {
-    const aToken = JSON.parse(localStorage.getItem("token"))
-    console.log(aToken, "this is a token we need")
-    // aToken = localStorage.getItem("token")
-
-    const requestOptions = {
-      method: "POST",
-      body: JSON.stringify({ token: aToken.accessToken, search: "xerox" })
-
-    }
     try {
-      const response = await fetch('/api/products', requestOptions);
-      const data1 = await response.json();
-      console.log(data1, "this is data1")
-      console.log(data1.cancel.products, "this is the product response")
-      setSearching(true)
-      localStorage.setItem("xerox", JSON.stringify(data1.cancel.products))
-      setProducts(data1.cancel.products)
+      // First try to get from FTP processed data
+      const response = await fetch('/data/xerox-catalog.json')
+      if (response.ok) {
+        const data = await response.json()
+        setProducts(data)
+        setSearching(true)
+        localStorage.setItem("xerox", JSON.stringify(data))
+      } else {
+        // Fallback to your existing API
+        const aToken = JSON.parse(localStorage.getItem("token"))
+        const requestOptions = {
+          method: "POST",
+          body: JSON.stringify({ token: aToken.accessToken, search: "xerox" })
+        }
+        const apiResponse = await fetch('/api/products', requestOptions)
+        const data1 = await apiResponse.json()
+        setSearching(true)
+        localStorage.setItem("xerox", JSON.stringify(data1.cancel.products))
+        setProducts(data1.cancel.products)
+      }
     } catch (err) {
+      console.error('Error fetching products:', err)
     }
   }
 
