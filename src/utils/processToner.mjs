@@ -18,7 +18,7 @@ export async function processCatalog() {
       canon: [],
       epson: [],
       lexmark: [],
-      konica: [],
+      konika: [],
       samsung: [],
       xerox: [],
       ricoh: [],
@@ -49,7 +49,7 @@ export async function processCatalog() {
           else if (manufacturer.includes('canon')) brand = 'canon'
           else if (manufacturer.includes('epson')) brand = 'epson'
           else if (manufacturer.includes('lexmark')) brand = 'lexmark'
-          else if (manufacturer.includes('konica')) brand = 'konica'
+          else if (manufacturer.includes('konica')) brand = 'konika'
           else if (manufacturer.includes('samsung')) brand = 'samsung'
           else if (manufacturer.includes('xerox')) brand = 'xerox'
           else if (manufacturer.includes('ricoh')) brand = 'ricoh'
