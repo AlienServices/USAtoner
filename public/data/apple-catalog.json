@@ -1,0 +1,33 @@
+[
+  {
+    "PartNo": "RPLHP92295AM",
+    "MFGPartNo": "RPLHP92295AM",
+    "Manufacturer": "RPL PREMIUM",
+    "Description1": "REPL HP 92295AM",
+    "Description2": "95A SD MICR TONER",
+    "COO": "US",
+    "TAA": "Yes",
+    "UnitPrice": "39.00",
+    "ListPrice": "101.23",
+    "TotalAvailable": "0",
+    "Whse1": "0",
+    "Whse2": "0",
+    "Whse3": "0",
+    "Whse4": "0",
+    "Whse5": "0",
+    "Whse6": "0",
+    "UPC": "708562004183",
+    "UM": "EA",
+    "Yield": "4,000",
+    "HseBrdOem": "AVB",
+    "ImageName": "https://storefront.intltoner.com/photos/Noimage.jpg",
+    "Category": "Toner",
+    "MachSupply": "Supply",
+    "Weight": "2",
+    "length": "2.00",
+    "width": "2.00",
+    "height": "2.00",
+    "MachMfc": "APPLE",
+    "Models": "LASERWRITER II"
+  }
+]

@@ -1,4 +1,4 @@
-import { FTP } from 'basic-ftp'
+import * as ftp from 'basic-ftp'
 import fs from 'fs/promises'
 import path from 'path'
 import { processCatalog } from '@/utils/processToner'
@@ -18,7 +18,7 @@ export async function GET() {
     }))
   }
 
-  const client = new FTP()
+  const client = new ftp.Client()
   const localPath = path.join(process.cwd(), 'public', 'data', 'ecatalog.csv')
 
   try {

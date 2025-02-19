@@ -1,0 +1,33 @@
+[
+  {
+    "PartNo": "RPLXR113R00095",
+    "MFGPartNo": "RPLXR113R00095",
+    "Manufacturer": "RPL PREMIUM",
+    "Description1": "REPL XEROX 113R00095",
+    "Description2": "SD YLD BLACK TONER",
+    "COO": "US",
+    "TAA": "Yes",
+    "UnitPrice": "46.00",
+    "ListPrice": "179.49",
+    "TotalAvailable": "3",
+    "Whse1": "3",
+    "Whse2": "0",
+    "Whse3": "0",
+    "Whse4": "0",
+    "Whse5": "0",
+    "Whse6": "0",
+    "UPC": "708562096195",
+    "UM": "EA",
+    "Yield": "10,000",
+    "HseBrdOem": "AVB",
+    "ImageName": "https://storefront.intltoner.com/photos/Noimage.jpg",
+    "Category": "Toner",
+    "MachSupply": "Supply",
+    "Weight": "2",
+    "length": "2.00",
+    "width": "2.00",
+    "height": "2.00",
+    "MachMfc": "IBM",
+    "Models": "DECLN17;NP17;NP4317"
+  }
+]
