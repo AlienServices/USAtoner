@@ -1,11 +1,8 @@
 import styles from "../styles/Header.module.css";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import React, { useEffect, useRef, useState, useContext } from "react";
-import Image from "next/image";
-export default function Header() {
-  const router = useRouter();
+import React from "react";
 
+export default function Header() {
   return (
     <div>
       <header className={styles.contactHeader}>
@@ -13,11 +10,16 @@ export default function Header() {
           <div className={styles.logoSpace}>
             <div className={styles.logoContainer}>
               <Link href={'/'}>
-                <Image
-                  src="/static/download.webp"
-                  alt="buy a used or new business copier"
-                  fill={true}
-                />
+                <div style={{ 
+                  width: '100%', 
+                  height: '100%', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  backgroundColor: '#f5f5f5'
+                }}>
+                  USA Toner
+                </div>
               </Link>
             </div>
             <div className={styles.pieceContainer}>
@@ -32,19 +34,19 @@ export default function Header() {
                 <div className={styles.lineSmall}></div>
               </Link>
             </div>
-            <div className={`${styles.pieceContainer} `}>
+            <div className={`${styles.pieceContainer}`}>
               <Link href="/xerox">
                 <div className={styles.headerPieces}>Xerox</div>
                 <div className={styles.lineSmall}></div>
               </Link>
             </div>
-            <div className={`${styles.pieceContainer} `}>
+            <div className={`${styles.pieceContainer}`}>
               <Link href="/hp">
                 <div className={styles.headerPieces}>HP</div>
                 <div className={styles.lineSmall}></div>
               </Link>
             </div>
-            <div className={`${styles.pieceContainer} `}>
+            <div className={`${styles.pieceContainer}`}>
               <Link href="/dell">
                 <div className={styles.headerPieces}>Dell</div>
                 <div className={styles.lineSmall}></div>
@@ -52,20 +54,23 @@ export default function Header() {
             </div>
             <Link href={'/carts'}>
               <div className={styles.cartContainer}>
-                <Image
-                  src="/static/cart.webp"
-                  alt="buy a used or new business copier"
-                  fill={true}
-                />
+                <div style={{
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  🛒
+                </div>
               </div>
             </Link>
-            {/* <div className={styles.cartNumber}>{cart.length}</div> */}
           </div>
-        </div >
+        </div>
         <div className={styles.line}></div>
         <div className={styles.headerContainer}>
         </div>
-      </header >
+      </header>
     </div>
   );
 }
