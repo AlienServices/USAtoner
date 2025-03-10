@@ -1,0 +1,23 @@
+// This is your Prisma schema file for ITC inventory,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@prisma/itc-client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("ITC_DATABASE_URL")
+}
+
+model ITCInventory {
+  id          Int      @id @default(autoincrement())
+  sku         String   @unique
+  description String?
+  price       Float
+  quantity    Int
+  lastUpdated DateTime @default(now())
+
+  @@map("itc_inventory")
+} 
