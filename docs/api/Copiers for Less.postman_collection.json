@@ -1,0 +1,564 @@
+{
+	"info": {
+		"_postman_id": "25bc51c5-e552-4d85-ade0-4dc7954de8a7",
+		"name": "Copiers for Less",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "33951440"
+	},
+	"item": [
+		{
+			"name": "PurchaseOrders",
+			"item": [
+				{
+					"name": "EDI_PlaceOrder_APIKey",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/plain"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "ISA*00*          *00*          *01*948833793      *01*064632888      *180829*1200*U*00401*000017582*0*T*<~\r\nGS*PO*948833793*SUPPLIESNET*20180829*1200*107582*X*004010~\r\nST*850*000001~\r\nBEG*00*DS*599892*114189*20180829~\r\nCSH*N~\r\nN1*BT*TARGET OFFICE PRODUCTS*92*1703327~\r\nN3*209 Parkway View Dr*PARKWAY WST INDUSTRL PARK~\r\nN4*PITTSBURGH*PA*15205~\r\nN1*ST*BCBIC-W~\r\nN3*300 E MADISON STREET*ATTN: HEALTHCARE UNIT~\r\nN4*BALTIMORE*MD*21202~\r\nREF*EU**134336~\r\nPO1*1*3*EA*149.960**VP*98125*MG*HEWCE390A~\r\nPID*F****TONER,LSR,HP90A,LJM4555,BLK~\r\nSE*13*000001~\r\nGE*000001*107582~\r\nIEA*00001*000017582~"
+						},
+						"url": {
+							"raw": "https://uat.portal.suppliesnet.net/EDI/PlaceOrder.aspx?APIKey=",
+							"protocol": "https",
+							"host": [
+								"uat",
+								"portal",
+								"suppliesnet",
+								"net"
+							],
+							"path": [
+								"EDI",
+								"PlaceOrder.aspx"
+							],
+							"query": [
+								{
+									"key": "APIKey",
+									"value": ""
+								}
+							]
+						},
+						"description": "## Transaction Set Number 850 – Inbound Purchase Orders ANSI Version 004010\n\nThis document specifies the minimum requirements that your document must meet to be accepted into our system at the present time. DMI requires Ship-to  \nN1, N3 and N4, Bill-To N1, N3, N4 on the order header level\n\n#### Data Segment ST – Transaction Set Header – Mandatory\n\n| Reference Description and Name | Data Type and Requirements | Comments |\n| --- | --- | --- |\n| ST01 - Transaction Set Identifier | 143 - ID  <br>Mandatory  <br>Size Limit: 3/3 | 850 |\n| ST02 - Transaction Set Control  <br>Number | 329 - AN  <br>Mandatory  <br>Size Limit: 4/9 |  |\n\n#### Data Segment BEG – Beginning Segment for Purchase Order – Mandatory\n\n| Reference Description and Name | Data Type and Requirements | **Comments** |\n| --- | --- | --- |\n| BEG01 - Transaction Set Type | 353 - ID  <br>Mandatory  <br>Size Limit: 2/2 | \"00\" - Original only |\n| BEG02 - Purchase Order Type Code | 092 - AN  <br>Mandatory  <br>Size Limit: 2/2 | \"SA\" - Stand-along  <br>\"DS\" - Drop ship  <br>\"DR\" - Double-dealer drop ship |\n| BEG03 - Purchase Order Number | 324 - AN  <br>Mandatory  <br>Size Limit: 1/22 | PO Number |\n| BEG04 - Release Number | 328 - AN  <br>Optional  <br>Size Limit: 1/30 | Release Number, returned in 855 |\n| BEG05 - Purchase Order Date | 373 - DT  <br>Mandatory  <br>Size Limit: 8/8 | PO Date |\n\n#### Data Segment REF – Reference Identification for Purchase Order – Optional\n\n**Note:** _REF segment is used to communicate user preferences for handling price differences and__% differences permissible, and action to take when items can not be matched.__**Difference is calculated as follows:**__• Assumed > Actual: (Assumed – Actual) / Actual__• Assumed < Actual: (Actual – Assumed) / Assumed_\n\n| Reference Description and Name | Data Type and Requirements | **Comments** |\n| --- | --- | --- |\n| REF01 - Reference Identification Qualifier | 128 - ID  <br>Mandatory  <br>Size Limit: 2/3 | “ZZ” – Mutually Defined, all others |\n| REF02 - Reference Identification | 127 - AN  <br>Conditional  <br>Size Limit: 1/30 | Note used |\n| REF0401 - Reference Identification Qualifier | 128 - AN  <br>Mandatory  <br>Size Limit: 2/3 | \"IP\" - Item Price Options |\n| REF0402 - Reference Identification | 127 - AN  <br>Conditional  <br>SIze Limit: 1/30 | _Options in case Item Price assumed does  <br>not match Item Price to be charged:_  <br>“IP” – Ignore Differences  <br>“HO” – Place order on Hold if Pct difference is outside value specified in REF0404  <br>“DI” – Delete Line Item if Pct difference  <br>is outside value specified in REF0404  <br>“DO” – Delete Order if Pct difference is  <br>outside value specified in REF0404 |\n| REF0403 - Reference Identification Qualifier | 128 - AN  <br>Mandatory  <br>Size Limit: 2/3 | \"ZZ” – Mutually Defined |\n| REF0404 - Reference Identification | 127 - AN  <br>Conditional  <br>Size Limit: 1/30 | _Pct value within which a price difference is not considered cause for concern:_  <br>10 = 10%,  <br>blank = 0% (exact match required) |\n| REF0405 - Reference Identification Qualifier | 128 - AN  <br>Mandatory  <br>Size Limit: 2/3 | \"ZZ” – Mutually Defined |\n| REF0406 - Reference Identification | 127 - AN  <br>Conditional  <br>Size Limit: 1/30 | _Options for Items that can not be matched  <br>by part #:_  <br>“IP” – Ignore Problem  <br>“HO” – Hold Order  <br>“DO” – Delete Order |\n\n#### Data Segment CSH – Sales Requirements – Optional for Inbound 850\n\n| Reference Description and Name | Data Type and Requirements | **Comments** |\n| --- | --- | --- |\n| CSH01 - Sales Requirement Code | 563 - ID  <br>Mandatory  <br>Size Limit: 1/2 | _Options for handling backorder on order:_  <br>“N” – No backorder allowed,  <br>backorder qty is deleted  <br>“Y” – Explicitly allowed (same  <br>as UL)  <br>“SC” – Ship complete (One  <br>shipment, either all backorder  <br>or all available)  <br>“UL” – Ship as soon as  <br>available (multiple Shipments)  <br>“P2” – Ship Backorder  <br>complete  <br>“DI” – Delete entire line item  <br>“DO” – Delete entire order |\n\nThere are more options for the SCH01 field, but the 7 mentioned above are sufficient to fully indicate what is desired. If no directives are sent, the order will ship with backorder (if required) in a max of 2 shipments.  \nIf the customer allows backorder, there are 3 options to choose from:\n\n1. One shipment only (“SC”, either all is ready for immediate shipment or all is backordered and shipped in one order).\n    \n2. A max of 2 Shipments (“P2”), One immediate, backorder in one shipment).\n    \n3. Ship immediate part now (“UL”), ship backorder as soon as individual items become available.\n    \n\nOption “N” and “DI” result in only one immediate shipment.\n\n#### Data Segment TD4 – Carrier Details – Optional for inbound 850\n\n| Reference Description and Name | Data Type and Requirements | **Comments** |\n| --- | --- | --- |\n| DT401 - Special Handling Code | 152 - ID  <br>Optional  <br>Size Limit: 2/3 | “DEL” Delivery Service |\n| DT404 - Description | 152 - AN  <br>Optional  <br>Size Limit: 1/80 | Description of desired shipping method |\n\n#### Data Segment N1 – Name (Bill-To and Ship-To) – Mandatory\n\n| Reference Description and Name | Data Type and Requirements | **Comments** |\n| --- | --- | --- |\n| N101 - Entity Identifier Code | 098 - ID  <br>Mandatory  <br>Size Limit: 2/2 | \"BT\" - Bill To  <br>\"ST\" - Ship To |\n| N102 - Name | 093 - AN  <br>Mandatory  <br>Size Limit: 1/60 | Name |\n| N103 - Identification Code Qualifier | 066 - ID  <br>Optional  <br>Size Limit: 2/2 | “ZZ” only |\n| N104 - Identification Code | 067 - AN  <br>Conditional  <br>Size Limit: 2/80 | DMI assigned ContactID |\n\n#### Data Segment N2 – Additional Name Information (Bill-To and Ship-To) – Optional\n\n| Reference Description and Name | Data Type and Requirements | Comments |\n| --- | --- | --- |\n| N201 - Attn | 093 - AN  <br>Conditional  <br>Size Limit: 1/60 | Attn field |\n\n#### Data Segment N3 – Address Information (Bill-To and Ship-To) – Mandatory\n\n| Reference Description and Name | Data Type and Requirements | Comments |\n| --- | --- | --- |\n| N301 - Address 1 | 166 - AN  <br>Mandatory  <br>Size Limit: 1/55 | Address Line 1 |\n| N302 - Address 2 | 166 - AN  <br>Optional  <br>Size Limit: 1/55 | Address Line 2 |\n\n#### Data Segment N4 – Geographic Information (Bill-To and Ship-To) – Mandatory\n\n| Reference Description and Name | Data Type and Requirements | Comments |\n| --- | --- | --- |\n| N401 - City | 019 - AN  <br>Mandatory  <br>Size Limit: 2/30 | City |\n| N402 - State | 156 - AN  <br>Mandatory  <br>Size Limit: 2/2 | Two letter abbreviation for State |\n| N403 - Postal Code (Zip) | 116 - ID  <br>Mandatory  <br>Size Limit: 5/9 | Zip code without \"-\" |\n| N404 - Country Code | 026 - ID  <br>Optional  <br>Size Limit: 2/2 | If unused, will assume US address. |\n\n#### Data Segment REF – End User PO Number information, ST Loop - Optional\n\n| Reference Description and Name | Data Type and Requirements | Comments |\n| --- | --- | --- |\n| REF01 - Reference Identification Qualifier | 128 - AN  <br>Mandatory  <br>Size Limit: 1/1 | \"EU\" for end user, all others ignored |\n| REF02 - Reference Identification | 127 - AN  <br>Optional  <br>Size Limit: 1/30 | 30 Character End user PO Number, shown on Packing Slip  <br>**Note:** _If Both REF02 and REF03 are present, REF03 will be used with a 32 character limit imposed on Packing Slip._ |\n| REF03 - Description | 352 - AN  <br>Optional  <br>Size Limit: 1/80 | 80 Character End User PO Number, shown on Packing Slip.  <br>**Note:** _If Both REF02 and REF03 are present, REF03 will be used with a 32 character limit imposed on Packing Slip._ |\n\n#### Data Segment P01 – Purchase Order Baseline Item Data - Mandatory\n\n| Reference Description and Name | Data Type and Requirements | Comments |\n| --- | --- | --- |\n| PO101 - Assigned Identifier | 350 - AN  <br>Mandatory  <br>Size Limit: 1/20 | Rank of item (Nnnn) |\n| PO102 - Quantity Ordered | 330 - R  <br>Conditional  <br>Size Limit: 1/15 |  |\n| PO103 - Unit of Measurement Code | 355 - ID  <br>Optional  <br>Size Limit: 2/2 |  |\n| PO104 - Unit Price | 212 - R  <br>Conditional  <br>Size Limit: 1/17 |  |\n| PO106 - Product/Service ID Qualifier | 235 - ID  <br>Conditional  <br>Size Limit: 2/2 | \"MG\" |\n| PO107 - Product/Service ID | 234 - AN  <br>Conditional  <br>Size Limit: 1/48 | OEM Number of part |\n| PO108 - Product/Service ID Qualifier | 235 - ID  <br>Conditional  <br>Size Limit: 2/2 | \"VP\" |\n| PO109 - Product/Service ID | 234 - AN  <br>Conditional  <br>Size Limit: 1/48 | Vendor Part Number (DMIReferenceNum) |\n\n#### Data Segment PID – Product/Item Description – Optional\n\n| Reference Description and Name | Data Type and Requirements | Comments |\n| --- | --- | --- |\n| PID01 - Item Description Type | 349 - ID  <br>Mandatory  <br>Size Limit: 1/1 | “F” – Free form |\n| PID05 - Description | 352 - AN  <br>Mandatory  <br>Size Limit: 1/80 | Description of item ordered.  <br>**Note:** _helpful when item could not be matched._ |\n\n**Note:** _Only 1 PID segment per Item will be considered._\n\n#### Data Segment SCH – Line Item Schedule – Optional\n\n| Reference Description and Name | Data Type and Requirements | Comments |\n| --- | --- | --- |\n| SCH01 - Quantity | 380 - R  <br>Mandatory  <br>Size Limit: 1/15 | Quatity ordered |\n| SCH02 - UOM | 355 - AN  <br>Mandatory  <br>Size Limit: 2/2 | UOM |\n| SCH05 - Date/Time Qualifier | 374 - ID  <br>Mandatory  <br>Size Limit: 3/3 | 996 - Required Delivery  <br>106 - Required By  <br>038 - Ship No Later |\n| SCH06 - Date | 373 - DT  <br>Mandatory  <br>Size Limit: 8/8 | Date depending on SCH06 value. |"
+					},
+					"response": [
+						{
+							"name": "PlaceOrder_DEV",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "text/xml"
+									},
+									{
+										"key": "SOAPAction",
+										"value": "\"http://portal.suppliesnet.net/PlaceOrder\""
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:dmi=\"http://portal.suppliesnet.net\">\r\n   <soapenv:Body>\r\n      <dmi:PlaceOrder>\r\n      \t<dmi:PurchaseOrders>\r\n         <dmi:PurchaseOrders SenderID=\"PB_9999\" ReceiverID=\"0000071135\" processed=\"false\" TestIndicator=\"P\" xmlns:dmi=\"http://portal.suppliesnet.net\" xmlns:ns0=\"http://pb.com/xi/SNC/Global\">\r\n\t<dmi:PurchaseOrder>\r\n\t\t<dmi:OrderType>Dealer DropShip</dmi:OrderType>\r\n\t\t<dmi:DealerPONumber>3200198706_JKB7</dmi:DealerPONumber>\r\n\t\t<dmi:CustomerPONumber>PO-00119478</dmi:CustomerPONumber>\r\n\t\t<dmi:Comment />\r\n\t\t<dmi:ShipTo>\r\n\t\t\t<dmi:Name>Excela Enterprise Sol/Robert Rose  </dmi:Name>\r\n\t\t\t<dmi:Attn>Robert Rose </dmi:Attn>\r\n\t\t\t<dmi:Attn2 />\r\n\t\t\t<dmi:Address1>999 18th St/Fl 23</dmi:Address1>\r\n\t\t\t<dmi:Address2 />\r\n\t\t\t<dmi:City>Denver</dmi:City>\r\n\t\t\t<dmi:State>CO</dmi:State>\r\n\t\t\t<dmi:ZipCode>802022499</dmi:ZipCode>\r\n\t\t\t<dmi:Contact>\r\n\t\t\t\t<dmi:ContactName />\r\n\t\t\t</dmi:Contact>\r\n\t\t</dmi:ShipTo>\r\n\t\t<dmi:BillTo>\r\n\t\t\t<dmi:Name />\r\n\t\t\t<dmi:Attn />\r\n\t\t\t<dmi:Address1 />\r\n\t\t\t<dmi:Address2 />\r\n\t\t\t<dmi:City />\r\n\t\t\t<dmi:State />\r\n\t\t\t<dmi:ZipCode />\r\n\t\t\t<dmi:Contact>\r\n\t\t\t\t<dmi:ContactName />\r\n\t\t\t\t<dmi:ContactMethod>Phone</dmi:ContactMethod>\r\n\t\t\t\t<dmi:ContactAddress />\r\n\t\t\t</dmi:Contact>\r\n\t\t</dmi:BillTo>\r\n\t\t<dmi:SoldBy>\r\n\t\t\t<dmi:Name />\r\n\t\t\t<dmi:Attn />\r\n\t\t\t<dmi:Address1 />\r\n\t\t\t<dmi:Address2 />\r\n\t\t\t<dmi:City />\r\n\t\t\t<dmi:State />\r\n\t\t\t<dmi:ZipCode />\r\n\t\t\t<dmi:Contact>\r\n\t\t\t\t<dmi:ContactName />\r\n\t\t\t\t<dmi:ContactMethod>Phone</dmi:ContactMethod>\r\n\t\t\t\t<dmi:ContactAddress />\r\n\t\t\t</dmi:Contact>\r\n\t\t</dmi:SoldBy>\r\n\t\t<dmi:Contact>\r\n\t\t\t<dmi:ContactName />\r\n\t\t\t<dmi:ContactMethod />\r\n\t\t\t<dmi:ContactAddress />\r\n\t\t\t<dmi:ContactIdentifier />\r\n\t\t</dmi:Contact>\r\n\t\t<dmi:ShippingInformation>\r\n\t\t\t<dmi:ShipLabel>PB Order#: 0004713103</dmi:ShipLabel>\r\n\t\t</dmi:ShippingInformation>\r\n\t\t<dmi:OrderInformation />\r\n\t\t<dmi:AdditionalInformation>\r\n\t\t\t<dmi:Account />\r\n\t\t\t<dmi:Company>9999</dmi:Company>\r\n\t\t\t<dmi:CostCenter />\r\n\t\t\t<dmi:ReleaseNumber />\r\n\t\t</dmi:AdditionalInformation>\r\n\t\t<dmi:PurchaseOrderLines>\r\n\t\t\t<dmi:PurchaseOrderLine>\r\n\t\t\t\t<dmi:Rank>00010</dmi:Rank>\r\n\t\t\t\t<dmi:OEMNumber>HPE-Q</dmi:OEMNumber>\r\n\t\t\t\t<dmi:ReferenceNumber />\r\n\t\t\t\t<dmi:Description />\r\n\t\t\t\t<dmi:OrderQuantity>5</dmi:OrderQuantity>\r\n\t\t\t\t<dmi:UOM>EA</dmi:UOM>\r\n\t\t\t\t<dmi:UnitPrice>17.83</dmi:UnitPrice>\r\n\t\t\t\t<dmi:Comment />\r\n\t\t\t</dmi:PurchaseOrderLine>\r\n\t\t\t<dmi:PurchaseOrderLine>\r\n\t\t\t\t<dmi:Rank>00020</dmi:Rank>\r\n\t\t\t\t<dmi:OEMNumber>HPD-T</dmi:OEMNumber>\r\n\t\t\t\t<dmi:ReferenceNumber />\r\n\t\t\t\t<dmi:Description />\r\n\t\t\t\t<dmi:OrderQuantity>20</dmi:OrderQuantity>\r\n\t\t\t\t<dmi:UOM>EA</dmi:UOM>\r\n\t\t\t\t<dmi:UnitPrice>326.62</dmi:UnitPrice>\r\n\t\t\t\t<dmi:Comment />\r\n\t\t\t</dmi:PurchaseOrderLine>\r\n\t\t\t<dmi:PurchaseOrderLine>\r\n\t\t\t\t<dmi:Rank>00030</dmi:Rank>\r\n\t\t\t\t<dmi:OEMNumber>HPD-S</dmi:OEMNumber>\r\n\t\t\t\t<dmi:ReferenceNumber />\r\n\t\t\t\t<dmi:Description />\r\n\t\t\t\t<dmi:OrderQuantity>20</dmi:OrderQuantity>\r\n\t\t\t\t<dmi:UOM>EA</dmi:UOM>\r\n\t\t\t\t<dmi:UnitPrice>326.62</dmi:UnitPrice>\r\n\t\t\t\t<dmi:Comment />\r\n\t\t\t</dmi:PurchaseOrderLine>\r\n\t\t\t<dmi:PurchaseOrderLine>\r\n\t\t\t\t<dmi:Rank>00040</dmi:Rank>\r\n\t\t\t\t<dmi:OEMNumber>HPD-R</dmi:OEMNumber>\r\n\t\t\t\t<dmi:ReferenceNumber />\r\n\t\t\t\t<dmi:Description />\r\n\t\t\t\t<dmi:OrderQuantity>20</dmi:OrderQuantity>\r\n\t\t\t\t<dmi:UOM>EA</dmi:UOM>\r\n\t\t\t\t<dmi:UnitPrice>326.62</dmi:UnitPrice>\r\n\t\t\t\t<dmi:Comment />\r\n\t\t\t</dmi:PurchaseOrderLine>\r\n\t\t\t<dmi:PurchaseOrderLine>\r\n\t\t\t\t<dmi:Rank>00050</dmi:Rank>\r\n\t\t\t\t<dmi:OEMNumber>HPD-Q</dmi:OEMNumber>\r\n\t\t\t\t<dmi:ReferenceNumber />\r\n\t\t\t\t<dmi:Description />\r\n\t\t\t\t<dmi:OrderQuantity>35</dmi:OrderQuantity>\r\n\t\t\t\t<dmi:UOM>EA</dmi:UOM>\r\n\t\t\t\t<dmi:UnitPrice>234.21</dmi:UnitPrice>\r\n\t\t\t\t<dmi:Comment />\r\n\t\t\t</dmi:PurchaseOrderLine>\r\n\t\t</dmi:PurchaseOrderLines>\r\n\t</dmi:PurchaseOrder>\r\n</dmi:PurchaseOrders>\r\n</dmi:PurchaseOrders>\r\n      </dmi:PlaceOrder>\r\n   </soapenv:Body>\r\n</soapenv:Envelope>\r\n"
+								},
+								"url": {
+									"raw": "http://localhost:59242/PurchaseOrders/PurchaseOrder.asmx",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "59242",
+									"path": [
+										"PurchaseOrders",
+										"PurchaseOrder.asmx"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "xml",
+							"header": [
+								{
+									"key": "Cache-Control",
+									"value": "private, max-age=0",
+									"name": "Cache-Control",
+									"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
+								},
+								{
+									"key": "Content-Encoding",
+									"value": "gzip",
+									"name": "Content-Encoding",
+									"description": "The type of encoding used on the data."
+								},
+								{
+									"key": "Content-Length",
+									"value": "1455",
+									"name": "Content-Length",
+									"description": "The length of the response body in octets (8-bit bytes)"
+								},
+								{
+									"key": "Content-Type",
+									"value": "text/xml; charset=utf-8",
+									"name": "Content-Type",
+									"description": "The mime type of this content"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 20 Jun 2018 20:02:25 GMT",
+									"name": "Date",
+									"description": "The date and time that the message was sent"
+								},
+								{
+									"key": "Server",
+									"value": "Microsoft-IIS/10.0",
+									"name": "Server",
+									"description": "A name for the server"
+								},
+								{
+									"key": "Vary",
+									"value": "Accept-Encoding",
+									"name": "Vary",
+									"description": "Tells downstream proxies how to match future request headers to decide whether the cached response can be used rather than requesting a fresh one from the origin server."
+								},
+								{
+									"key": "X-AspNet-Version",
+									"value": "4.0.30319",
+									"name": "X-AspNet-Version",
+									"description": "Custom header"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "ASP.NET",
+									"name": "X-Powered-By",
+									"description": "Specifies the technology (ASP.NET, PHP, JBoss, e.g.) supporting the web application (version details are often in X-Runtime, X-Version, or X-AspNet-Version)"
+								},
+								{
+									"key": "X-SourceFiles",
+									"value": "=?UTF-8?B?QzpcX0RhdGFcRURJXFBvcnRhbFxQb3J0YWxcUHVyY2hhc2VPcmRlcnNcUHVyY2hhc2VPcmRlci5hc214?=",
+									"name": "X-SourceFiles",
+									"description": "Custom header"
+								}
+							],
+							"cookie": [
+								{
+									"expires": "Invalid Date",
+									"httpOnly": true,
+									"domain": "localhost",
+									"path": "/",
+									"secure": false,
+									"value": "bdrq41uaskfwqed4r4obxzez",
+									"key": "ASP.NET_SessionId"
+								}
+							],
+							"body": "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Body><PlaceOrderResponse xmlns=\"http://portal.suppliesnet.net\"><PlaceOrderResult><dmi:PurchaseOrderAcknowledgments TestIndicator=\"T\" SenderID=\"0000071135\" ReceiverID=\"PB_9999\" xmlns:dmi=\"http://portal.suppliesnet.net\"><dmi:PurchaseOrderAcknowledgment><dmi:OrderStatus>Processed</dmi:OrderStatus><dmi:OrderNumber>22249908</dmi:OrderNumber><dmi:OrderType>Dealer DropShip</dmi:OrderType><dmi:DealerPONumber>3200198706_JKB7</dmi:DealerPONumber><dmi:CustomerPONumber>PO-00119478</dmi:CustomerPONumber><dmi:ProductTotal>27474.35</dmi:ProductTotal><dmi:Shipping>0.00</dmi:Shipping><dmi:Handling>0.00</dmi:Handling><dmi:Tax>0.00</dmi:Tax><dmi:OrderTotal>27474.35</dmi:OrderTotal><dmi:PODate>20180620</dmi:PODate><dmi:ShipTo><dmi:Name>Excela Enterprise Sol/Robert Rose</dmi:Name><dmi:Attn>Robert Rose</dmi:Attn><dmi:Address1>999 18th St/Fl 23</dmi:Address1><dmi:City>Denver</dmi:City><dmi:State>CO</dmi:State><dmi:ZipCode>802022499</dmi:ZipCode></dmi:ShipTo><dmi:BillTo><dmi:Name>Pitney Bowes</dmi:Name><dmi:Attn>Accounts Payable</dmi:Attn><dmi:Address1>PO Box 8881003</dmi:Address1><dmi:City>Grand Rapids</dmi:City><dmi:State>MI</dmi:State><dmi:ZipCode>49588</dmi:ZipCode></dmi:BillTo><dmi:AdditionalInformation><dmi:Company>9999</dmi:Company></dmi:AdditionalInformation><dmi:PurchaseOrderLines><dmi:PurchaseOrderLine><dmi:Rank>10</dmi:Rank><dmi:OEMNumber>CE265A</dmi:OEMNumber><dmi:ReferenceNumber>18830</dmi:ReferenceNumber><dmi:BuyerPartNumber>HPE-Q</dmi:BuyerPartNumber><dmi:OrderQuantity>5</dmi:OrderQuantity><dmi:CommittedQuantity>5</dmi:CommittedQuantity><dmi:UOM>EA</dmi:UOM><dmi:UnitPrice>17.83</dmi:UnitPrice><dmi:ItemStatus>Item Accepted</dmi:ItemStatus></dmi:PurchaseOrderLine><dmi:PurchaseOrderLine><dmi:Rank>20</dmi:Rank><dmi:OEMNumber>CF333A</dmi:OEMNumber><dmi:ReferenceNumber>920242</dmi:ReferenceNumber><dmi:BuyerPartNumber>HPD-T</dmi:BuyerPartNumber><dmi:OrderQuantity>20</dmi:OrderQuantity><dmi:CommittedQuantity>0</dmi:CommittedQuantity><dmi:BackOrderedQuantity>20</dmi:BackOrderedQuantity><dmi:UOM>EA</dmi:UOM><dmi:UnitPrice>321.81</dmi:UnitPrice><dmi:ItemStatus>Item Backordered</dmi:ItemStatus><dmi:StatusInformation>COMPLETE BACKORDER</dmi:StatusInformation><dmi:EstimatedShipDate>20180706</dmi:EstimatedShipDate></dmi:PurchaseOrderLine><dmi:PurchaseOrderLine><dmi:Rank>30</dmi:Rank><dmi:OEMNumber>CF332A</dmi:OEMNumber><dmi:ReferenceNumber>920241</dmi:ReferenceNumber><dmi:BuyerPartNumber>HPD-S</dmi:BuyerPartNumber><dmi:OrderQuantity>20</dmi:OrderQuantity><dmi:CommittedQuantity>20</dmi:CommittedQuantity><dmi:UOM>EA</dmi:UOM><dmi:UnitPrice>321.81</dmi:UnitPrice><dmi:ItemStatus>Item Changed</dmi:ItemStatus><dmi:StatusInformation>DIFFERENT PRICE</dmi:StatusInformation></dmi:PurchaseOrderLine><dmi:PurchaseOrderLine><dmi:Rank>40</dmi:Rank><dmi:OEMNumber>CF331A</dmi:OEMNumber><dmi:ReferenceNumber>920240</dmi:ReferenceNumber><dmi:BuyerPartNumber>HPD-R</dmi:BuyerPartNumber><dmi:OrderQuantity>20</dmi:OrderQuantity><dmi:CommittedQuantity>20</dmi:CommittedQuantity><dmi:UOM>EA</dmi:UOM><dmi:UnitPrice>321.81</dmi:UnitPrice><dmi:ItemStatus>Item Changed</dmi:ItemStatus><dmi:StatusInformation>DIFFERENT PRICE</dmi:StatusInformation></dmi:PurchaseOrderLine><dmi:PurchaseOrderLine><dmi:Rank>50</dmi:Rank><dmi:OEMNumber>CF330X</dmi:OEMNumber><dmi:ReferenceNumber>920239</dmi:ReferenceNumber><dmi:BuyerPartNumber>HPD-Q</dmi:BuyerPartNumber><dmi:OrderQuantity>35</dmi:OrderQuantity><dmi:CommittedQuantity>1</dmi:CommittedQuantity><dmi:BackOrderedQuantity>34</dmi:BackOrderedQuantity><dmi:UOM>EA</dmi:UOM><dmi:UnitPrice>230.76</dmi:UnitPrice><dmi:ItemStatus>Item Partially Backordered</dmi:ItemStatus><dmi:StatusInformation>PARTIAL BACKORDER</dmi:StatusInformation><dmi:EstimatedShipDate>20180709</dmi:EstimatedShipDate></dmi:PurchaseOrderLine></dmi:PurchaseOrderLines></dmi:PurchaseOrderAcknowledgment></dmi:PurchaseOrderAcknowledgments></PlaceOrderResult></PlaceOrderResponse></soap:Body></soap:Envelope>"
+						}
+					]
+				},
+				{
+					"name": "POAckRequest_APIKey",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/xml"
+							},
+							{
+								"key": "SOAPAction",
+								"value": "\"http://portal.suppliesnet.net/RetrievePurchaseOrderAcknowledgment\""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n    <soap:Body>\n        <RetrievePurchaseOrderAcknowledgment xmlns=\"http://portal.suppliesnet.net\">\n            <PurchaseOrderRequest>\n                <dmi:PurchaseOrderAcknowledgmentRequest xmlns:dmi=\"http://portal.suppliesnet.net\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n                    <dmi:APIKey>DB7BC28F-23BB-4CF1-93CD-EC9C5EFD7FA8</dmi:APIKey>\n                    <dmi:ContactID>6023943</dmi:ContactID>\n                    <dmi:IncludeSubOrders>0</dmi:IncludeSubOrders>\n                    <dmi:PurchaseOrderNumbers>5336-1</dmi:PurchaseOrderNumbers>\n                    <dmi:OrderNumbers/>\n                </dmi:PurchaseOrderAcknowledgmentRequest>\n            </PurchaseOrderRequest>\n        </RetrievePurchaseOrderAcknowledgment>\n    </soap:Body>\n</soap:Envelope>"
+						},
+						"url": {
+							"raw": "https://uat.portal.suppliesnet.net/PurchaseOrders/PurchaseOrder.asmx",
+							"protocol": "https",
+							"host": [
+								"uat",
+								"portal",
+								"suppliesnet",
+								"net"
+							],
+							"path": [
+								"PurchaseOrders",
+								"PurchaseOrder.asmx"
+							]
+						},
+						"description": "## RetrievePurchaseOrderAcknowledgment Method Input\n\nThe RetrievePurchaseOrderAcknowledgment method allows the user to re-request an acknowledgment for a previously placed order. Various Input parameters allow for searching of orders. The output is identical to that of the PlaceOrder method.\n\n#### **Element PurchaseOrderAcknowledgmentRequest – Root Element– Mandatory**\n\n| Element Type and Name | Data Type and Requirements | Comments |\n| --- | --- | --- |\n| Namespace - xmlns:dmi | String  <br>Mandatory | [http://portal.suppliesnet.net](http://portal.suppliesnet.net) |\n| Element - APIKey | String  <br>Mandatory  <br>Size Limit: 36/36 | Customer’s APIKey |\n| Element - ContactID | Long  <br>Mandatory  <br>Size Limit: 1/15 | DMI assigned ContactID that the Order was placed under. |\n| Element - IncludSubOrder | Boolean  <br>Mandatory  <br>Size Limit: 1 | True (1) or False (0) to indicate of only the Main order or all Orders with the same Order Number are to be returned. |\n| Element - PurchaseOrderNumbers | String  <br>Mandatory  <br>Size Limit: 0/\\* | Comma-separated list of User-issued Purchaseorder Numbers that user would like an acknowledgment for. |\n| Element - OrderNumbers | String  <br>Mandatory  <br>Size Limit: 0/\\* | Comma-separated list of DMI-issued Order Numbers that user would like an acknowledgment for. |"
+					},
+					"response": []
+				},
+				{
+					"name": "EstimateOrder_APIKey",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/xml"
+							},
+							{
+								"key": "SOAPAction",
+								"value": "\"http://portal.suppliesnet.net/EstimateOrder\""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\r\n  <soap:Body>\r\n    <EstimateOrder xmlns=\"http://portal.suppliesnet.net\">\r\n      <PurchaseOrders>\r\n      \t<PurchaseOrders xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" SenderID=\"4014533DMI\" ReceiverID=\"064632888\" APIKey=\"\" processed=\"false\" TestIndicator=\"P\" xmlns=\"http://portal.suppliesnet.net\">\r\n\t\t\t<PurchaseOrder>\r\n    \t\t\t<OrderType>Dealer DropShip</OrderType>\r\n    \t\t\t<Comment />\r\n    \t\t\t<DealerPONumber>SO31575</DealerPONumber>\r\n    \t\t\t<ShipTo>\r\n    \t\t\t\t<Name>Ron Ashley</Name>\r\n    \t\t\t\t<Address1>12911 North Telecom Parkway</Address1>\r\n    \t\t\t\t<City>Temple Terrace</City>\r\n    \t\t\t\t<State>FL</State>\r\n    \t\t\t\t<ZipCode>33637</ZipCode>\r\n    \t\t\t\t<CountryCode>United States</CountryCode>\r\n    \t\t\t</ShipTo>\r\n    \t\t\t<ShippingInformation>\r\n    \t\t\t\t<ShipmentOptions>\r\n        \t\t\t\t<ShipmentOption>\r\n        \t\t\t\t\t<DCID>5</DCID>\r\n        \t\t\t\t\t<FreightProgramID>8106</FreightProgramID>\r\n        \t\t\t\t\t<ShipWhen>Immediate</ShipWhen>\r\n        \t\t\t\t\t<ShipperID>0</ShipperID>\r\n        \t\t\t\t\t<FreightAccountNum />\r\n        \t\t\t\t</ShipmentOption>\r\n    \t\t\t\t</ShipmentOptions>\r\n    \t\t\t</ShippingInformation>\r\n    \t\t<PurchaseOrderLines>\r\n    \t\t\t<PurchaseOrderLine>\r\n        \t\t\t<Rank>1</Rank>\r\n        \t\t\t<OEMNumber>1004</OEMNumber>\r\n        \t\t\t<OrderQuantity>1</OrderQuantity>\r\n        \t\t\t<UnitPrice>0</UnitPrice>\r\n        \t\t\t<InternationalUnitCost>$34.00</InternationalUnitCost>\r\n    \t\t\t</PurchaseOrderLine>\r\n    \t\t</PurchaseOrderLines>\r\n\t\t</PurchaseOrder>\r\n\t</PurchaseOrders>\r\n\t</PurchaseOrders>\r\n  </EstimateOrder>\r\n  </soap:Body>\r\n</soap:Envelope>"
+						},
+						"url": {
+							"raw": "https://uat.portal.suppliesnet.net/PurchaseOrders/PurchaseOrder.asmx",
+							"protocol": "https",
+							"host": [
+								"uat",
+								"portal",
+								"suppliesnet",
+								"net"
+							],
+							"path": [
+								"PurchaseOrders",
+								"PurchaseOrder.asmx"
+							]
+						},
+						"description": "## EstimateOrder Request Method Input\n\nThis document specifies the minimum requirements that your document needs to follow in order to be accepted into our system. The global namespace is “dmi” defined as [http://portal.suppliesnet.net](http://portal.suppliesnet.net)i n both development and production.\n\n#### **Element EstimateOrder – Root Element– Mandatory**\n\n| Element Type and Name | Data Type and Requirement | Comments |\n| --- | --- | --- |\n| Namespace - Xmlns:dmi | String  <br>Mandatory | [http://portal.suppliesnet.net](http://portal.suppliesnet.net) |\n| Namespace - Xmlns:xsi | String  <br>Mandatory | [http://www.w3.org/2001/XMLSchema-instance](http://www.w3.org/2001/XMLSchema-instance) |\n| Element - EstimateOrder | EstimateOrderType  <br>Mandatory |  |\n\n#### **Element PurchaseOrder – Root Element– Mandatory**\n\n| Element Type and Name | Data Type and Requirement | Comments |\n| --- | --- | --- |\n| Element - OrderType | OrderType  <br>Required | Type of order |\n| Element - DealerPONumber | String  <br>Mandatory | Purchase Order Number. |\n| Element - ShipTo | PartnerInformationType  <br>Mandatory | This node contains the shipto information |\n\n#### **Element ShipTo – Root Element– Mandatory**\n\n| Element Type and Name | Data Type and Requirement | Comments |\n| --- | --- | --- |\n| Element - Name | String  <br>Mandatory | Name of Ship From Address |\n| Element - Adress1 | String  <br>Mandatory | Ship From Street Address field 1 |\n| Element - Adress2 | String  <br>Mandatory | Ship From Street Address field 2 |\n| Element - City | String  <br>Mandatory | Ship From City |\n| Element - State | String  <br>Mandatory | Uppercase 2 letter abbreviation for Ship From state |\n| Element - ZipCode | String  <br>Mandatory | 5 or 9 Ship From digit zip code without spaces |\n| Element - CountryCode | String  <br>Optional  <br>Size Limit: 2/2 | If unused, will assume US address. |\n\n#### **Element** ShippingInformation**–Element– Mandatory**\n\n| Element Type and Name | Data Type and Requirement | **Comments** |\n| --- | --- | --- |\n| Element - ShipmentOptions | ShipmentOptionType  <br>Mandatory | Each ShipmentOption node is a presentation of a shipment that would be created |\n\n#### **Element** ShipmentOption**–Element– Mandatory**\n\n| Element Type and Name | Data Type and Requirement | **Comments** |\n| --- | --- | --- |\n| Element - DCID | Int  <br>Mandatory  <br>Size Limits: 1 | This is the DC your order will be arrive at. Use keys below:  <br>4 for St. Peters, MO  <br>2 for Carlisle, PA  <br>5 for Fresno, CA  <br>3 for Mesquite, TX |\n| Element - FreightProgramID | Int  <br>Optional  <br>Size Limits: 0/1 | This is the identifier of the FreightProgram that DM rep has setup and applied to this shipment, usually freight program has custom pricing/discount. |\n| Element - ShipWhen | Shipwhen  <br>Mandatory  <br>Size Limits: 1 | Options are: Immeidate, Backorder, and VDS |\n| Element - ShipperID | String  <br>Mandatory |  |\n\n#### **Element** PurchaseOrderLines**–Element– Mandatory**\n\n| Element Type and Name | Data Type and Requirement | **Comments** |\n| --- | --- | --- |\n| Element - PurchaseOrderLine | PurchaseOrderLineType  <br>Mandatory | Element containing purchase order's line items. |\n\n#### **Element** PurchaseOrderLine**–Element– Mandatory**\n\n| Element Type and Name | Data Type and Requirement | **Comments** |\n| --- | --- | --- |\n| Element - Rank | String  <br>Mandatory | Rank provided in initial order. |\n| Element - OEMNumber | String  <br>Optional | Item's OEM number. |\n| Element - OrderQuantity | Element - OrderQuantity | Quantity of this item ordered. |\n| Element - UnitPrice | Decimal  <br>Optional  <br>Size Limits: 0/1 | Unit Price of the item. |\n| Element - InternationalUnitCost | Decimal  <br>Optional  <br>Size Limits: 0/1 | International unit price of the item |"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ShipNotice",
+			"item": [
+				{
+					"name": "ShipNotice_APIKey",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/xml"
+							},
+							{
+								"key": "SOAPAction",
+								"value": "\"http://portal.suppliesnet.net/RequestShipmentNoticeXML\""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\r\n\t<soap:Body>\r\n\t\t<RequestShipmentNoticeXML xmlns=\"http://portal.suppliesnet.net\">\r\n\t\t\t<ShipNoticeRequestNode>\r\n\t\t\t\t<dmi:ShipNoticeRequest xmlns:dmi=\"http://portal.suppliesnet.net\">\r\n\t\t\t\t\t<dmi:RequesterISA>1058174VS</dmi:RequesterISA>\r\n\t\t\t\t\t<dmi:APIKey>A715402C-F5CA-4221-B4DB-DDBC33292B8C</dmi:APIKey>\r\n\t\t\t\t\t<dmi:Order>\r\n\t\t\t\t\t\t<dmi:OrderNumber>22891430</dmi:OrderNumber>\r\n\t\t\t\t\t</dmi:Order>\r\n\t\t\t\t</dmi:ShipNoticeRequest>\r\n\t\t\t</ShipNoticeRequestNode>\r\n\t\t</RequestShipmentNoticeXML>\r\n\t</soap:Body>\r\n</soap:Envelope>"
+						},
+						"url": {
+							"raw": "https://uat.portal.suppliesnet.net/ShipNotice/WebServiceShipNotice.asmx",
+							"protocol": "https",
+							"host": [
+								"uat",
+								"portal",
+								"suppliesnet",
+								"net"
+							],
+							"path": [
+								"ShipNotice",
+								"WebServiceShipNotice.asmx"
+							]
+						},
+						"description": "## **Advance Ship Notice Request Method Input**\n\nThis method is used for customers pulling an advanced shipnotice (ASN/856) from DMI's webservice.\n\nA ship notice request needs to contain **one** of two elements to request the information:\n\n1. Through the \"Order\" element.\n    \n2. Through the \"ShipDateRange\" element.\n    \n\nBoth Elements are desrcibed further below.\n\n#### **Element** ShipNoticeRequestNode **– Root Element– Mandatory**\n\n| **Element Name and Type** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Namespace - Xmlns:dmi | String  <br>Mandatory | [http://portal.suppliesnet.net](http://portal.suppliesnet.net) |\n| Namespace - Xmlns:xsi | String  <br>Mandatory | [http://www.w3.org/2001/XMLSchema-instance](http://www.w3.org/2001/XMLSchema-instance) |\n| Element - ShipNoticeRequest | ShipNoticeRequestType  <br>Mandatory | Must include either Order element or ShipDateRange element. |\n\n#### **Element** ShipNoticeRequest **–Element– Mandatory**\n\n| **Element Name and Type** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - RequesterISA | String  <br>Mandatory  <br>Size Limit: 1/15 | Mutually agreed upon identifier (usually DUNS number). Orders inquired on must be associated with this ISA in our Database. |\n| Element - APIKey | String  <br>Mandatory  <br>Size Limit: 36/36 | Customer's APIKey |\n| Element - Order | Order  <br>Optional  <br>Size Limit: 1/20 | First exclsusive option for requesting ASNs. Up to 20 orders can be requested. Must include either an OrderNumber or PONumber. |\n| Element - ShipDateRange | ShipDateRange  <br>Optional  <br>Size Limit: 1/1 | Second exclusive option for requesting ASNs. The maximum range for this option is 7 days. |\n\n#### **Element** Order **–Element– Mandatory**\n\n| **Element Name and Type** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - OrderNumber | String  <br>Optional | DMI assigned Order Number. May include suborder numbers (i.e. 1234567-01). |\n| Element - PONumber | String  <br>Optional  <br>Size Limit: 1/32 | Purchase Order Number. If both OrderNumber and PONumber are provided, OrderNumber will be used. |\n\n#### **Element** ShipDateRange **–Element– Mandatory**\n\n| **Element Name and Type** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - ShipDateFrom | Date  <br>Mandatory | Starting Date: must be in the form of YYYY-MM-DD (i.e. 2022-10-07). |\n| Element - ShipDateTo | Date  <br>Mandatory | Ending Date: must be in the form of YYYY-MM-DD (i.e. 2022-10-07). |\n\n## **Advance Ship Notice Request Method Output**\n\nThe root element is Shipments. The response may contain multiple Shipment nodes, one for each order sent in the request.\n\n#### **Element** ShipNoticeResponseNode **– Root Element– Mandatory**\n\n| **Element Name and Type** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Namespace - Xmlns:dmi | String  <br>Mandatory | [http://portal.suppliesnet.net](http://portal.suppliesnet.net) |\n| Namespace - Xmlns:xsi | String  <br>Mandatory | [http://www.w3.org/2001/XMLSchema-instance](http://www.w3.org/2001/XMLSchema-instance) |\n| Element - Shipments | ShipmentsType  <br>Optional | May contain multiple shipment nodes. |\n\n#### **Element** Shipments **–Element– Mandatory**\n\n| **Element Name and Type** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - Errors | ErrorsType  <br>Optional | Populates if there are any errors processing the ship notice request. |\n| Element - Shipment | ShipmentType  <br>Optional | May contain multiple Shipment nodes, one for each order sent in the request. |\n| Element - TestIndicator | String  <br>Mandatory | \"P\" - For production  <br>\"T\" - For test |\n| Element - SenderID | String  <br>Optional  <br>Size Limit: 1/15 | DMI’s DUNS number. Returned if ship notice request is successful. |\n| Element - ReceiverID | String  <br>Optional  <br>Size Limit: 1/15 | Mutually agreed upon identifier (usually DUNS number). Returned if ship notice request is successful. |\n\n#### **Element** Errors **–Element– Mandatory**\n\n| **Element Name and Type** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - Error | ErrorType  <br>Mandatory | Each error is indicated by a separate Error node within Errors. |\n\n#### **Element** Error **–Element– Mandatory**\n\n| **Element Name and Type** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - ErrorNumber | String  <br>Mandatory | ErrorNumbers and ErrorDescriptions are listed in their own table at the bottom of this documentation. |\n| Element - ErrorDescription | String  <br>Mandatory | ErrorNumbers and ErrorDescriptions are listed in their own table at the bottom of this documentation. |\n| Element - ErrorRequesterISA | String  <br>Optional | Returned if related to the error provided. |\n| Element - ErrorOrderNumber | String  <br>Optional | Returned if related to the error provided. |\n| Element - ErrorPONumber | String  <br>Optional | Returned if related to the error provided. |\n\n#### **Element** Shipment **–Element– Mandatory**\n\n| **Element Name and Type** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - OrderNumber | String  <br>Mandatory | DMI assigned Order Number. May include suborder numbers (i.e. 1234567-01). |\n| Element - DealerPONumber | String  <br>Mandatory | Purchase Order Number. |\n| Element - PODate | String  <br>Mandatory | YYYYMMDD Format - for example: 20231207. |\n| Element - ShipVia | String  <br>Mandatory | Carrier of the shipment. |\n| Element - DateShipped | String  <br>Mandatory | YYYYMMDD Format - for example: 20231207. |\n| Element - ShipTo | PartnerInformationType  <br>Mandatory | This node contains the shipto information |\n| Element - Name | String  <br>Mandatory | Name of Ship From Address |\n| Element - Adress1 | String  <br>Mandatory | Ship From Street Address field 1 |\n| Element - Adress2 | String  <br>Optional | Ship From Street Address field 2 |\n| Element - City | String  <br>Mandatory | Ship From City |\n| Element - State | String  <br>Mandatory | Uppercase 2 letter abbreviation for Ship From state |\n| Element - ZipCode | String  <br>Mandatory | 5 or 9 Ship From digit zip code without spaces |\n| Element -ShipmentTrackingNumbers | CarrierReferenceNumbersType  <br>Optional | Element holding carrier tracking numbers. |\n| Element - TotalUnitsShipped | String  <br>Mandatory | Total number of units shipped. |\n| Element - ShipmentLineItemCount | String  <br>Mandatory | Number of line items in the Shipment - counting starts at 0. |\n| Element - ShipmentLineItems | ItemsType  <br>Mandatory | Element containing shipment's line items. |\n\n#### **Element** ShipTo**–Element– Mandatory**\n\n| **Element Name and Type** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - Name | String  <br>Mandatory | Name of Ship To Address |\n| Element - Attn | String  <br>Optional | Ship to Attn Field |\n| Element - Attn2 | String  <br>Optional | **Note:** _Only available for ShipTo addresses_ |\n| Element - Address1 | String  <br>Mandatory | Ship To Street Address field 1 |\n| Element - Address2 | String  <br>Optional | Ship To Street Address field 2 |\n| Element - City | String  <br>Mandatory | Ship To City |\n| Element - State | String  <br>Mandatory | Uppercase 2 letter abbreviation for Ship To state |\n| Element - PostalCode | String  <br>Mandatory | 5 or 9 Ship To digit zip code without spaces |\n\n#### **Element** ShipmentTrackingNumbers**–Element– Mandatory**\n\n| **Element Name and Type** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - ShipmentTrackingNumber | String  <br>Optional | Carrier's tracking number for shipment. |\n\n#### **Element** ShipmentLineItems**–Element– Mandatory**\n\n| **Element Name and Type** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - ShipmentLineItem | ItemType  <br>Optional | Element containing details about a line item in the shipment. |\n\n#### **Element** ShipmentLineItem**–Element– Mandatory**\n\n| **Element Name and Type** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - Rank | String  <br>Mandatory | Rank provided in initial order. |\n| Element - ReferenceNumber | String  <br>Optional | The ReferenceNumber is DMI’s internal number for that item. |\n| Element - BuyerPartNumber | String  <br>Optional | The buyer part number. |\n| Element - OEMNumber | String  <br>Optional | Item's OEM number. |\n| Element - UOM | String  <br>Mandatory | Item's unit of measure. |\n| Element - OrderQuantity | String  <br>Optional | Quantity of this item ordered. |\n| Element - ShipQuantity | String  <br>Mandatory | Quantity of this item shipped. |\n| Element - ItemStatus | String  <br>Optional | Status on whether or not the item was accepted. |\n| Element - ItemDescription | String  <br>Mandatory | Item's Description. |\n| Element - LineNumber | String  <br>Mandatory | Count of the item starting at 1. |\n| Element - SerialNumbers | SerialNumbersType  <br>Optional | Not set up by default, contact DM to have serial number added to your ASN. |\n| Element - Data1 | String  <br>Optional | Field for additional data about the item as required. |\n| Element - Data2 | String  <br>Optional | Field for additional data about the item as required. |\n\n#### **Element** SerialNumbers**–Element– Mandatory**\n\n| **Element Name and Type** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - SerialNumber | String  <br>Mandatory | Serial Number provided in the initial order. |\n\n#### **Error Codes**\n\n| **Error Number** | **Description** |\n| --- | --- |\n| 0 | No Error |\n| 1 | Problem connecting to database |\n| 2 | No Data returned from method call |\n| 3 | Failed to validate ShipNotice Request xml against schema |\n| 4 | Failed to validate ShipNotice Response against schema |\n| 5 | Error parsing inbound XML request |\n| 6 | Invalid Requester ISA |\n| 7 | ShipNotice request must contain at least one Order element |\n| 8 | Invalid OrderNumber in Order |\n| 9 | Valid OrderNumber or PONumber or ShipDateRange not found for Order |\n| 10 | Sales Order not found in database |\n| 11 | Unknown error |\n| 12 | Both ShipDateFrom and ShipDateTo are required |\n| 13 | ShipDateFrom and ShipDateTo Range exceeds 7 day limits |\n| 14 | ShipDateFrom is after ShipDateTo |\n| 15 | General validation error |\n| 16 | Order found but not yet shipped |\n| 17 | Invalid Credentials |"
+					},
+					"response": [
+						{
+							"name": "PlaceOrder_DEV",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "text/xml"
+									},
+									{
+										"key": "SOAPAction",
+										"value": "\"http://portal.suppliesnet.net/PlaceOrder\""
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:dmi=\"http://portal.suppliesnet.net\">\r\n   <soapenv:Body>\r\n      <dmi:PlaceOrder>\r\n      \t<dmi:PurchaseOrders>\r\n         <dmi:PurchaseOrders SenderID=\"PB_9999\" ReceiverID=\"0000071135\" processed=\"false\" TestIndicator=\"P\" xmlns:dmi=\"http://portal.suppliesnet.net\" xmlns:ns0=\"http://pb.com/xi/SNC/Global\">\r\n\t<dmi:PurchaseOrder>\r\n\t\t<dmi:OrderType>Dealer DropShip</dmi:OrderType>\r\n\t\t<dmi:DealerPONumber>3200198706_JKB7</dmi:DealerPONumber>\r\n\t\t<dmi:CustomerPONumber>PO-00119478</dmi:CustomerPONumber>\r\n\t\t<dmi:Comment />\r\n\t\t<dmi:ShipTo>\r\n\t\t\t<dmi:Name>Excela Enterprise Sol/Robert Rose  </dmi:Name>\r\n\t\t\t<dmi:Attn>Robert Rose </dmi:Attn>\r\n\t\t\t<dmi:Attn2 />\r\n\t\t\t<dmi:Address1>999 18th St/Fl 23</dmi:Address1>\r\n\t\t\t<dmi:Address2 />\r\n\t\t\t<dmi:City>Denver</dmi:City>\r\n\t\t\t<dmi:State>CO</dmi:State>\r\n\t\t\t<dmi:ZipCode>802022499</dmi:ZipCode>\r\n\t\t\t<dmi:Contact>\r\n\t\t\t\t<dmi:ContactName />\r\n\t\t\t</dmi:Contact>\r\n\t\t</dmi:ShipTo>\r\n\t\t<dmi:BillTo>\r\n\t\t\t<dmi:Name />\r\n\t\t\t<dmi:Attn />\r\n\t\t\t<dmi:Address1 />\r\n\t\t\t<dmi:Address2 />\r\n\t\t\t<dmi:City />\r\n\t\t\t<dmi:State />\r\n\t\t\t<dmi:ZipCode />\r\n\t\t\t<dmi:Contact>\r\n\t\t\t\t<dmi:ContactName />\r\n\t\t\t\t<dmi:ContactMethod>Phone</dmi:ContactMethod>\r\n\t\t\t\t<dmi:ContactAddress />\r\n\t\t\t</dmi:Contact>\r\n\t\t</dmi:BillTo>\r\n\t\t<dmi:SoldBy>\r\n\t\t\t<dmi:Name />\r\n\t\t\t<dmi:Attn />\r\n\t\t\t<dmi:Address1 />\r\n\t\t\t<dmi:Address2 />\r\n\t\t\t<dmi:City />\r\n\t\t\t<dmi:State />\r\n\t\t\t<dmi:ZipCode />\r\n\t\t\t<dmi:Contact>\r\n\t\t\t\t<dmi:ContactName />\r\n\t\t\t\t<dmi:ContactMethod>Phone</dmi:ContactMethod>\r\n\t\t\t\t<dmi:ContactAddress />\r\n\t\t\t</dmi:Contact>\r\n\t\t</dmi:SoldBy>\r\n\t\t<dmi:Contact>\r\n\t\t\t<dmi:ContactName />\r\n\t\t\t<dmi:ContactMethod />\r\n\t\t\t<dmi:ContactAddress />\r\n\t\t\t<dmi:ContactIdentifier />\r\n\t\t</dmi:Contact>\r\n\t\t<dmi:ShippingInformation>\r\n\t\t\t<dmi:ShipLabel>PB Order#: 0004713103</dmi:ShipLabel>\r\n\t\t</dmi:ShippingInformation>\r\n\t\t<dmi:OrderInformation />\r\n\t\t<dmi:AdditionalInformation>\r\n\t\t\t<dmi:Account />\r\n\t\t\t<dmi:Company>9999</dmi:Company>\r\n\t\t\t<dmi:CostCenter />\r\n\t\t\t<dmi:ReleaseNumber />\r\n\t\t</dmi:AdditionalInformation>\r\n\t\t<dmi:PurchaseOrderLines>\r\n\t\t\t<dmi:PurchaseOrderLine>\r\n\t\t\t\t<dmi:Rank>00010</dmi:Rank>\r\n\t\t\t\t<dmi:OEMNumber>HPE-Q</dmi:OEMNumber>\r\n\t\t\t\t<dmi:ReferenceNumber />\r\n\t\t\t\t<dmi:Description />\r\n\t\t\t\t<dmi:OrderQuantity>5</dmi:OrderQuantity>\r\n\t\t\t\t<dmi:UOM>EA</dmi:UOM>\r\n\t\t\t\t<dmi:UnitPrice>17.83</dmi:UnitPrice>\r\n\t\t\t\t<dmi:Comment />\r\n\t\t\t</dmi:PurchaseOrderLine>\r\n\t\t\t<dmi:PurchaseOrderLine>\r\n\t\t\t\t<dmi:Rank>00020</dmi:Rank>\r\n\t\t\t\t<dmi:OEMNumber>HPD-T</dmi:OEMNumber>\r\n\t\t\t\t<dmi:ReferenceNumber />\r\n\t\t\t\t<dmi:Description />\r\n\t\t\t\t<dmi:OrderQuantity>20</dmi:OrderQuantity>\r\n\t\t\t\t<dmi:UOM>EA</dmi:UOM>\r\n\t\t\t\t<dmi:UnitPrice>326.62</dmi:UnitPrice>\r\n\t\t\t\t<dmi:Comment />\r\n\t\t\t</dmi:PurchaseOrderLine>\r\n\t\t\t<dmi:PurchaseOrderLine>\r\n\t\t\t\t<dmi:Rank>00030</dmi:Rank>\r\n\t\t\t\t<dmi:OEMNumber>HPD-S</dmi:OEMNumber>\r\n\t\t\t\t<dmi:ReferenceNumber />\r\n\t\t\t\t<dmi:Description />\r\n\t\t\t\t<dmi:OrderQuantity>20</dmi:OrderQuantity>\r\n\t\t\t\t<dmi:UOM>EA</dmi:UOM>\r\n\t\t\t\t<dmi:UnitPrice>326.62</dmi:UnitPrice>\r\n\t\t\t\t<dmi:Comment />\r\n\t\t\t</dmi:PurchaseOrderLine>\r\n\t\t\t<dmi:PurchaseOrderLine>\r\n\t\t\t\t<dmi:Rank>00040</dmi:Rank>\r\n\t\t\t\t<dmi:OEMNumber>HPD-R</dmi:OEMNumber>\r\n\t\t\t\t<dmi:ReferenceNumber />\r\n\t\t\t\t<dmi:Description />\r\n\t\t\t\t<dmi:OrderQuantity>20</dmi:OrderQuantity>\r\n\t\t\t\t<dmi:UOM>EA</dmi:UOM>\r\n\t\t\t\t<dmi:UnitPrice>326.62</dmi:UnitPrice>\r\n\t\t\t\t<dmi:Comment />\r\n\t\t\t</dmi:PurchaseOrderLine>\r\n\t\t\t<dmi:PurchaseOrderLine>\r\n\t\t\t\t<dmi:Rank>00050</dmi:Rank>\r\n\t\t\t\t<dmi:OEMNumber>HPD-Q</dmi:OEMNumber>\r\n\t\t\t\t<dmi:ReferenceNumber />\r\n\t\t\t\t<dmi:Description />\r\n\t\t\t\t<dmi:OrderQuantity>35</dmi:OrderQuantity>\r\n\t\t\t\t<dmi:UOM>EA</dmi:UOM>\r\n\t\t\t\t<dmi:UnitPrice>234.21</dmi:UnitPrice>\r\n\t\t\t\t<dmi:Comment />\r\n\t\t\t</dmi:PurchaseOrderLine>\r\n\t\t</dmi:PurchaseOrderLines>\r\n\t</dmi:PurchaseOrder>\r\n</dmi:PurchaseOrders>\r\n</dmi:PurchaseOrders>\r\n      </dmi:PlaceOrder>\r\n   </soapenv:Body>\r\n</soapenv:Envelope>\r\n"
+								},
+								"url": {
+									"raw": "http://localhost:59242/PurchaseOrders/PurchaseOrder.asmx",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "59242",
+									"path": [
+										"PurchaseOrders",
+										"PurchaseOrder.asmx"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "xml",
+							"header": [
+								{
+									"key": "Cache-Control",
+									"value": "private, max-age=0",
+									"name": "Cache-Control",
+									"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
+								},
+								{
+									"key": "Content-Encoding",
+									"value": "gzip",
+									"name": "Content-Encoding",
+									"description": "The type of encoding used on the data."
+								},
+								{
+									"key": "Content-Length",
+									"value": "1455",
+									"name": "Content-Length",
+									"description": "The length of the response body in octets (8-bit bytes)"
+								},
+								{
+									"key": "Content-Type",
+									"value": "text/xml; charset=utf-8",
+									"name": "Content-Type",
+									"description": "The mime type of this content"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 20 Jun 2018 20:02:25 GMT",
+									"name": "Date",
+									"description": "The date and time that the message was sent"
+								},
+								{
+									"key": "Server",
+									"value": "Microsoft-IIS/10.0",
+									"name": "Server",
+									"description": "A name for the server"
+								},
+								{
+									"key": "Vary",
+									"value": "Accept-Encoding",
+									"name": "Vary",
+									"description": "Tells downstream proxies how to match future request headers to decide whether the cached response can be used rather than requesting a fresh one from the origin server."
+								},
+								{
+									"key": "X-AspNet-Version",
+									"value": "4.0.30319",
+									"name": "X-AspNet-Version",
+									"description": "Custom header"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "ASP.NET",
+									"name": "X-Powered-By",
+									"description": "Specifies the technology (ASP.NET, PHP, JBoss, e.g.) supporting the web application (version details are often in X-Runtime, X-Version, or X-AspNet-Version)"
+								},
+								{
+									"key": "X-SourceFiles",
+									"value": "=?UTF-8?B?QzpcX0RhdGFcRURJXFBvcnRhbFxQb3J0YWxcUHVyY2hhc2VPcmRlcnNcUHVyY2hhc2VPcmRlci5hc214?=",
+									"name": "X-SourceFiles",
+									"description": "Custom header"
+								}
+							],
+							"cookie": [
+								{
+									"expires": "Invalid Date",
+									"httpOnly": true,
+									"domain": "localhost",
+									"path": "/",
+									"secure": false,
+									"value": "bdrq41uaskfwqed4r4obxzez",
+									"key": "ASP.NET_SessionId"
+								}
+							],
+							"body": "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"><soap:Body><PlaceOrderResponse xmlns=\"http://portal.suppliesnet.net\"><PlaceOrderResult><dmi:PurchaseOrderAcknowledgments TestIndicator=\"T\" SenderID=\"0000071135\" ReceiverID=\"PB_9999\" xmlns:dmi=\"http://portal.suppliesnet.net\"><dmi:PurchaseOrderAcknowledgment><dmi:OrderStatus>Processed</dmi:OrderStatus><dmi:OrderNumber>22249908</dmi:OrderNumber><dmi:OrderType>Dealer DropShip</dmi:OrderType><dmi:DealerPONumber>3200198706_JKB7</dmi:DealerPONumber><dmi:CustomerPONumber>PO-00119478</dmi:CustomerPONumber><dmi:ProductTotal>27474.35</dmi:ProductTotal><dmi:Shipping>0.00</dmi:Shipping><dmi:Handling>0.00</dmi:Handling><dmi:Tax>0.00</dmi:Tax><dmi:OrderTotal>27474.35</dmi:OrderTotal><dmi:PODate>20180620</dmi:PODate><dmi:ShipTo><dmi:Name>Excela Enterprise Sol/Robert Rose</dmi:Name><dmi:Attn>Robert Rose</dmi:Attn><dmi:Address1>999 18th St/Fl 23</dmi:Address1><dmi:City>Denver</dmi:City><dmi:State>CO</dmi:State><dmi:ZipCode>802022499</dmi:ZipCode></dmi:ShipTo><dmi:BillTo><dmi:Name>Pitney Bowes</dmi:Name><dmi:Attn>Accounts Payable</dmi:Attn><dmi:Address1>PO Box 8881003</dmi:Address1><dmi:City>Grand Rapids</dmi:City><dmi:State>MI</dmi:State><dmi:ZipCode>49588</dmi:ZipCode></dmi:BillTo><dmi:AdditionalInformation><dmi:Company>9999</dmi:Company></dmi:AdditionalInformation><dmi:PurchaseOrderLines><dmi:PurchaseOrderLine><dmi:Rank>10</dmi:Rank><dmi:OEMNumber>CE265A</dmi:OEMNumber><dmi:ReferenceNumber>18830</dmi:ReferenceNumber><dmi:BuyerPartNumber>HPE-Q</dmi:BuyerPartNumber><dmi:OrderQuantity>5</dmi:OrderQuantity><dmi:CommittedQuantity>5</dmi:CommittedQuantity><dmi:UOM>EA</dmi:UOM><dmi:UnitPrice>17.83</dmi:UnitPrice><dmi:ItemStatus>Item Accepted</dmi:ItemStatus></dmi:PurchaseOrderLine><dmi:PurchaseOrderLine><dmi:Rank>20</dmi:Rank><dmi:OEMNumber>CF333A</dmi:OEMNumber><dmi:ReferenceNumber>920242</dmi:ReferenceNumber><dmi:BuyerPartNumber>HPD-T</dmi:BuyerPartNumber><dmi:OrderQuantity>20</dmi:OrderQuantity><dmi:CommittedQuantity>0</dmi:CommittedQuantity><dmi:BackOrderedQuantity>20</dmi:BackOrderedQuantity><dmi:UOM>EA</dmi:UOM><dmi:UnitPrice>321.81</dmi:UnitPrice><dmi:ItemStatus>Item Backordered</dmi:ItemStatus><dmi:StatusInformation>COMPLETE BACKORDER</dmi:StatusInformation><dmi:EstimatedShipDate>20180706</dmi:EstimatedShipDate></dmi:PurchaseOrderLine><dmi:PurchaseOrderLine><dmi:Rank>30</dmi:Rank><dmi:OEMNumber>CF332A</dmi:OEMNumber><dmi:ReferenceNumber>920241</dmi:ReferenceNumber><dmi:BuyerPartNumber>HPD-S</dmi:BuyerPartNumber><dmi:OrderQuantity>20</dmi:OrderQuantity><dmi:CommittedQuantity>20</dmi:CommittedQuantity><dmi:UOM>EA</dmi:UOM><dmi:UnitPrice>321.81</dmi:UnitPrice><dmi:ItemStatus>Item Changed</dmi:ItemStatus><dmi:StatusInformation>DIFFERENT PRICE</dmi:StatusInformation></dmi:PurchaseOrderLine><dmi:PurchaseOrderLine><dmi:Rank>40</dmi:Rank><dmi:OEMNumber>CF331A</dmi:OEMNumber><dmi:ReferenceNumber>920240</dmi:ReferenceNumber><dmi:BuyerPartNumber>HPD-R</dmi:BuyerPartNumber><dmi:OrderQuantity>20</dmi:OrderQuantity><dmi:CommittedQuantity>20</dmi:CommittedQuantity><dmi:UOM>EA</dmi:UOM><dmi:UnitPrice>321.81</dmi:UnitPrice><dmi:ItemStatus>Item Changed</dmi:ItemStatus><dmi:StatusInformation>DIFFERENT PRICE</dmi:StatusInformation></dmi:PurchaseOrderLine><dmi:PurchaseOrderLine><dmi:Rank>50</dmi:Rank><dmi:OEMNumber>CF330X</dmi:OEMNumber><dmi:ReferenceNumber>920239</dmi:ReferenceNumber><dmi:BuyerPartNumber>HPD-Q</dmi:BuyerPartNumber><dmi:OrderQuantity>35</dmi:OrderQuantity><dmi:CommittedQuantity>1</dmi:CommittedQuantity><dmi:BackOrderedQuantity>34</dmi:BackOrderedQuantity><dmi:UOM>EA</dmi:UOM><dmi:UnitPrice>230.76</dmi:UnitPrice><dmi:ItemStatus>Item Partially Backordered</dmi:ItemStatus><dmi:StatusInformation>PARTIAL BACKORDER</dmi:StatusInformation><dmi:EstimatedShipDate>20180709</dmi:EstimatedShipDate></dmi:PurchaseOrderLine></dmi:PurchaseOrderLines></dmi:PurchaseOrderAcknowledgment></dmi:PurchaseOrderAcknowledgments></PlaceOrderResult></PlaceOrderResponse></soap:Body></soap:Envelope>"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "CatalogRequest",
+			"item": [
+				{
+					"name": "CatalogRequest.RequestAllInfo_APIKey",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/xml"
+							},
+							{
+								"key": "SOAPAction",
+								"value": "\"http://portal.suppliesnet.net/RequestAllInfo\""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\r\n  <soap:Body>\r\n    <RequestAllInfo xmlns=\"http://portal.suppliesnet.net\">\r\n    \t<InputRequestNode>\r\n    \t\t<dmi:ItemInformation GetPrice=\"1\" GetAvailability=\"1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:dmi=\"http://portal.suppliesnet.net\">\r\n\t\t\t\t<dmi:ContactID>1854319</dmi:ContactID>\r\n\t\t\t\t<dmi:APIKey></dmi:APIKey>\r\n\t\t\t</dmi:ItemInformation>\r\n    \t</InputRequestNode>\r\n    \t</RequestAllInfo>\r\n  </soap:Body>\r\n</soap:Envelope>"
+						},
+						"url": {
+							"raw": "https://uat.portal.suppliesnet.net/CatalogRequest/CatalogRequest.asmx",
+							"protocol": "https",
+							"host": [
+								"uat",
+								"portal",
+								"suppliesnet",
+								"net"
+							],
+							"path": [
+								"CatalogRequest",
+								"CatalogRequest.asmx"
+							]
+						},
+						"description": "## RequestInfo Method Input\n\nThis document specifies the requirements that your document must meet to be accepted into our system at the present time. The global namespace is “dmi” defined as [http://portal.suppliesnet.net](http://portal.suppliesnet.net).\n\nOnly SSL connections using TLS1.1 (or higher) areacceptable.\n\n#### **Element ItemInformation - Root Element - Mandatory**\n\n| **Element Type and Name** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - ContactID | Long  <br>Optional  <br>Size Limit: 1/1 | DMI assigned identifier value. ContactID Or PartnerISA must exists |\n| Element - APIKey | String  <br>Mandatory  <br>Size Limit: 36/36 | DMI assigned API Key value |\n| Element - PartnerISA | Long  <br>Optional  <br>Size Limit: 1/1 | DMI assigned identifier value.  <br>ContactID Or PartnerISA must exists |\n| Element - ZipCode | String  <br>Optional  <br>Size Limit: 5/9 | Shipto Zipcode, used to limit availability search to only the warehouse that will be utilized for shipment. |\n| Element - Items | Item  <br>Manditory | Subnode to hold Items requested. |\n| Attribute - GetPrice | Boolean  <br>Manditory | Indicates whether to return Pricing information.  <br>Note: At least one true value of GetPrice or GetAvailability is required. |\n| Attribute - GetAvailability | Boolean  <br>Manditory | Indicates whether to return item availability information.  <br>Note: At least one true value of GetPrice or GetAvailability is required. |\n| NameSpace - Dmi | String  <br>Manditory | Namespace  <br>[http://portal.suppliesnet.net](http://portal.suppliesnet.net) |\n| Element - AgreementSchedule | String  <br>Optional | Including this element wil limit the pricing results of the given agreement schedule. |\n\n#### **Element Items - Node Type for Items node**\n\n| **Element Type and Name** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - Item | Item  <br>Manditory | One Item node for each item requested. |\n\n#### **Element Items - Node Type for Item node**\n\n| **Element Type and Name** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Attribute - ReferenceNumber | Long  <br>Manditory | DMI Reference Number |\n| Attribute - OEMNumber | String  <br>Optional | OEM Number for part requested |\n\n## RequestInfo Method Output\n\nThis document specifies the current field returned in the output document. Other fields may be added as required.\n\n#### **Element ItemInformation - Root Element - Mandatory**\n\n| **Element Type and Name** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - Errors | Error  <br>Optional  <br>1/1 | Description of errors encountered. |\n\n#### **Element Errors - Node Type for Errors node**\n\n| **Element Type and Name** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - Error | Error  <br>Manditory  <br>1/+ | One Error node for each error encountered during processing. |\n\n#### **Element Errors - Node Type for Error node**\n\n| **Element Type and Name** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - ErrorNumber | Error  <br>Mandatory | Error number as outlined below. |\n| Element - ErrorDescription | String  <br>Optional | Additional information as it relates to the error. |\n\n#### **Element Errors - Node Type for Item node**\n\n| **Element Type and Name** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - Availability | Availability  <br>Optional  <br>1/+ | One Availability node for each warehouse queried. |\n| Element - Price | Price  <br>Optional  <br>1/+ | One Price node for each price group found. |\n| Element - SellUOM | String  <br>Manditory  <br>2 | EDI standard for UOM in which the price is quoted. Values are: BX, CQ, PL, BO, KT, RM, CT. See last page for translation. |\n\n#### **Element Availability - Node Type for Availability node**\n\n| **Element Type and Name** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - Availability | Long  <br>Manditory | Availability of item. -1 indicates Item not found. |\n| Attribute - DC | String  <br>Optional | Distribution Center abbreviation (usually state abbreviation of DC location) |\n\n#### **Element Price - Node Type for Price node**\n\n| **Element Type and Name** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - Price | Decimal  <br>Manditory | Price of item. -1 indicates Item not found |\n| Attribute - FromAmount | String  <br>Optional | Presence of Attribute indicates discount pricing based on $ amount purchased. Total lower amount for with the price bracket applies. |\n| Attribute - ToAmount | String  <br>Optional | Presence of Attribute indicates discount pricing based on $ amount purchased. Total upper amount for with the price bracket applies.  <br>Blank value indicates unlimited bracket. |\n| Attribute - FromQty | String  <br>Optional | Presence of Attribute indicates discount pricing based on quantity purchased. Total amount for with the price bracket applies. |\n| Attribute - ToQty | String  <br>Optional | Presence of Attribute indicates discount pricing based on quantity purchased. Total amount for with the price bracket applies. Blank value indicates unlimited bracket. |\n\nNote: FromAmount and ToAmount as well as FromQty and ToQty attributes come in pairs only. Price elements are ordered in increase brackets with the last one having a blank ToAmount or ToQty to indicate unlimited values.\n\n#### **Pricing Variations**\n\n``` xml\n<Items>\n    <Item ReferenceNumber=\"1346\" OEMNumber=\"FX4-Blue\" SellUOM=\"BX\">\n        <Price>53.00</Price>\n        <Availability DC=\"MO\">230</Availability>\n        <Availability DC=\"PA\">23</Availability>\n    </Item>\n</Items>\n\n ```\n\n#### **Tier pricing (quantity based)**\n\n``` xml\n<Items>\n    <Item ReferenceNumber=\"1346\" OEMNumber=\"FX4-Blue\" SellUOM=\"BX\">\n        <Price FromQty=\"1\" ToQty=\"10\">53.00</Price>\n        <Price FromQty=\"11\" ToQty=\"\">19.30</Price>\n        <Availability DC=\"MO\">230</Availability>\n        <Availability DC=\"PA\">23</Availability>\n    </Item>\n</Items>\n\n ```\n\n#### **Tier pricing (dollar amount based)**\n\n``` xml\n<Items>\n    <Item ReferenceNumber=\"1346\" OEMNumber=\"FX4-Blue\" SellUOM=\"BX\">\n        <Price FromAmount=\"0.01\" ToAmount=\"2000.00\">53.00</Price>\n        <Price FromAmount=\"2000.01\" ToAmount=\"\">19.30</Price>\n        <Availability DC=\"MO\">230</Availability>\n        <Availability DC=\"PA\">23</Availability>\n    </Item>\n</Items>\n\n ```\n\n#### **Part is not available to dealer (or price below cost)**\n\n``` xml\n<Items>\n    <Item ReferenceNumber=\"1346\" OEMNumber=\"FX4-Blue\" SellUOM=\"BX\">\n        <Price>0</Price>\n        <Availability DC=\"MO\">230</Availability>\n        <Availability DC=\"PA\">23</Availability>\nNote: Availability is not 0 so as to show that SN carries the part. Please call Sales rep to fix problem\n    </Item>\n</Items>\n\n ```\n\n#### **Item does not exist**\n\n``` xml\n<Items>\n    <Item ReferenceNumber=\"136a\" OEMNumber=\"FX4-Blue\" SellUOM=\"BX\">\n        <Price>-1</Price>\n    </Item>\n</Items>\n\n ```\n\n#### **Error codes for ItemInformation**\n\n| Code | **Detail** |\n| --- | --- |\n| 2 | XML document sent could not be loaded |\n| 3 | Neither GetPrice nor GetAvailability are selected. |\n| 4 | Contract could not be identified based on ContractID supplied. |\n| 5 | Zip code could not be validated. |\n| 6 | Pricing lookup failed for unknown reason. |\n| 7 | Availability lookup failed for unknown reason. |\n| 8 | No data returned. |\n| 9 | Unknown error occurred. |\n| 10 | Request or response document could not be validated against the schema. |\n| 12 | Not permitted to request information |\n| 13 | Invalid Credentials |\n\n#### **RequestInfoString Method Input**\n\nThis method is identical in functionality, but uses a string representation of the input argument and return value.\n\n#### **UOM Conversions**\n\n| DMI 3 Character UOM Code | **2 Character UOM per EDI Standard** | **Translation** |\n| --- | --- | --- |\n| BOX | BX | Box |\n| CTG | CQ | Cartridge |\n| PK | PH | Package |\n| EA | EA | Each |\n| PLT | PL | Pallet |\n| RBN | EA | Ribbon |\n| MC | BX | Master Carton |\n| BTL | BO | Bottle |\n| KIT | KT | Kit |\n| RM | RM | Ream |\n| CTN | CT | Carton |"
+					},
+					"response": []
+				},
+				{
+					"name": "CatalogRequest.RequestInfo_APIKey",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/xml"
+							},
+							{
+								"key": "SOAPAction",
+								"value": "\"http://portal.suppliesnet.net/RequestInfo\""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\r\n  <soap:Body>\r\n    <RequestInfo xmlns=\"http://portal.suppliesnet.net\">\r\n    \t<InputRequestNode>\r\n<dmi:ItemInformation GetPrice=\"1\" GetAvailability=\"0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:dmi=\"http://portal.suppliesnet.net\">\r\n  <dmi:ContactID>6025886</dmi:ContactID>\r\n  <dmi:Items>\r\n    <dmi:Item ReferenceNumber=\"1185461\">\r\n    </dmi:Item>\r\n  </dmi:Items>\r\n  <dmi:AgreementSchedule>43020458</dmi:AgreementSchedule>\r\n</dmi:ItemInformation>\r\n    \t</InputRequestNode>\r\n    </RequestInfo>\r\n  </soap:Body>\r\n</soap:Envelope>"
+						},
+						"url": {
+							"raw": "https://portal.suppliesnet.net/CatalogRequest/CatalogRequest.asmx",
+							"protocol": "https",
+							"host": [
+								"portal",
+								"suppliesnet",
+								"net"
+							],
+							"path": [
+								"CatalogRequest",
+								"CatalogRequest.asmx"
+							]
+						},
+						"description": "## RequestInfo Method Input\n\nThis document specifies the requirements that your document must meet to be accepted into our system at the present time. The global namespace is “dmi” defined as [http://portal.suppliesnet.net](http://portal.suppliesnet.net).\n\nOnly SSL connections using TLS1.1 (or higher) areacceptable.\n\n#### **Element ItemInformation - Root Element - Mandatory**\n\n| **Element Type and Name** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - ContactID | Long  <br>Optional  <br>Size Limit: 1/1 | DMI assigned identifier value. ContactID Or PartnerISA must exists |\n| Element - APIKey | String  <br>Manditory  <br>Size Limit: 36/36 | DMI assigned API Key value |\n| Element - PartnerISA | Long  <br>Optional  <br>Size Limit: 1/1 | DMI assigned identifier value.  <br>ContactID Or PartnerISA must exists |\n| Element - ZipCode | String  <br>Optional  <br>Size Limit: 5/9 | Shipto Zipcode, used to limit availability search to only the warehouse that will be utilized for shipment. |\n| Element - Items | Item  <br>Manditory | Subnode to hold Items requested. |\n| Attribute - GetPrice | Boolean  <br>Manditory | Indicates whether to return Pricing information.  <br>Note: At least one true value of GetPrice or GetAvailability is required. |\n| Attribute - GetAvailability | Boolean  <br>Manditory | Indicates whether to return item availability information.  <br>Note: At least one true value of GetPrice or GetAvailability is required. |\n| NameSpace - Dmi | String  <br>Manditory | Namespace  <br>[http://portal.suppliesnet.net](http://portal.suppliesnet.net) |\n| Element - AgreementSchedule | String  <br>Optional | Including this element wil limit the pricing results of the given agreement schedule. |\n\n#### **Element Items - Node Type for Items node**\n\n| **Element Type and Name** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - Item | Item  <br>Manditory | One Item node for each item requested. |\n\n#### **Element Items - Node Type for Item node**\n\n| **Element Type and Name** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Attribute - ReferenceNumber | Long  <br>Manditory | DMI Reference Number |\n| Attribute - OEMNumber | String  <br>Optional | OEM Number for part requested |\n\n## RequestInfo Method Output\n\nThis document specifies the current field returned in the output document. Other fields may be added as required.\n\n#### **Element ItemInformation - Root Element - Mandatory**\n\n| **Element Type and Name** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - Errors | Error  <br>Optional  <br>1/1 | Description of errors encountered. |\n\n#### **Element Errors - Node Type for Errors node**\n\n| **Element Type and Name** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - Error | Error  <br>Manditory  <br>1/+ | One Error node for each error encountered during processing. |\n\n#### **Element Errors - Node Type for Error node**\n\n| **Element Type and Name** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - ErrorNumber | Error  <br>Manditory | Error number as outlined below. |\n| Element - ErrorDescription | String  <br>Optional | Additional information as it relates to the error. |\n\n#### **Element Errors - Node Type for Item node**\n\n| **Element Type and Name** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - Availability | Availability  <br>Optional  <br>1/+ | One Availability node for each warehouse queried. |\n| Element - Price | Price  <br>Optional  <br>1/+ | One Price node for each price group found. |\n| Element - SellUOM | String  <br>Manditory  <br>2 | EDI standard for UOM in which the price is quoted. Values are: BX, CQ, PL, BO, KT, RM, CT. See last page for translation. |\n\n#### **Element Availability - Node Type for Availability node**\n\n| **Element Type and Name** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - Availability | Long  <br>Manditory | Availability of item. -1 indicates Item not found. |\n| Attribute - DC | String  <br>Optional | Distribution Center abbreviation (usually state abbreviation of DC location) |\n\n#### **Element Price - Node Type for Price node**\n\n| **Element Type and Name** | **Data Type and Requirements** | **Comments** |\n| --- | --- | --- |\n| Element - Price | Decimal  <br>Manditory | Price of item. -1 indicates Item not found |\n| Attribute - FromAmount | String  <br>Optional | Presence of Attribute indicates discount pricing based on $ amount purchased. Total lower amount for with the price bracket applies. |\n| Attribute - ToAmount | String  <br>Optional | Presence of Attribute indicates discount pricing based on $ amount purchased. Total upper amount for with the price bracket applies.  <br>Blank value indicates unlimited bracket. |\n| Attribute - FromQty | String  <br>Optional | Presence of Attribute indicates discount pricing based on quantity purchased. Total amount for with the price bracket applies. |\n| Attribute - ToQty | String  <br>Optional | Presence of Attribute indicates discount pricing based on quantity purchased. Total amount for with the price bracket applies. Blank value indicates unlimited bracket. |\n\nNote: FromAmount and ToAmount as well as FromQty and ToQty attributes come in pairs only. Price elements are ordered in increase brackets with the last one having a blank ToAmount or ToQty to indicate unlimited values.\n\n#### **Pricing Variations**\n\n``` xml\n<Items>\n    <Item ReferenceNumber=\"1346\" OEMNumber=\"FX4-Blue\" SellUOM=\"BX\">\n        <Price>53.00</Price>\n        <Availability DC=\"MO\">230</Availability>\n        <Availability DC=\"PA\">23</Availability>\n    </Item>\n</Items>\n\n ```\n\n#### **Tier pricing (quantity based)**\n\n``` xml\n<Items>\n    <Item ReferenceNumber=\"1346\" OEMNumber=\"FX4-Blue\" SellUOM=\"BX\">\n        <Price FromQty=\"1\" ToQty=\"10\">53.00</Price>\n        <Price FromQty=\"11\" ToQty=\"\">19.30</Price>\n        <Availability DC=\"MO\">230</Availability>\n        <Availability DC=\"PA\">23</Availability>\n    </Item>\n</Items>\n\n ```\n\n#### **Tier pricing (dollar amount based)**\n\n``` xml\n<Items>\n    <Item ReferenceNumber=\"1346\" OEMNumber=\"FX4-Blue\" SellUOM=\"BX\">\n        <Price FromAmount=\"0.01\" ToAmount=\"2000.00\">53.00</Price>\n        <Price FromAmount=\"2000.01\" ToAmount=\"\">19.30</Price>\n        <Availability DC=\"MO\">230</Availability>\n        <Availability DC=\"PA\">23</Availability>\n    </Item>\n</Items>\n\n ```\n\n#### **Part is not available to dealer (or price below cost)**\n\n``` xml\n<Items>\n    <Item ReferenceNumber=\"1346\" OEMNumber=\"FX4-Blue\" SellUOM=\"BX\">\n        <Price>0</Price>\n        <Availability DC=\"MO\">230</Availability>\n        <Availability DC=\"PA\">23</Availability>\nNote: Availability is not 0 so as to show that SN carries the part. Please call Sales rep to fix problem\n    </Item>\n</Items>\n\n ```\n\n#### **Item does not exist**\n\n``` xml\n<Items>\n    <Item ReferenceNumber=\"136a\" OEMNumber=\"FX4-Blue\" SellUOM=\"BX\">\n        <Price>-1</Price>\n    </Item>\n</Items>\n\n ```\n\n#### **Error codes for ItemInformation**\n\n| Code | **Detail** |\n| --- | --- |\n| 2 | XML document sent could not be loaded |\n| 3 | Neither GetPrice nor GetAvailability are selected. |\n| 4 | Contract could not be identified based on ContractID supplied. |\n| 5 | Zip code could not be validated. |\n| 6 | Pricing lookup failed for unknown reason. |\n| 7 | Availability lookup failed for unknown reason. |\n| 8 | No data returned. |\n| 9 | Unknown error occurred. |\n| 10 | Request or response document could not be validated against the schema. |\n| 12 | Not permitted to request information |\n| 13 | Invalid Credentials |\n\n#### **RequestInfoString Method Input**\n\nThis method is identical in functionality, but uses a string representation of the input argument and return value.\n\n#### **UOM Conversions**\n\n| DMI 3 Character UOM Code | **2 Character UOM per EDI Standard** | **Translation** |\n| --- | --- | --- |\n| BOX | BX | Box |\n| CTG | CQ | Cartridge |\n| PK | PH | Package |\n| EA | EA | Each |\n| PLT | PL | Pallet |\n| RBN | EA | Ribbon |\n| MC | BX | Master Carton |\n| BTL | BO | Bottle |\n| KIT | KT | Kit |\n| RM | RM | Ream |\n| CTN | CT | Carton |"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Invoices",
+			"item": [
+				{
+					"name": "GetInvoices_APIKey",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/xml"
+							},
+							{
+								"key": "SOAPAction",
+								"value": "\"http://portal.suppliesnet.net/GetInvoices\""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\r\n    <soap:Body>\r\n        <GetInvoices xmlns=\"http://portal.suppliesnet.net\">\r\n            <xmlRequest>\r\n                <dmi:InvoiceRequest xmlns:dmi=\"http://portal.suppliesnet.net\">\r\n                    <dmi:RequesterISA>4019846D2D</dmi:RequesterISA>\r\n                    <dmi:APIKey>DEFA6638-B800-47B8-85A4-D18C798DAFD3</dmi:APIKey>\r\n                    <dmi:InvoiceCreateDate>06/19/2023</dmi:InvoiceCreateDate>\r\n                </dmi:InvoiceRequest>\r\n            </xmlRequest>\r\n        </GetInvoices>\r\n    </soap:Body>\r\n</soap:Envelope>"
+						},
+						"url": {
+							"raw": "https://uat.portal.suppliesnet.net/Invoices/Invoices.asmx",
+							"protocol": "https",
+							"host": [
+								"uat",
+								"portal",
+								"suppliesnet",
+								"net"
+							],
+							"path": [
+								"Invoices",
+								"Invoices.asmx"
+							]
+						},
+						"description": "## INVOICE / 810 DOCUMENT VIA WEBSERVICE\n\nThis document describes usage of DMI’s 810 webservice for customers. The global namespace is “dmi=[http://portal.suppliesnet.net”](http://portal.suppliesnet.net”). Only SSL connections using TLS1.1 (or higher) are acceptable protocols.\n\n#### Structure of Invoice Request\n\nOne Invoice request needs to contain the following request information:\n\n- One and only one element with one element under it. Any condition outside of those described will result in error conditions.\n    \n- A valid ISA is also required to identify the requester, and the order being inquired about must be associated with that ISA  \n    in our database.\n    \n\n**Note:** _This request is based on when the invoice was created. Due to timing of internal processes, an order that shipped__on a certain day may not have it’s invoice created until the following day. i.e. if you call for invoices created on 2015-09-09, it may contain invoices for orders that shipped on 2015-09-08._\n\n#### Structure of Invoices Response\n\nThe root element is Invoices. It may contain an Errors node, in case there are any errors during the processing of the invoice request. Each error is indicated by a separate Error node within Errors. The Error node will always contain an error number and an error description. It may also contain nodes to indicate errors with the requester’s ISA, InvoiceCreateDate, or internal errors. A listing of all error numbers is provided at the end of this document for trading partners who may want to code against the error numbers. The response may contain multiple Invoice nodes.\n\n#### Description of some of the elements\n\n| **Element Name** | **Description** |\n| --- | --- |\n| InvoiceNumber | Our internal invoice ID |\n| ReferenceNumber | Reference number listed on the invoice |\n| InvoiceDate | Date that the Invoice was created |\n| OrderNumber | Order number for the order, assigned by DM |\n| OrderDate | Date the order was placed |\n| PONumber | Contact/Dealer PO number from the order |\n| InvoiceRank | The line item rank sent in with the order, or if none was sent in, system assigned rank |\n| ProductNumber | Our OEM Number listed for the item |\n| ProductReferenceNumber | Our Reference Number listed for the item |\n\n#### Error Codes\n\n| **Error Number** | **Error Description** |\n| --- | --- |\n| 0 | No Error |\n| 1 | Problem connecting to database |\n| 2 | No Data returned from method call |\n| 3 | Failed to validate invoice request XML against schema |\n| 4 | failed to validate Invoice response against schema |\n| 5 | Error parsing inbound XML request |\n| 6 | Invalid Requester ISA/Credentials |\n| 7 | Invoice request must contain at least one InvoiceCreateDate element |\n| 8 | Valid InvoiceCreateDate not found for Order |\n| 9 | Unknown Error |"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

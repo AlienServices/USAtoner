@@ -1,0 +1,26 @@
+// DM Inventory Prisma schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@prisma/dm-client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DM_DATABASE_URL")
+}
+
+// Model for DM inventory items
+model DMInventory {
+  id             Int      @id @default(autoincrement())
+  referenceNumber String  @unique
+  oemNumber      String?
+  sellUOM        String
+  price          Float
+  availability   Json     // Will store the array of DC availability
+  lastUpdated    DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("dm_inventory")
+} 
