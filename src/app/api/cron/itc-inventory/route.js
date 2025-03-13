@@ -1,11 +1,45 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/itc-client';
-import ftp from 'basic-ftp';
+import { PrismaClient } from '@prisma/client';
+import * as ftp from 'basic-ftp';
 import csv from 'csv-parser';
-import { Readable } from 'stream';
+import { Readable, Writable } from 'stream';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
 
-// Initialize Prisma client
-const itcPrisma = new PrismaClient();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const envPath = path.resolve(__dirname, '../../../../.env');
+dotenv.config({ path: envPath });
+
+console.log("Server .env path:", envPath);
+
+// Load CRON_SECRET directly from .env file
+let CRON_SECRET = process.env.CRON_SECRET?.trim();
+console.log("Server CRON_SECRET from env:", CRON_SECRET);
+
+// If not available, try reading directly from .env file
+if (!CRON_SECRET && fs.existsSync(envPath)) {
+  try {
+    const envContent = fs.readFileSync(envPath, 'utf8');
+    const match = envContent.match(/CRON_SECRET=["']?(.*?)["']?$/m);
+    if (match && match[1]) {
+      CRON_SECRET = match[1].trim();
+      console.log("Server CRON_SECRET loaded from file:", CRON_SECRET);
+    }
+  } catch (error) {
+    console.error("Error reading .env file:", error);
+  }
+}
+
+// Initialize PrismaClient with better error handling
+const prisma = new PrismaClient();
+
+// Add this to handle any initialization errors
+process.on('exit', async () => {
+  await prisma.$disconnect();
+});
 
 // Helper function to get FTP configuration
 const getFTPConfig = () => ({
@@ -19,52 +53,113 @@ const getFTPConfig = () => ({
 // Function to verify CRON secret
 const verifyCronSecret = (request) => {
   const authHeader = request.headers.get('authorization');
-  if (!authHeader || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    throw new Error('Unauthorized: Invalid or missing CRON_SECRET');
+  
+  // Hardcoded secret for testing
+  const SECRET = "USAtonerSecretKey12345678";
+  const expectedAuth = `Bearer ${SECRET}`;
+  
+  console.log('===== CRON SECRET DEBUG =====');
+  console.log('Received Header:', authHeader);
+  console.log('Expected Header:', expectedAuth);
+  console.log('Header Length:', authHeader ? authHeader.length : 0);
+  console.log('Expected Length:', expectedAuth.length);
+  console.log('Headers Equal:', authHeader === expectedAuth);
+  console.log('===== END DEBUG =====');
+  
+  if (!authHeader) {
+    console.log('No Authorization header found');
+    throw new Error('Unauthorized: Missing CRON_SECRET');
   }
+  
+  if (authHeader !== expectedAuth) {
+    console.log('AUTHORIZATION MISMATCH');
+    throw new Error('Unauthorized: Invalid CRON_SECRET');
+  }
+  
+  console.log('Authorization successful');
 };
 
 // Function to download and parse CSV file
 async function downloadAndParseCSV(client, remotePath) {
+  console.log('Starting CSV download...');
   const chunks = [];
-  await client.downloadTo(Readable.from(chunks), remotePath);
   
-  const data = Buffer.concat(chunks).toString();
-  const results = [];
-  
-  return new Promise((resolve, reject) => {
-    Readable.from(data)
-      .pipe(csv())
-      .on('data', (row) => results.push(row))
-      .on('end', () => resolve(results))
-      .on('error', (error) => reject(error));
+  // Create a writable stream that collects chunks
+  const writableStream = new Writable({
+    write(chunk, encoding, callback) {
+      chunks.push(chunk);
+      callback();
+    }
   });
+  
+  try {
+    console.log(`Downloading file from: ${remotePath}`);
+    await client.downloadTo(writableStream, remotePath);
+    
+    const data = Buffer.concat(chunks).toString();
+    console.log('File downloaded, first 200 characters:', data.substring(0, 200));
+    
+    const results = [];
+    
+    return new Promise((resolve, reject) => {
+      Readable.from(data)
+        .pipe(csv({
+          // Add any specific CSV parsing options if needed
+          separator: ',',
+          headers: true,
+          skipLines: 0
+        }))
+        .on('data', (row) => {
+          // Log the first row to see the structure
+          if (results.length === 0) {
+            console.log('First CSV row structure:', row);
+          }
+          results.push(row);
+        })
+        .on('end', () => {
+          console.log(`Parsed ${results.length} items from CSV`);
+          resolve(results);
+        })
+        .on('error', (error) => {
+          console.error('Error parsing CSV:', error);
+          reject(error);
+        });
+    });
+  } catch (error) {
+    console.error('Error downloading file:', error);
+    throw error;
+  }
 }
 
 // Function to update inventory in database
 async function updateInventory(items) {
   console.log('Starting inventory update...');
   try {
+    if (items.length > 0) {
+      console.log('Sample item structure:', items[0]);
+    }
+
     const updates = items.map(item => 
-      itcPrisma.iTCInventory.upsert({
-        where: { sku: item.sku },
+      prisma.iTCInventory.upsert({
+        where: { sku: item.sku || item.SKU || item['Part Number'] || '' },
         update: {
-          description: item.description,
-          price: parseFloat(item.price),
-          quantity: parseInt(item.quantity),
+          description: item.description || item.Description || item['Product Description'] || '',
+          price: parseFloat(item.price || item.Price || item['Unit Price'] || '0'),
+          quantity: parseInt(item.quantity || item.Quantity || item['Available Quantity'] || '0'),
           lastUpdated: new Date()
         },
         create: {
-          sku: item.sku,
-          description: item.description,
-          price: parseFloat(item.price),
-          quantity: parseInt(item.quantity),
+          sku: item.sku || item.SKU || item['Part Number'] || '',
+          description: item.description || item.Description || item['Product Description'] || '',
+          price: parseFloat(item.price || item.Price || item['Unit Price'] || '0'),
+          quantity: parseInt(item.quantity || item.Quantity || item['Available Quantity'] || '0'),
           lastUpdated: new Date()
         }
       })
     );
 
-    await itcPrisma.$transaction(updates);
+    console.log(`Attempting to update ${updates.length} items`);
+    await prisma.$transaction(updates);
     console.log(`Successfully updated ${items.length} items`);
     return items.length;
   } catch (error) {
@@ -81,6 +176,17 @@ export async function GET(req) {
     verifyCronSecret(req);
     
     const config = getFTPConfig();
+    console.log('FTP Configuration:', {
+      host: config.host,
+      user: config.user,
+      port: config.port,
+      secure: config.secure,
+      filePath: process.env.ITC_FTP_FILE_PATH
+    });
+
+    console.log('FTP module:', ftp);
+    console.log('FTP Client:', ftp.Client);
+
     const client = new ftp.Client();
     client.ftp.verbose = true; // Enable verbose logging
     
@@ -95,12 +201,19 @@ export async function GET(req) {
         secure: config.secure
       });
       
+      // List directory contents
+      console.log('Listing directory contents:');
+      const list = await client.list();
+      console.log('Files in directory:', list.map(item => item.name));
+      
       // Download and parse inventory file
       console.log('Downloading inventory file...');
       const items = await downloadAndParseCSV(client, process.env.ITC_FTP_FILE_PATH);
       
       // Update inventory in database
       const updatedCount = await updateInventory(items);
+      
+      console.log('CRON_SECRET:', process.env.CRON_SECRET);
       
       return NextResponse.json({ 
         success: true, 
@@ -122,7 +235,7 @@ export async function GET(req) {
       { 
         success: false, 
         error: error.message,
-        details: 'Check server logs for more information'
+        details: error.response?.data || 'Check server logs for more information'
       },
       { status: error.response?.status || 500 }
     );

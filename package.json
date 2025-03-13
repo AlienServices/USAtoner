@@ -9,12 +9,16 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@prisma/client": "^5.8.0",
+    "@prisma/client": "^6.5.0",
     "@sequelize/core": "^7.0.0-alpha.29",
     "authorizenet": "^1.0.8",
     "axios": "^1.6.5",
+    "basic-ftp": "^5.0.5",
+    "csv-parser": "^3.2.0",
+    "dotenv": "^16.4.7",
     "fs": "^0.0.1-security",
     "next": "^15.0.3",
+    "node-fetch": "^3.3.2",
     "pg": "^8.11.3",
     "pg-hstore": "^2.3.4",
     "react": "^18.2.0",
@@ -26,6 +30,6 @@
   "devDependencies": {
     "eslint": "latest",
     "eslint-config-next": "latest",
-    "prisma": "^5.8.0"
+    "prisma": "^6.5.0"
   }
 }
