@@ -1,4 +1,0 @@
-Starting inventory update with hardcoded secret
-Response Status: 200
-Raw Response: {"success":true,"data":{"itemCount":3125,"message":"Inventory updated successfully","timestamp":"2025-03-17T17:16:44.130Z"}}
-Success!
