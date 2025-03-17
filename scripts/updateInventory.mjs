@@ -7,7 +7,7 @@ async function runUpdate() {
   console.log("Starting inventory update with hardcoded secret");
   
   try {
-    const response = await fetch('http://127.0.0.1:3000/api/cron/itc-inventory', {
+    const response = await fetch('http://127.0.0.1:3000/api/update-inventory', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

@@ -46,8 +46,7 @@ const getFTPConfig = () => ({
   host: process.env.ITC_FTP_HOST,
   user: process.env.ITC_FTP_USER,
   password: process.env.ITC_FTP_PASSWORD,
-  port: parseInt(process.env.ITC_FTP_PORT || '21'),
-  secure: process.env.ITC_FTP_SECURE === 'true'
+  filePath: process.env.ITC_FTP_FILE_PATH
 });
 
 // Function to verify CRON secret
@@ -61,10 +60,6 @@ const verifyCronSecret = (request) => {
   console.log('===== CRON SECRET DEBUG =====');
   console.log('Received Header:', authHeader);
   console.log('Expected Header:', expectedAuth);
-  console.log('Header Length:', authHeader ? authHeader.length : 0);
-  console.log('Expected Length:', expectedAuth.length);
-  console.log('Headers Equal:', authHeader === expectedAuth);
-  console.log('===== END DEBUG =====');
   
   if (!authHeader) {
     console.log('No Authorization header found');
@@ -80,7 +75,7 @@ const verifyCronSecret = (request) => {
 };
 
 // Function to download and parse CSV file
-async function downloadAndParseCSV(client, remotePath) {
+async function downloadAndParseCSV(client) {
   console.log('Starting CSV download...');
   const chunks = [];
   
@@ -93,8 +88,8 @@ async function downloadAndParseCSV(client, remotePath) {
   });
   
   try {
-    console.log(`Downloading file from: ${remotePath}`);
-    await client.downloadTo(writableStream, remotePath);
+    console.log(`Downloading file from: ${process.env.ITC_FTP_FILE_PATH}`);
+    await client.downloadTo(writableStream, process.env.ITC_FTP_FILE_PATH);
     
     const data = Buffer.concat(chunks).toString();
     console.log('File downloaded, first 200 characters:', data.substring(0, 200));
@@ -179,9 +174,7 @@ export async function GET(req) {
     console.log('FTP Configuration:', {
       host: config.host,
       user: config.user,
-      port: config.port,
-      secure: config.secure,
-      filePath: process.env.ITC_FTP_FILE_PATH
+      filePath: config.filePath
     });
 
     console.log('FTP module:', ftp);
@@ -197,8 +190,7 @@ export async function GET(req) {
         host: config.host,
         user: config.user,
         password: config.password,
-        port: config.port,
-        secure: config.secure
+        secure: false
       });
       
       // List directory contents
@@ -208,7 +200,7 @@ export async function GET(req) {
       
       // Download and parse inventory file
       console.log('Downloading inventory file...');
-      const items = await downloadAndParseCSV(client, process.env.ITC_FTP_FILE_PATH);
+      const items = await downloadAndParseCSV(client);
       
       // Update inventory in database
       const updatedCount = await updateInventory(items);
