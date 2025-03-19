@@ -10,8 +10,8 @@ import styles from "./page.module.css";
 import { CartContext } from "../app/providers/cart";
 import Footer from "./components/Footer";
 import { useRouter } from "next/navigation";
-export default function Data() {
 
+export default function Data() {
   const [name, setName] = useState("");
   const { token, cart, setCart, cartLook, setRealPrice, tonerOem } = useContext(CartContext);
   const [recaptchaResponse, setRecaptchaResponse] = useState(false);
@@ -24,6 +24,9 @@ export default function Data() {
   const tawkMessengerRef = useRef();
   const [toner, setToner] = useState()
   const captchaRef = useRef(null);
+  const [inventory, setInventory] = useState({ itc: [], clover: [] });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const onLoad = () => {
     console.log("onLoad works!");
@@ -36,9 +39,6 @@ export default function Data() {
     setRecaptchaResponse(response);
   };
 
-
-
-
   async function test() {
     const requestOptions = {
       method: "GET",
@@ -50,7 +50,6 @@ export default function Data() {
     } catch (err) {
     }
   }
-
 
   async function search() {
     const aToken = JSON.parse(localStorage.getItem("token"))
@@ -65,14 +64,20 @@ export default function Data() {
     }
     try {
       const response = await fetch('/api/products', requestOptions);
-      const data1 = await response.json();
+      const textResponse = await response.text();
+      console.log('Raw Response:', textResponse);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data1 = JSON.parse(textResponse);
       console.log(data1.cancel.products, "this is the product response")
       setSearching(true)
       setSearchResult(data1.cancel.products)
     } catch (err) {
     }
   }
-
 
   async function getProducts() {
     const requestOptions = {
@@ -81,7 +86,14 @@ export default function Data() {
     }
     try {
       const response = await fetch('/api/products', requestOptions);
-      const data1 = await response.json();
+      const textResponse = await response.text();
+      console.log('Raw Response:', textResponse);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data1 = JSON.parse(textResponse);
       setSearching(true)
       localStorage.setItem("main", JSON.stringify(data1.cancel.products))
       setProducts(data1.cancel.products)      
@@ -93,7 +105,6 @@ export default function Data() {
     getProducts()
   }, [token])
 
-
   useEffect(() => {
     if (localStorage.getItem("main")) {
       setSearching(true)
@@ -101,7 +112,54 @@ export default function Data() {
     }
   }, [products])
 
-  // console.log(token, "this is a test")
+  useEffect(() => {
+    const fetchInventory = async () => {
+      try {
+        // Fetch ITC Inventory
+        const itcResponse = await fetch('/api/update-inventory', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${process.env.CRON_SECRET}` // Ensure this is set correctly
+          }
+        });
+        const itcData = await itcResponse.json();
+
+        // Fetch Clover Inventory
+        const cloverResponse = await fetch('/api/products', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`, // Use the token for authorization
+          },
+          body: JSON.stringify({ search: '' }) // Adjust as needed
+        });
+        const cloverData = await cloverResponse.json();
+
+        console.log('Clover Data Response:', cloverData);
+
+        // Check if cloverData.cancel is defined
+        if (cloverData.cancel) {
+          setInventory({
+            itc: itcData.data, // Adjust based on your response structure
+            clover: cloverData.cancel.products // Adjust based on your response structure
+          });
+        } else {
+          console.error('Clover data is undefined or does not contain cancel:', cloverData);
+          setError('Clover data is not available.');
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInventory();
+  }, [token]);
+
+  if (loading) return <Audio height="150" width="100" color="rgb(47,51,63)" ariaLabel="loading" />;
+  if (error) return <div>Error: {error}</div>;
+
   return (
     <div className={styles.main}>
       <Header />
@@ -126,7 +184,6 @@ export default function Data() {
                   setSearching(!searching)
                   window.location.replace('/#toner')
                   search()
-
                 }
               }} className={styles.search} placeholder="Shop by OEM, Brand, or Model"></input>
             </div>
@@ -148,19 +205,8 @@ export default function Data() {
                 return (
                   <div
                     key={toner.oem}
-                    // onClick={() => {
-                    //   setCartLook({
-                    //     name: toner.name,
-                    //     oem: toner.oem,
-                    //     price: toner.price,
-                    //     color: toner.color,
-                    //     photo: toner.image,
-                    //     yield: toner.yield,
-                    //   });
-                    // }}
                     className={styles.box}
                   >
-
                     <Image
                       alt={'image of toner'}
                       style={{ borderRadius: "5px" }}
@@ -210,7 +256,6 @@ export default function Data() {
                       onClick={() => {
                         setTonerOem(toner.oem)
                         localStorage.setItem("tonerOem", toner.oem)
-
                       }}
                       className={styles.somethingElse}
                       href={`/tonerChoice?oem=${toner.oem}`}
@@ -242,19 +287,8 @@ export default function Data() {
                 return (
                   <div
                     key={toner.oem}
-                    // onClick={() => {
-                    //   setCartLook({
-                    //     name: toner.name,
-                    //     oem: toner.oem,
-                    //     price: toner.price,
-                    //     color: toner.color,
-                    //     photo: toner.image,
-                    //     yield: toner.yield,
-                    //   });
-                    // }}
                     className={styles.box}
                   >
-
                     <Image
                       alt={'image of toner'}
                       style={{ borderRadius: "5px" }}
@@ -304,7 +338,6 @@ export default function Data() {
                       onClick={() => {
                         setTonerOem(toner.oem)
                         localStorage.setItem("tonerOem", toner.oem)
-
                       }}
                       className={styles.somethingElse}
                       href={`/tonerChoice?oem=${toner.oem}`}

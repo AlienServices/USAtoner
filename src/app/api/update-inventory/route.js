@@ -75,7 +75,7 @@ const verifyCronSecret = (request) => {
 };
 
 // Function to download and parse CSV file
-async function downloadAndParseCSV(client) {
+async function downloadAndParseCSV(client, filePath) {
   console.log('Starting CSV download...');
   const chunks = [];
   
@@ -88,8 +88,8 @@ async function downloadAndParseCSV(client) {
   });
   
   try {
-    console.log(`Downloading file from: ${process.env.ITC_FTP_FILE_PATH}`);
-    await client.downloadTo(writableStream, process.env.ITC_FTP_FILE_PATH);
+    console.log(`Downloading file from: ${filePath}`);
+    await client.downloadTo(writableStream, filePath);
     
     const data = Buffer.concat(chunks).toString();
     console.log('File downloaded, first 200 characters:', data.substring(0, 200));
@@ -200,7 +200,7 @@ export async function GET(req) {
       
       // Download and parse inventory file
       console.log('Downloading inventory file...');
-      const items = await downloadAndParseCSV(client);
+      const items = await downloadAndParseCSV(client, config.filePath);
       
       // Update inventory in database
       const updatedCount = await updateInventory(items);

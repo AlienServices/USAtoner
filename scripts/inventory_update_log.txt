@@ -1,0 +1,4 @@
+Starting inventory update with CRON_SECRET from environment
+Response Status: 200
+Raw Response: {"success":true,"data":{"itemCount":3125,"message":"Inventory updated successfully","timestamp":"2025-03-19T14:13:56.324Z"}}
+Success!
