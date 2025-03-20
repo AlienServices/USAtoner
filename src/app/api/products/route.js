@@ -5,7 +5,6 @@ export async function POST(req, res) {
     const newData = await req.json()    
     console.log(newData.token, "this is the body")
     console.log(newData, "this is the body")
-    console.log('Using token:', newData.token);
     const headers = {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${newData.token}`
@@ -26,8 +25,7 @@ export async function POST(req, res) {
         console.log(response, "this is the tesponse")    
         return NextResponse.json({ "cancel": response.data })          
     } catch (error) {
-        console.error('Error fetching products:', error);
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+        console.error('Error sending email:', error);
     }
     // res.status(200).json(result)
 }
