@@ -134,7 +134,7 @@ export default function Data() {
 
                 }
 
-              }} className={styles.search} placeholder="Shop by OEM, Brand, or Model"></input>
+              }} className={styles.search} placeholder="Search by OEM, Brand, or Model"></input>
             </div>
 
             <div className={styles.displayNone}>

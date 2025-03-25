@@ -84,27 +84,41 @@ const Cart = () => {
         let arr = [0]
 
         cart.map((item) => {
-            arr.push(item.quantity * item.price)
+            // Ensure price and quantity are numbers and multiply
+            const price = parseFloat(item.price) || 0;
+            const quantity = parseInt(item.quantity) || 0;
+            arr.push(price * quantity);
+        });
 
-        })
-        let result = arr?.reduce((acc, item) => {
-            return acc + item
-        })
-        let addedResult = result + 2.99
-        setTotal(addedResult.toFixed(2))
-
+        // Sum all items and add shipping
+        let result = arr.reduce((acc, item) => acc + item, 0);
+        let addedResult = result + 2.99;
+        
+        // Format to exactly 2 decimal places
+        setTotal(addedResult.toFixed(2));
     }
+
     useEffect(() => {
-        newPriceAction()
-    }, [cart])
+        newPriceAction();
+    }, [cart]);
 
     const decimal = function (item) {
-        setRealPrice(item.toFixed(2))
-        return item.toFixed(2)
+        // Handle undefined, null, or non-numeric values
+        if (item === undefined || item === null || isNaN(item)) {
+            return '0.00';
+        }
+
+        // Convert to number if it's a string
+        const numValue = typeof item === 'string' ? parseFloat(item) : item;
+        
+        // Check if the conversion resulted in a valid number
+        if (isNaN(numValue)) {
+            return '0.00';
+        }
+
+        // Format the number to exactly 2 decimal places
+        return Number(numValue).toFixed(2);
     }
-    // useEffect(() => {
-    //     newPriceAction()
-    // }, [cart])
 
     const breadCrumbs = [
         { name: "Home", url: "/" },
@@ -231,9 +245,8 @@ const Cart = () => {
                                                 </div>
                                             </div>
                                             <div className={styles.removeBox}>
-
                                                 <div className={styles.priceRight}>
-                                                    ${decimal(toner.price * toner.quantity)}
+                                                    ${decimal((parseFloat(toner.price) || 0) * (parseInt(toner.quantity) || 0))}
                                                 </div>
                                             </div>
                                         </div>

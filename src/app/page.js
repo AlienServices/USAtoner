@@ -52,41 +52,215 @@ export default function Data() {
   }
 
 
-  async function search() {
-    const aToken = JSON.parse(localStorage.getItem("token"))
-    const requestOptions = {
-      method: "POST",
-
-      body:
-        JSON.stringify({
-          token: aToken.accessToken,
-          search: inputData
-        })
-    }
+  const search = async (searchTerm) => {
     try {
-      const response = await fetch('/api/products', requestOptions);
-      const data1 = await response.json();
-      console.log(data1.cancel.products, "this is the product response")
-      setSearching(true)
-      setSearchResult(data1.cancel.products)
-    } catch (err) {
+      // Fetch Clover Imaging products
+      const responseClover = await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ searchTerm }),
+      });
+      const dataClover = await responseClover.json();
+
+      // Fetch ITC inventory
+      const responseITC = await fetch('/api/inventory');
+      const dataITC = await responseITC.json();
+
+      // Filter ITC products based on search term
+      const filteredITC = dataITC.data.filter(product => 
+        product.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.sku?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+      // Transform ITC products to match Clover product structure
+      const transformedITC = filteredITC.map(product => ({
+        id: product.sku,
+        title: product.description || 'ITC Product',
+        price: Number(product.price).toFixed(2),
+        images: ['/static/placeholder.svg'],
+        description: product.description || '',
+        category: 'ITC',
+        quantity: product.quantity || 0,
+        itcProduct: true,
+        oemNos: [{
+          oemNo: product.mfgPartNumber || product.sku
+        }],
+        serviceLevels: [{
+          price: Number(product.price).toFixed(2)
+        }],
+        manufacturerName: product.manufacturerName || getBrandFromSKU(product.sku)
+      }));
+
+      // Format Clover products to ensure consistent structure
+      const formattedClover = (dataClover?.cancel?.products || []).map(product => ({
+        ...product,
+        price: Number(product.price).toFixed(2),
+        serviceLevels: product.serviceLevels?.map(level => ({
+          ...level,
+          price: Number(level.price).toFixed(2)
+        }))
+      }));
+
+      // Combine results
+      const combinedResults = [...formattedClover, ...transformedITC];
+      setSearchResult(combinedResults);
+    } catch (error) {
+      console.error('Error searching products:', error);
+      setSearchResult([]);
     }
-  }
+  };
 
 
   async function getProducts() {
-    const requestOptions = {
-      method: "POST",
-      body: JSON.stringify({ token: token, search: "" })
-    }
     try {
-      const response = await fetch('/api/products', requestOptions);
-      const data1 = await response.json();
-      setSearching(true)
-      localStorage.setItem("main", JSON.stringify(data1.cancel.products))
-      setProducts(data1.cancel.products)      
+      // Get token from localStorage if not available in context
+      const tokenStr = localStorage.getItem("token");
+      let aToken;
+      
+      if (tokenStr) {
+        try {
+          aToken = JSON.parse(tokenStr);
+        } catch (e) {
+          console.log("Error parsing token, skipping Clover search");
+          aToken = null;
+        }
+      }
+
+      if (aToken?.accessToken) {
+        const requestOptions = {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            token: aToken.accessToken, 
+            search: "" 
+          })
+        };
+
+        // Fetch Clover Imaging products
+        const responseClover = await fetch('/api/products', requestOptions);
+        if (!responseClover.ok) throw new Error('Failed to fetch Clover products');
+        const dataClover = await responseClover.json();
+
+        // Fetch ITC inventory
+        const responseITC = await fetch('/api/inventory');
+        if (!responseITC.ok) throw new Error('Failed to fetch ITC inventory');
+        const dataITC = await responseITC.json();
+
+        // Transform ITC inventory to match Clover structure
+        const transformedITCProducts = dataITC.data.map(item => ({
+          id: item.sku,
+          title: item.description || 'ITC Product',
+          price: Number(item.price).toFixed(2),
+          images: ['/static/placeholder.svg'],
+          description: item.description || '',
+          category: 'ITC',
+          quantity: item.quantity || 0,
+          itcProduct: true,
+          oemNos: [{
+            oemNo: item.mfgPartNumber || item.sku
+          }],
+          serviceLevels: [{
+            price: Number(item.price).toFixed(2)
+          }],
+          manufacturerName: item.manufacturerName || getBrandFromSKU(item.sku)
+        }));
+
+        // Combine both inventories
+        const cloverProducts = dataClover?.cancel?.products || [];
+        const combinedProducts = [...cloverProducts, ...transformedITCProducts];
+        
+        // Format prices in combined products
+        const formattedProducts = combinedProducts.map(product => ({
+          ...product,
+          price: Number(product.price).toFixed(2),
+          serviceLevels: product.serviceLevels?.map(level => ({
+            ...level,
+            price: Number(level.price).toFixed(2)
+          }))
+        }));
+
+        // Store full inventory in localStorage
+        localStorage.setItem("fullInventory", JSON.stringify(formattedProducts));
+        
+        // Get featured products (Brother products) and limit to 24 items
+        const featuredProducts = formattedProducts
+          .filter(product => 
+            product.manufacturerName?.toLowerCase().includes('brother') || 
+            (product.title?.toLowerCase().includes('brother'))
+          )
+          .slice(0, 24);
+
+        setSearching(true);
+        localStorage.setItem("main", JSON.stringify(featuredProducts));
+        localStorage.setItem("featured", JSON.stringify(featuredProducts));
+        setProducts(featuredProducts);
+        setToner(featuredProducts);
+      } else {
+        // If no token, just fetch ITC inventory
+        const responseITC = await fetch('/api/inventory');
+        if (!responseITC.ok) throw new Error('Failed to fetch ITC inventory');
+        const dataITC = await responseITC.json();
+        
+        const transformedITCProducts = dataITC.data.map(item => ({
+          id: item.sku,
+          title: item.description || 'ITC Product',
+          price: Number(item.price).toFixed(2),
+          images: ['/static/placeholder.svg'],
+          description: item.description || '',
+          category: 'ITC',
+          quantity: item.quantity || 0,
+          itcProduct: true,
+          oemNos: [{
+            oemNo: item.mfgPartNumber || item.sku
+          }],
+          serviceLevels: [{
+            price: Number(item.price).toFixed(2)
+          }],
+          manufacturerName: item.manufacturerName || getBrandFromSKU(item.sku)
+        }));
+
+        // Store full inventory
+        localStorage.setItem("fullInventory", JSON.stringify(transformedITCProducts));
+        
+        // Limit initial display to 24 items
+        const limitedProducts = transformedITCProducts.slice(0, 24);
+
+        setSearching(true);
+        localStorage.setItem("main", JSON.stringify(limitedProducts));
+        localStorage.setItem("featured", JSON.stringify(limitedProducts));
+        setProducts(limitedProducts);
+        setToner(limitedProducts);
+      }
     } catch (err) {
+      console.error("Error fetching products:", err);
+      setSearching(false);
+      // Try to load cached products if available
+      const cachedProducts = localStorage.getItem("featured");
+      if (cachedProducts) {
+        try {
+          setSearching(true);
+          setToner(JSON.parse(cachedProducts));
+        } catch (e) {
+          console.error("Error loading cached products:", e);
+        }
+      }
     }
+  }
+
+  // Helper function to detect brand from SKU
+  function getBrandFromSKU(sku) {
+    const skuLower = sku.toLowerCase();
+    if (skuLower.includes('br')) return 'Brother';
+    if (skuLower.includes('hp')) return 'HP';
+    if (skuLower.includes('lex')) return 'Lexmark';
+    if (skuLower.includes('xer')) return 'Xerox';
+    if (skuLower.includes('dell')) return 'Dell';
+    if (skuLower.includes('kon')) return 'Konica';
+    return 'Other';
   }
 
   useEffect(() => {
@@ -125,10 +299,10 @@ export default function Data() {
                 if (e.key === "Enter") {
                   setSearching(!searching)
                   window.location.replace('/#toner')
-                  search()
+                  search(inputData)
 
                 }
-              }} className={styles.search} placeholder="Shop by OEM, Brand, or Model"></input>
+              }} className={styles.search} placeholder="Search by OEM, Brand, or Model"></input>
             </div>
             <div className={styles.displayNone}>
               <Image
@@ -144,27 +318,16 @@ export default function Data() {
         <div className={styles.center}>
           {searching ? <>
             {toner?.length > 0 ? <div className={styles.boxContainer}>
-              {searchResult?.length >= 1 ? <>{searchResult?.slice(0, 24)?.map((toner) => {
+              {searchResult?.length >= 1 ? <>{searchResult?.map((toner) => {
                 return (
                   <div
-                    key={toner.oem}
-                    // onClick={() => {
-                    //   setCartLook({
-                    //     name: toner.name,
-                    //     oem: toner.oem,
-                    //     price: toner.price,
-                    //     color: toner.color,
-                    //     photo: toner.image,
-                    //     yield: toner.yield,
-                    //   });
-                    // }}
+                    key={toner.id || toner.sku}
                     className={styles.box}
                   >
-
                     <Image
                       alt={'image of toner'}
                       style={{ borderRadius: "5px" }}
-                      src={toner.images[0]}
+                      src={toner.images?.[0] || '/static/placeholder.svg'}
                       width={180}
                       height={180}
                     ></Image>
@@ -186,7 +349,7 @@ export default function Data() {
                               $
                             </div>
                             <div style={{ color: "rgb(2,50,92)" }} className={styles.modelSmallish}>
-                              {toner.serviceLevels[0].price}
+                              {toner.serviceLevels?.[0]?.price || toner.price}
                             </div>
                           </div>
                         </div>
@@ -197,7 +360,9 @@ export default function Data() {
                           >
                             OEM:
                           </div>
-                          <div className={styles.modelSmall}>{toner.oemNos[0]?.oemNo}</div>
+                          <div className={styles.modelSmall}>
+                            {toner.oemNos?.[0]?.oemNo || toner.mfgPartNumber || toner.sku}
+                          </div>
                         </div>
                       </div>
                       <div
@@ -208,17 +373,16 @@ export default function Data() {
                     </div>
                     <Link
                       onClick={() => {
-                        setTonerOem(toner.oem)
-                        localStorage.setItem("tonerOem", toner.oem)
-
+                        const oemValue = toner.oemNos?.[0]?.oemNo || toner.mfgPartNumber || toner.sku;
+                        setTonerOem(oemValue);
+                        localStorage.setItem("tonerOem", oemValue);
                       }}
                       className={styles.somethingElse}
-                      href={`/tonerChoice?oem=${toner.oem}`}
+                      href={`/tonerChoice?oem=${toner.oemNos?.[0]?.oemNo || toner.mfgPartNumber || toner.sku}`}
                     ></Link>
                     <div style={{ width: "85%" }} className={styles.row}>
-                      <Link href={`/tonerChoice?oem=${toner.oemNos[0].oemNo}`}>
-                        <button className={styles.buttonBlue} onClick={() => {
-                        }}>See Details</button>
+                      <Link href={`/tonerChoice?oem=${toner.oemNos?.[0]?.oemNo || toner.mfgPartNumber || toner.sku}`}>
+                        <button className={styles.buttonBlue}>See Details</button>
                       </Link>
                       <Link href={'/carts'}>
                         <button style={{ backgroundColor: "rgb(131,208,130)" }} className={styles.buttonBlue} onClick={() => {
@@ -226,10 +390,10 @@ export default function Data() {
                             ...cart,
                             {
                               name: toner.title,
-                              oem: toner.oemNos[0].oemNo,
-                              price: toner.serviceLevels[0].price,
+                              oem: toner.oemNos?.[0]?.oemNo || toner.mfgPartNumber || toner.sku,
+                              price: toner.serviceLevels?.[0]?.price || toner.price,
                               quantity: 1,
-                              image: toner.images[0],
+                              image: toner.images?.[0] || '/static/placeholder.svg',
                             },
                           ];
                           setCart(updatedCart)
@@ -238,27 +402,16 @@ export default function Data() {
                     </div>
                   </div>
                 );
-              })}</> : <>{toner?.slice(0, 24)?.map((toner) => {
+              })}</> : <>{toner?.map((toner) => {
                 return (
                   <div
-                    key={toner.oem}
-                    // onClick={() => {
-                    //   setCartLook({
-                    //     name: toner.name,
-                    //     oem: toner.oem,
-                    //     price: toner.price,
-                    //     color: toner.color,
-                    //     photo: toner.image,
-                    //     yield: toner.yield,
-                    //   });
-                    // }}
+                    key={toner.id || toner.sku}
                     className={styles.box}
                   >
-
                     <Image
                       alt={'image of toner'}
                       style={{ borderRadius: "5px" }}
-                      src={toner.images[0]}
+                      src={toner.images?.[0] || '/static/placeholder.svg'}
                       width={180}
                       height={180}
                     ></Image>
@@ -280,7 +433,7 @@ export default function Data() {
                               $
                             </div>
                             <div style={{ color: "rgb(2,50,92)" }} className={styles.modelSmallish}>
-                              {toner.serviceLevels[0].price}
+                              {toner.serviceLevels?.[0]?.price || toner.price}
                             </div>
                           </div>
                         </div>
@@ -291,7 +444,9 @@ export default function Data() {
                           >
                             OEM:
                           </div>
-                          <div className={styles.modelSmall}>{toner.oemNos[0]?.oemNo}</div>
+                          <div className={styles.modelSmall}>
+                            {toner.oemNos?.[0]?.oemNo || toner.mfgPartNumber || toner.sku}
+                          </div>
                         </div>
                       </div>
                       <div
@@ -302,17 +457,16 @@ export default function Data() {
                     </div>
                     <Link
                       onClick={() => {
-                        setTonerOem(toner.oem)
-                        localStorage.setItem("tonerOem", toner.oem)
-
+                        const oemValue = toner.oemNos?.[0]?.oemNo || toner.mfgPartNumber || toner.sku;
+                        setTonerOem(oemValue);
+                        localStorage.setItem("tonerOem", oemValue);
                       }}
                       className={styles.somethingElse}
-                      href={`/tonerChoice?oem=${toner.oem}`}
+                      href={`/tonerChoice?oem=${toner.oemNos?.[0]?.oemNo || toner.mfgPartNumber || toner.sku}`}
                     ></Link>
                     <div style={{ width: "85%" }} className={styles.row}>
-                      <Link href={`/tonerChoice?oem=${toner.oemNos[0].oemNo}`}>
-                        <button className={styles.buttonBlue} onClick={() => {
-                        }}>See Details</button>
+                      <Link href={`/tonerChoice?oem=${toner.oemNos?.[0]?.oemNo || toner.mfgPartNumber || toner.sku}`}>
+                        <button className={styles.buttonBlue}>See Details</button>
                       </Link>
                       <Link href={'/carts'}>
                         <button style={{ backgroundColor: "rgb(131,208,130)" }} className={styles.buttonBlue} onClick={() => {
@@ -320,10 +474,10 @@ export default function Data() {
                             ...cart,
                             {
                               name: toner.title,
-                              oem: toner.oemNos[0].oemNo,
-                              price: toner.serviceLevels[0].price,
+                              oem: toner.oemNos?.[0]?.oemNo || toner.mfgPartNumber || toner.sku,
+                              price: toner.serviceLevels?.[0]?.price || toner.price,
                               quantity: 1,
-                              image: toner.images[0],
+                              image: toner.images?.[0] || '/static/placeholder.svg',
                             },
                           ];
                           setCart(updatedCart)
@@ -345,6 +499,13 @@ export default function Data() {
             wrapperStyle
             wrapperClass
           /></div>}
+        </div>
+        <div className={styles.viewAllContainer}>
+          <Link href="/all-products">
+            <button className={styles.viewAllButton}>
+              View All Products
+            </button>
+          </Link>
         </div>
       </div >
       <Footer />

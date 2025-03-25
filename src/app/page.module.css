@@ -1562,3 +1562,33 @@
     font-size: 22px;
   }
 }
+
+.viewAllContainer {
+    display: flex;
+    justify-content: center;
+    margin: 2rem 0;
+    padding: 1rem;
+}
+
+.viewAllButton {
+    background-color: rgb(2,50,92);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    border: none;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.viewAllButton:hover {
+    background-color: rgb(1,35,64);
+}
+
+.brandTitle {
+    font-size: 2rem;
+    color: rgb(2,50,92);
+    text-align: center;
+    margin: 2rem 0;
+    font-weight: bold;
+}

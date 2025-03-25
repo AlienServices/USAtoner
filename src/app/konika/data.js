@@ -121,7 +121,7 @@ export default function Data() {
               </div>
               <h1>
                 <div className={styles.homepageTitle}>
-                  Konica Minolta Cartridges
+                  Konica Minolta Toner Cartridges
                 </div>
               </h1>
               <input onChange={(event) => {
@@ -134,7 +134,7 @@ export default function Data() {
 
                 }
 
-              }} className={styles.search} placeholder="Shop by OEM, Brand, or Model"></input>
+              }} className={styles.search} placeholder="Search by OEM, Brand, or Model"></input>
             </div>
 
             <div className={styles.displayNone}>
