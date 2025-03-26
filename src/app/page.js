@@ -5,11 +5,14 @@ import Image from "next/image";
 import { Audio } from 'react-loader-spinner'
 import Header from "./components/Header";
 import BestSellers from "./components/BestSellers";
+import OriginFilter from "./components/OriginFilter";
 import Link from "next/link";
 import styles from "./page.module.css";
 import { CartContext } from "../app/providers/cart";
 import Footer from "./components/Footer";
 import { useRouter } from "next/navigation";
+import { removeCloverImaging } from "../lib/utility";
+
 export default function Data() {
 
   const [name, setName] = useState("");
@@ -24,6 +27,13 @@ export default function Data() {
   const tawkMessengerRef = useRef();
   const [toner, setToner] = useState()
   const captchaRef = useRef(null);
+  const [originFilters, setOriginFilters] = useState({
+    usaMade: false,
+    americasMade: false,
+    worldWideMade: false,
+    chineseMade: false
+  });
+  const [filteredProducts, setFilteredProducts] = useState([]);
 
   const onLoad = () => {
     console.log("onLoad works!");
@@ -36,8 +46,46 @@ export default function Data() {
     setRecaptchaResponse(response);
   };
 
+  const handleOriginFilterChange = (filters) => {
+    setOriginFilters(filters);
+  };
 
+  // Function to filter products based on origin
+  const filterProductsByOrigin = (products) => {
+    // If no filters are active, return all products
+    if (!originFilters.usaMade && !originFilters.americasMade && !originFilters.worldWideMade) {
+      return products;
+    }
 
+    return products.filter(product => {
+      // Check if product has origin information
+      const origin = product.origin || 'unknown';
+      
+      // Apply filters
+      if (originFilters.usaMade && origin.toLowerCase().includes('usa')) {
+        return true;
+      }
+      
+      if (originFilters.americasMade && 
+          (origin.toLowerCase().includes('usa') || 
+           origin.toLowerCase().includes('canada') || 
+           origin.toLowerCase().includes('mexico') ||
+           origin.toLowerCase().includes('americas'))) {
+        return true;
+      }
+      
+      if (originFilters.worldWideMade) {
+        // Only show Chinese products if the Chinese toggle is on
+        if (origin.toLowerCase().includes('china')) {
+          return originFilters.chineseMade;
+        }
+        // For all other worldwide products, show them
+        return true;
+      }
+      
+      return false;
+    });
+  };
 
   async function test() {
     const requestOptions = {
@@ -69,6 +117,8 @@ export default function Data() {
       console.log(data1.cancel.products, "this is the product response")
       setSearching(true)
       setSearchResult(data1.cancel.products)
+      // Also update filteredProducts
+      setFilteredProducts(filterProductsByOrigin(data1.cancel.products));
     } catch (err) {
     }
   }
@@ -97,9 +147,21 @@ export default function Data() {
   useEffect(() => {
     if (localStorage.getItem("main")) {
       setSearching(true)
-      setToner(JSON.parse(localStorage.getItem("main")))
+      const storedProducts = JSON.parse(localStorage.getItem("main"));
+      setToner(storedProducts);
+      // Initialize filteredProducts with all products
+      setFilteredProducts(storedProducts);
     }
   }, [products])
+
+  // Update filtered products when origin filters change
+  useEffect(() => {
+    if (searchResult) {
+      setFilteredProducts(filterProductsByOrigin(searchResult));
+    } else if (toner) {
+      setFilteredProducts(filterProductsByOrigin(toner));
+    }
+  }, [originFilters, searchResult, toner]);
 
   // console.log(token, "this is a test")
   return (
@@ -116,7 +178,7 @@ export default function Data() {
               </div>
               <h1>
                 <div className={styles.homepageTitle}>
-                  Shop from our American Made toners
+                  Shop from our Toners & Supplies
                 </div>
               </h1>
               <input onChange={(event) => {
@@ -128,7 +190,7 @@ export default function Data() {
                   search()
 
                 }
-              }} className={styles.search} placeholder="Shop by OEM, Brand, or Model"></input>
+              }} className={styles.search} placeholder="Search by OEM, Brand, or Model"></input>
             </div>
             <div className={styles.displayNone}>
               <Image
@@ -143,199 +205,101 @@ export default function Data() {
         <section id={"toner"}></section>
         <div className={styles.center}>
           {searching ? <>
-            {toner?.length > 0 ? <div className={styles.boxContainer}>
-              {searchResult?.length >= 1 ? <>{searchResult?.slice(0, 24)?.map((toner) => {
-                return (
-                  <div
-                    key={toner.oem}
-                    // onClick={() => {
-                    //   setCartLook({
-                    //     name: toner.name,
-                    //     oem: toner.oem,
-                    //     price: toner.price,
-                    //     color: toner.color,
-                    //     photo: toner.image,
-                    //     yield: toner.yield,
-                    //   });
-                    // }}
-                    className={styles.box}
-                  >
-
-                    <Image
-                      alt={'image of toner'}
-                      style={{ borderRadius: "5px" }}
-                      src={toner.images[0]}
-                      width={180}
-                      height={180}
-                    ></Image>
-                    <div className={styles.titleSmallBlack}>{toner.title}</div>
-                    <div style={{ width: "100%" }}>
-                      <div className={styles.row}>
-                        <div className={styles.row}>
-                          <div className={styles.centerFont}
-                            style={{
-                              display: "flex",
-                              justifyContent: "center",
-                              alignItems: "center",
-                            }}
-                          >
-                            <div
-                              style={{ paddingRight: "5px", color: "rgb(2,50,92)" }}
-                              className={styles.price}
-                            >
-                              $
-                            </div>
-                            <div style={{ color: "rgb(2,50,92)" }} className={styles.modelSmallish}>
-                              {toner.serviceLevels[0].price}
-                            </div>
-                          </div>
-                        </div>
-                        <div className={styles.row}>
-                          <div
-                            style={{ paddingRight: "5px" }}
-                            className={styles.priceSmall}
-                          >
-                            OEM:
-                          </div>
-                          <div className={styles.modelSmall}>{toner.oemNos[0]?.oemNo}</div>
-                        </div>
-                      </div>
+            {/* Always render the filter regardless of product count */}
+            <div className={styles.productSection}>
+              {filteredProducts?.length > 0 ? (
+                <div className={styles.boxContainer}>
+                  {filteredProducts?.slice(0, 24)?.map((toner) => {
+                    return (
                       <div
-                        style={{ paddingTop: "10px" }}
-                        className={styles.rowOem}
+                        key={toner.oemNos[0]?.oemNo || toner.id}
+                        className={styles.box}
                       >
-                      </div>
-                    </div>
-                    <Link
-                      onClick={() => {
-                        setTonerOem(toner.oem)
-                        localStorage.setItem("tonerOem", toner.oem)
-
-                      }}
-                      className={styles.somethingElse}
-                      href={`/tonerChoice?oem=${toner.oem}`}
-                    ></Link>
-                    <div style={{ width: "85%" }} className={styles.row}>
-                      <Link href={`/tonerChoice?oem=${toner.oemNos[0].oemNo}`}>
-                        <button className={styles.buttonBlue} onClick={() => {
-                        }}>See Details</button>
-                      </Link>
-                      <Link href={'/carts'}>
-                        <button style={{ backgroundColor: "rgb(131,208,130)" }} className={styles.buttonBlue} onClick={() => {
-                          const updatedCart = [
-                            ...cart,
-                            {
-                              name: toner.title,
-                              oem: toner.oemNos[0].oemNo,
-                              price: toner.serviceLevels[0].price,
-                              quantity: 1,
-                              image: toner.images[0],
-                            },
-                          ];
-                          setCart(updatedCart)
-                        }}>Add to cart</button>
-                      </Link>
-                    </div>
-                  </div>
-                );
-              })}</> : <>{toner?.slice(0, 24)?.map((toner) => {
-                return (
-                  <div
-                    key={toner.oem}
-                    // onClick={() => {
-                    //   setCartLook({
-                    //     name: toner.name,
-                    //     oem: toner.oem,
-                    //     price: toner.price,
-                    //     color: toner.color,
-                    //     photo: toner.image,
-                    //     yield: toner.yield,
-                    //   });
-                    // }}
-                    className={styles.box}
-                  >
-
-                    <Image
-                      alt={'image of toner'}
-                      style={{ borderRadius: "5px" }}
-                      src={toner.images[0]}
-                      width={180}
-                      height={180}
-                    ></Image>
-                    <div className={styles.titleSmallBlack}>{toner.title}</div>
-                    <div style={{ width: "100%" }}>
-                      <div className={styles.row}>
-                        <div className={styles.row}>
-                          <div className={styles.centerFont}
-                            style={{
-                              display: "flex",
-                              justifyContent: "center",
-                              alignItems: "center",
-                            }}
-                          >
-                            <div
-                              style={{ paddingRight: "5px", color: "rgb(2,50,92)" }}
-                              className={styles.price}
-                            >
-                              $
+                        <Image
+                          alt={'image of toner'}
+                          style={{ borderRadius: "5px" }}
+                          src={toner.images[0]}
+                          width={180}
+                          height={180}
+                        ></Image>
+                        <div className={styles.titleSmallBlack}>{removeCloverImaging(toner.title)}</div>
+                        <div style={{ width: "100%" }}>
+                          <div className={styles.row}>
+                            <div className={styles.row}>
+                              <div className={styles.centerFont}
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "center",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <div
+                                  style={{ paddingRight: "5px", color: "rgb(2,50,92)" }}
+                                  className={styles.price}
+                                >
+                                  $
+                                </div>
+                                <div style={{ color: "rgb(2,50,92)" }} className={styles.modelSmallish}>
+                                  {toner.serviceLevels[0].price}
+                                </div>
+                              </div>
                             </div>
-                            <div style={{ color: "rgb(2,50,92)" }} className={styles.modelSmallish}>
-                              {toner.serviceLevels[0].price}
+                            <div className={styles.row}>
+                              <div
+                                style={{ paddingRight: "5px" }}
+                                className={styles.priceSmall}
+                              >
+                                OEM:
+                              </div>
+                              <div className={styles.modelSmall}>{toner.oemNos[0]?.oemNo}</div>
                             </div>
                           </div>
-                        </div>
-                        <div className={styles.row}>
                           <div
-                            style={{ paddingRight: "5px" }}
-                            className={styles.priceSmall}
+                            style={{ paddingTop: "10px" }}
+                            className={styles.rowOem}
                           >
-                            OEM:
                           </div>
-                          <div className={styles.modelSmall}>{toner.oemNos[0]?.oemNo}</div>
+                        </div>
+                        <Link
+                          onClick={() => {
+                            setTonerOem(toner.oem)
+                            localStorage.setItem("tonerOem", toner.oem)
+                          }}
+                          className={styles.somethingElse}
+                          href={`/tonerChoice?oem=${toner.oem}`}
+                        ></Link>
+                        <div style={{ width: "85%" }} className={styles.row}>
+                          <Link href={`/tonerChoice?oem=${toner.oemNos[0]?.oemNo}`}>
+                            <button className={styles.buttonBlue} onClick={() => {
+                            }}>See Details</button>
+                          </Link>
+                          <Link href={'/carts'}>
+                            <button style={{ backgroundColor: "rgb(131,208,130)" }} className={styles.buttonBlue} onClick={() => {
+                              const updatedCart = [
+                                ...cart,
+                                {
+                                  name: removeCloverImaging(toner.title),
+                                  oem: toner.oemNos[0]?.oemNo,
+                                  price: toner.serviceLevels[0].price,
+                                  quantity: 1,
+                                  image: toner.images[0],
+                                },
+                              ];
+                              setCart(updatedCart)
+                            }}>Add to cart</button>
+                          </Link>
                         </div>
                       </div>
-                      <div
-                        style={{ paddingTop: "10px" }}
-                        className={styles.rowOem}
-                      >
-                      </div>
-                    </div>
-                    <Link
-                      onClick={() => {
-                        setTonerOem(toner.oem)
-                        localStorage.setItem("tonerOem", toner.oem)
-
-                      }}
-                      className={styles.somethingElse}
-                      href={`/tonerChoice?oem=${toner.oem}`}
-                    ></Link>
-                    <div style={{ width: "85%" }} className={styles.row}>
-                      <Link href={`/tonerChoice?oem=${toner.oemNos[0].oemNo}`}>
-                        <button className={styles.buttonBlue} onClick={() => {
-                        }}>See Details</button>
-                      </Link>
-                      <Link href={'/carts'}>
-                        <button style={{ backgroundColor: "rgb(131,208,130)" }} className={styles.buttonBlue} onClick={() => {
-                          const updatedCart = [
-                            ...cart,
-                            {
-                              name: toner.title,
-                              oem: toner.oemNos[0].oemNo,
-                              price: toner.serviceLevels[0].price,
-                              quantity: 1,
-                              image: toner.images[0],
-                            },
-                          ];
-                          setCart(updatedCart)
-                        }}>Add to cart</button>
-                      </Link>
-                    </div>
-                  </div>
-                );
-              })}</>}
-            </div> : <div>
-              <div className={styles.nothing}>No Products Found, Search Something Else</div>
-            </div>}
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className={styles.emptyProductsContainer}>
+                  <div className={styles.nothing}>No Products Found, Try Changing Your Filter or Search</div>
+                </div>
+              )}
+            </div>
+            <OriginFilter onFilterChange={handleOriginFilterChange} />
           </> : <div className={''}><Audio
             height="150"
             width="100"

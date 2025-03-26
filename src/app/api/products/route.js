@@ -22,7 +22,44 @@ export async function POST(req, res) {
     }
     try {        
         const response = await axios.post(url, data, { headers })   
-        console.log(response, "this is the tesponse")    
+        console.log(response, "this is the tesponse")
+        
+        // Enhance products with origin information
+        // In a real implementation, this would come from your database or API
+        // For demo purposes, we're assigning origins randomly
+        if (response.data && response.data.products) {
+            const origins = ['USA', 'Canada', 'Mexico', 'China', 'Japan', 'Germany', 'UK'];
+            const enhancedProducts = response.data.products.map(product => {
+                // Determine origin based on product properties (this is a simplified example)
+                // In a real implementation, you'd have this data stored or provided by the API
+                let origin;
+                
+                // Example logic - you would replace this with real product origin data
+                // For demo, we're using the product ID to assign a consistent origin to each product
+                const idSum = product.id.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
+                
+                // Assign origin based on ID sum
+                if (idSum % 5 === 0) {
+                    origin = 'USA';
+                } else if (idSum % 5 === 1) {
+                    origin = 'Canada';
+                } else if (idSum % 5 === 2) {
+                    origin = 'Mexico';
+                } else if (idSum % 5 === 3) {
+                    origin = 'China';
+                } else {
+                    origin = origins[Math.floor(Math.random() * origins.length)];
+                }
+                
+                return {
+                    ...product,
+                    origin
+                };
+            });
+            
+            response.data.products = enhancedProducts;
+        }
+        
         return NextResponse.json({ "cancel": response.data })          
     } catch (error) {
         console.error('Error sending email:', error);

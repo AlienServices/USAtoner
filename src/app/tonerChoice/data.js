@@ -9,6 +9,7 @@ import Link from "next/link";
 import { CartContext } from "../providers/cart";
 import { Suspense } from 'react'
 import { useSearchParams } from "next/navigation";
+import { removeCloverImaging } from "../../lib/utility";
 // export const dynamic = "force-dynamic"
 // import BreadCrumbs from "../components/BreadCrumbs";
 
@@ -133,7 +134,7 @@ console.log(toner, "this is what were seeing")
                     </div>
                     <div className={styles.centerFeature}>
                         <div className={styles.aContainer}>
-                            <div className={styles.titleLarge}>{toner[0]?.title}</div>
+                            <div className={styles.titleLarge}>{toner[0]?.title ? removeCloverImaging(toner[0].title) : ''}</div>
                             <div className={styles.something}>
                                 <div className={styles.titleSmall}>
                                     <div className={styles.small}>
