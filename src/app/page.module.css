@@ -636,12 +636,41 @@
 .nothing{
   font-size: 30px;
 }
+.searchContainer {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 600px;
+  margin: 20px auto;
+}
+
 .search {
-  border-radius: 100px;
-  padding: 18px;
-  height: 70px;
-  font-size: 20px;
-  width: 550px
+  flex: 1;
+  padding: 12px 20px;
+  font-size: 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.search:focus {
+  border-color: rgb(2,50,92);
+}
+
+.searchButton {
+  padding: 12px 24px;
+  background-color: rgb(2,50,92);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.searchButton:hover {
+  background-color: rgb(1,35,65);
 }
 
 .buttonBlue {
@@ -1568,15 +1597,16 @@
 }
 
 .emptyProductsContainer {
-  min-height: 300px;
+  min-height: 200px;
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
   background-color: #f8f9fa;
   border-radius: 8px;
-  padding: 20px;
+  padding: 30px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  margin: 20px 0;
 }
 
 /* Printer Model List Styles */
@@ -1902,4 +1932,49 @@
   .modelProductsContent {
     padding: 0 20px;
   }
+}
+
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.errorMessage {
+  color: #dc3545;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.retryButton {
+  background-color: rgb(2,50,92);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s;
+}
+
+.retryButton:hover {
+  background-color: rgb(1,35,65);
+}
+
+.sectionHeader {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  text-align: center;
+}
+
+.verticalStack {
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
 }

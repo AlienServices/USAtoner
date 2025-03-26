@@ -35,6 +35,8 @@ export default function Data() {
     chineseMade: false
   });
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   
   const handleMinimize = () => {
     tawkMessengerRef.current.minimize();
@@ -128,9 +130,13 @@ export default function Data() {
   }
 
   async function getProducts() {
+    setLoading(true);
+    setError(null);
+    
     try {
       // Check if localStorage is available (for SSR)
       if (typeof window === 'undefined') {
+        setLoading(false);
         return;
       }
       
@@ -139,33 +145,76 @@ export default function Data() {
         aToken = JSON.parse(localStorage.getItem("token"));
       } catch (error) {
         console.error("Error parsing token:", error);
+        setError("Failed to load authentication token");
+        setLoading(false);
         return;
       }
       
       if (!aToken || !aToken.accessToken) {
         console.error("No valid token found");
+        setError("Authentication token not found");
+        setLoading(false);
         return;
       }
       
       const requestOptions = {
         method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ token: aToken.accessToken, search: "lexmark" })
       };
       
       const response = await fetch('/api/products', requestOptions);
-      const data1 = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      let data1;
+      try {
+        data1 = await response.json();
+      } catch (error) {
+        console.error("Error parsing response:", error);
+        throw new Error("Failed to parse server response");
+      }
+      
+      // Validate response structure
+      if (!data1 || typeof data1 !== 'object') {
+        throw new Error("Invalid response format from API");
+      }
+      
+      if (!data1.cancel || !Array.isArray(data1.cancel.products)) {
+        throw new Error("Invalid products data format");
+      }
+      
+      // Validate products data
+      const validProducts = data1.cancel.products.filter(product => {
+        return product && 
+               typeof product === 'object' && 
+               Array.isArray(product.images) && 
+               Array.isArray(product.serviceLevels) &&
+               Array.isArray(product.oemNos);
+      });
+      
+      if (validProducts.length === 0) {
+        throw new Error("No valid products found in response");
+      }
       
       setSearching(true);
-      localStorage.setItem("lexmark", JSON.stringify(data1.cancel.products));
-      setProducts(data1.cancel.products);
+      localStorage.setItem("lexmark", JSON.stringify(validProducts));
+      setProducts(validProducts);
       
       // Extract and organize printer models
-      const models = extractPrinterModels(data1.cancel.products);
+      const models = extractPrinterModels(validProducts);
       setPrinterModels(models);
       // Initialize filteredProducts with all products
-      setFilteredProducts(data1.cancel.products);
+      setFilteredProducts(validProducts);
     } catch (err) {
       console.error("Error fetching products:", err);
+      setError(err.message || "Failed to fetch products");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -262,7 +311,29 @@ export default function Data() {
 
         <section id={"toner"}></section>
         <div className={styles.center}>
-          {searching ? (
+          {loading ? (
+            <div className={styles.loadingContainer}>
+              <Audio
+                height="150"
+                width="100"
+                radius="10"
+                color="rgb(47,51,63)"
+                ariaLabel="loading"
+                wrapperStyle
+                wrapperClass
+              />
+            </div>
+          ) : error ? (
+            <div className={styles.errorContainer}>
+              <div className={styles.errorMessage}>{error}</div>
+              <button 
+                className={styles.retryButton}
+                onClick={() => getProducts()}
+              >
+                Retry
+              </button>
+            </div>
+          ) : searching ? (
             <>
               {isModelView ? (
                 // Model view - display printer models

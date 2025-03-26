@@ -1,0 +1,121 @@
+.modelHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.modelNavigation {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.backToModels {
+  color: rgb(2, 50, 92);
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.backToModels:hover {
+  color: rgb(1, 35, 65);
+  text-decoration: underline;
+}
+
+.modelSubHeader {
+  width: 100%;
+  text-align: center;
+  font-size: 1.4rem;
+  margin: 0;
+  color: rgb(56, 56, 56);
+  font-weight: 500;
+}
+
+.modelBox {
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px 30px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  display: inline-block;
+}
+
+.tabNavContainer {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: 1rem 0;
+}
+
+.tabNav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  max-width: 800px;
+}
+
+.tabButton {
+  padding: 0.75rem 1.5rem;
+  background-color: #f1f1f1;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tabButton:hover {
+  background-color: #e0e0e0;
+}
+
+.activeTab {
+  background-color: rgb(2, 50, 92);
+  color: white;
+  border-color: rgb(2, 50, 92);
+}
+
+.loaderContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  width: 100%;
+}
+
+.loader {
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid rgb(2, 50, 92);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.emptyProductsContainer {
+  min-height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  margin: 20px 0;
+}
+
+.nothing {
+  font-size: 20px;
+  color: #666;
+  text-align: center;
+} 
