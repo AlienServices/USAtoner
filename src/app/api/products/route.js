@@ -1,68 +1,139 @@
 import axios from 'axios';
 import { NextResponse } from 'next/server'
 
-export async function POST(req, res) {    
-    const newData = await req.json()    
-    console.log(newData.token, "this is the body")
-    console.log(newData, "this is the body")
-    const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${newData.token}`
-    };
-    const url = 'https://www.cloverimaging.com/access-point/products';
-    const data = {
-        apiKey: "j9yHorfoA3HpWOxDMBMw4AF26b396oAUkApYIbUgtu3pw6o4OZmortBSdUE3tVP1boyTpOCPkYE7XCdEqoKCieQ6Ptos5wfmsjqTNFcewIsiTL27kyJtclT15VsLIDM4fvfiNOjP6WI979W7MVpWM33W5LQNpegSxqUiBHu54A7LCfQLFjsZpL5I6ynEkA1hVZsQRwY9pLVo06AcVZ5agCe6CA8MGiYh4HMDHtyWMbI43LDgb4Ti08Nial",
-        page: 1,
-        filters: {
-            search: `${newData.search}`,
-            productTypes: [
-                "1"
-            ]
+// Function to fetch categories from Clover Imaging API
+export async function GET(request) {
+    try {
+        const { searchParams } = new URL(request.url);
+        const token = searchParams.get('token');
+        const type = searchParams.get('type');
+
+        if (!token) {
+            return NextResponse.json({ error: 'No token provided' }, { status: 400 });
         }
-    }
-    try {        
-        const response = await axios.post(url, data, { headers })   
-        console.log(response, "this is the tesponse")
-        
-        // Enhance products with origin information
-        // In a real implementation, this would come from your database or API
-        // For demo purposes, we're assigning origins randomly
-        if (response.data && response.data.products) {
-            const origins = ['USA', 'Canada', 'Mexico', 'China', 'Japan', 'Germany', 'UK'];
-            const enhancedProducts = response.data.products.map(product => {
-                // Determine origin based on product properties (this is a simplified example)
-                // In a real implementation, you'd have this data stored or provided by the API
-                let origin;
+
+        // Set up headers for the API request
+        const headers = {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        };
+
+        // If requesting categories
+        if (type === 'categories') {
+            try {
+                // Make sure to use proper search terms for Konica Minolta
+                const response = await axios.post('https://www.cloverimaging.com/access-point/products', {
+                    apiKey: process.env.CLOVER_API_KEY,
+                    filters: {
+                        search: "konica bizhub",  // Be more specific to get better results
+                        productTypes: ["1"]       // Product type for toners
+                    }
+                }, { headers });
+
+                // Return the categories data
+                return NextResponse.json(response.data);
+            } catch (error) {
+                console.error('Error fetching categories:', error.response?.data || error.message);
                 
-                // Example logic - you would replace this with real product origin data
-                // For demo, we're using the product ID to assign a consistent origin to each product
-                const idSum = product.id.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
-                
-                // Assign origin based on ID sum
-                if (idSum % 5 === 0) {
-                    origin = 'USA';
-                } else if (idSum % 5 === 1) {
-                    origin = 'Canada';
-                } else if (idSum % 5 === 2) {
-                    origin = 'Mexico';
-                } else if (idSum % 5 === 3) {
-                    origin = 'China';
-                } else {
-                    origin = origins[Math.floor(Math.random() * origins.length)];
-                }
-                
-                return {
-                    ...product,
-                    origin
+                // Create fallback categories for Konica Minolta
+                const fallbackCategories = {
+                    page: 1,
+                    totalPages: 1,
+                    products: [
+                        // Include some representative Konica Minolta products
+                        {
+                            id: 'fallback1',
+                            title: 'Konica Minolta Bizhub C224 Black Toner',
+                            oemNos: [{ oemNo: 'TN-321K' }]
+                        },
+                        {
+                            id: 'fallback2',
+                            title: 'Konica Minolta Bizhub C364 Cyan Toner',
+                            oemNos: [{ oemNo: 'TN-321C' }]
+                        },
+                        {
+                            id: 'fallback3',
+                            title: 'Konica Minolta Bizhub 224e Black Toner',
+                            oemNos: [{ oemNo: 'TN-323' }]
+                        },
+                        {
+                            id: 'fallback4',
+                            title: 'Konica Minolta Bizhub 368 Black Toner',
+                            oemNos: [{ oemNo: 'TN-326' }]
+                        }
+                    ]
                 };
-            });
-            
-            response.data.products = enhancedProducts;
+                
+                // Return fallback data instead of error
+                return NextResponse.json(fallbackCategories);
+            }
         }
-        
-        return NextResponse.json({ "cancel": response.data })          
+
+        // For other requests, return an error
+        return NextResponse.json({ error: 'Invalid request type' }, { status: 400 });
+
     } catch (error) {
-        console.error('Error sending email:', error);
+        console.error('API route error:', error);
+        return NextResponse.json({ 
+            error: 'Internal server error',
+            details: error.message 
+        }, { status: 500 });
     }
-    // res.status(200).json(result)
+}
+
+export async function POST(request) {
+    try {
+        const body = await request.json();
+        const { token, search, category } = body;
+
+        if (!token) {
+            return NextResponse.json({ error: 'No token provided' }, { status: 400 });
+        }
+
+        // Set up headers for the API request
+        const headers = {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        };
+
+        // Prepare the request body
+        const requestBody = {
+            apiKey: process.env.CLOVER_API_KEY,
+            filters: {
+                search: search || "",
+                productTypes: ["1"]
+            }
+        };
+
+        // Add category filter if provided
+        if (category) {
+            requestBody.filters.categories = [category];
+        }
+
+        try {
+            const response = await axios.post(
+                'https://www.cloverimaging.com/access-point/products',
+                requestBody,
+                { headers }
+            );
+
+            // Return the products data
+            return NextResponse.json(response.data);
+        } catch (error) {
+            console.error('Error fetching products:', error.response?.data || error.message);
+            return NextResponse.json({ 
+                error: 'Failed to fetch products',
+                details: error.response?.data || error.message 
+            }, { status: 500 });
+        }
+
+    } catch (error) {
+        console.error('API route error:', error);
+        return NextResponse.json({ 
+            error: 'Internal server error',
+            details: error.message 
+        }, { status: 500 });
+    }
 }

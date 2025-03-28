@@ -362,16 +362,22 @@
 }
 
 .box {
-  width: 280px;
+  position: relative;
   display: flex;
-  border-radius: 20px;
-  border: 1px rgb(191, 191, 191) solid;
-  justify-content: space-evenly;
-  align-items: center;
   flex-direction: column;
-  height: fit-content;
-  padding: 5px;
-  margin-bottom: 10px;
+  align-items: center;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background-color: white;
+  margin: 10px;
+  width: 250px;
+}
+
+.box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
 }
 
 .boxReview {
@@ -613,8 +619,9 @@
 
 .price {
   font-size: 18px;
-  font-weight: 500;
-  color: rgb(47, 51, 63);
+  font-weight: 600;
+  color: rgb(2, 50, 92);
+  margin: 0;
 }
 
 .row {
