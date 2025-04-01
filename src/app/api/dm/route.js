@@ -1,17 +1,18 @@
 import axios from 'axios';
 import { NextResponse } from 'next/server';
 import { parseStringPromise } from 'xml2js';
-import { PrismaClient } from '@prisma/dm-client';
+import { PrismaClient } from '@prisma/client';
 
 // Initialize Prisma client
-const dmPrisma = new PrismaClient();
+const prisma = new PrismaClient();
 
 // Helper function to get DM API configuration
 const getDMConfig = () => ({
-  apiKey: process.env.DM_API_KEY,
-  isa: process.env.DM_ISA,
-  orgId: process.env.DM_ORG_ID,
-  contactId: process.env.DM_CONTACT_ID
+  apiKey: process.env.DM_API_KEY || '0751E703-3D4D-4B37-9156-088F43AECBDB',
+  isa: process.env.DM_ISA || '4012025D2D',
+  orgId: process.env.DM_ORG_ID || '4012025',
+  contactId: process.env.DM_CONTACT_ID || '6043937',
+  agreementScheduleId: process.env.DM_AGREEMENT_SCHEDULE_ID || 'QT23-090684'
 });
 
 // Function to build SOAP request body for catalog request
@@ -24,6 +25,7 @@ const buildCatalogRequestBody = (config) => {
       <apiKey>${config.apiKey}</apiKey>
       <isa>${config.isa}</isa>
       <orgID>${config.orgId}</orgID>
+      <agreementScheduleID>${config.agreementScheduleId}</agreementScheduleID>
     </GetCatalog>
   </soap:Body>
 </soap:Envelope>`;
@@ -41,9 +43,11 @@ const buildItemDetailsRequestBody = (config, referenceNumbers) => {
         <dmi:ItemInformation GetPrice="1" GetAvailability="1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dmi="http://portal.suppliesnet.net">
           <dmi:ContactID>${config.contactId}</dmi:ContactID>
           <dmi:APIKey>${config.apiKey}</dmi:APIKey>
+          <dmi:ZipCode></dmi:ZipCode>
           <dmi:Items>
             ${itemNodes}
           </dmi:Items>
+          <dmi:AgreementSchedule>${config.agreementScheduleId}</dmi:AgreementSchedule>
         </dmi:ItemInformation>
       </InputRequestNode>
     </RequestInfo>
@@ -166,7 +170,7 @@ const updateInventory = async (items) => {
   console.log('Starting inventory update...');
   try {
     const updates = items.map(item => 
-      dmPrisma.dMInventory.upsert({
+      prisma.dMInventory.upsert({
         where: { referenceNumber: item.referenceNumber },
         update: {
           oemNumber: item.oemNumber,
@@ -186,7 +190,7 @@ const updateInventory = async (items) => {
       })
     );
 
-    await dmPrisma.$transaction(updates);
+    await prisma.$transaction(updates);
     console.log(`Successfully updated ${items.length} items`);
   } catch (error) {
     console.error('Error updating inventory:', error);

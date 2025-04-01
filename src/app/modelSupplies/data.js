@@ -16,6 +16,55 @@ const ModelSupplies = () => {
     const [activeTab, setActiveTab] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [supplies, setSupplies] = useState([]);
+    
+    // Define Konica part number to model mapping at component level
+    const partToModelMap = {
+        // Konica Minolta Bizhub 4000 Series
+        'TNP37': ['4700P'],
+        'TNP44': ['4050', '4750'],
+        '4152-611': ['4152'],
+        
+        // Konica Minolta Bizhub 3000 Series
+        'TNP39': ['3300P', '3301P'],
+        'TNP40': ['3320', '3350'],
+        'TNP41': ['3320', '3350'],
+        
+        // Konica Minolta Bizhub C3000 Series
+        'TN318K': ['C358'],
+        'TN318C': ['C358'],
+        'TN318M': ['C358'],
+        'TN318Y': ['C358'],
+        
+        // Konica Minolta Bizhub C2000 Series
+        'TN213K': ['C203', 'C253'],
+        'TN213C': ['C203', 'C253'],
+        'TN213M': ['C203', 'C253'],
+        'TN213Y': ['C203', 'C253'],
+        
+        // Konica Minolta Bizhub C1000 Series
+        'TN116': ['164', '165', '185'],
+        'TN117': ['184', '195', '215', '235'],
+        'TN118': ['195', '215', '235'],
+        
+        // Konica Minolta Magicolor Series
+        'A0V301F': ['1600W', '1650EN', '1680MF', '1690MF'],
+        'A0V30HF': ['1600W', '1650EN', '1680MF', '1690MF'],
+        'A0V30CF': ['1600W', '1650EN', '1680MF', '1690MF'],
+        'A0V306F': ['1600W', '1650EN', '1680MF', '1690MF'],
+        
+        // Waste Toners
+        'WB-P03': ['4000 Series', '3000 Series'],
+        'WB-P05': ['C3000 Series', 'C2000 Series'],
+        'WB-P07': ['C1000 Series'],
+        
+        // Imaging Units
+        'IU-310K': ['C350', 'C351', 'C450'],
+        'IU-310C': ['C350', 'C351', 'C450'],
+        'IU-310M': ['C350', 'C351', 'C450'],
+        'IU-310Y': ['C350', 'C351', 'C450'],
+        
+        // Add more mappings as needed
+    };
 
     useEffect(() => {
         if (modelNumber) {
@@ -43,14 +92,6 @@ const ModelSupplies = () => {
                 setIsLoading(false);
                 return;
             }
-
-            // Define part number to model mapping
-            const partToModelMap = {
-                'TNP37': ['4700P'],
-                'TNP44': ['4050', '4750'],
-                '4152-611': ['4152'],
-                // Add more mappings as needed
-            };
 
             // First try to get Konica Minolta products from cache
             let cachedProducts = [];
@@ -329,26 +370,119 @@ const ModelSupplies = () => {
             return supplies;
         }
 
+        // More specific categorization
         switch (activeTab) {
-            case "toner":
+            case "black-toner":
                 return supplies.filter(item => 
                     item.title.toLowerCase().includes("toner") && 
-                    !item.title.toLowerCase().includes("waste")
+                    !item.title.toLowerCase().includes("waste") &&
+                    (item.title.toLowerCase().includes("black") || 
+                     !item.title.toLowerCase().match(/cyan|magenta|yellow|color/i))
+                );
+            case "color-toner":
+                return supplies.filter(item => 
+                    item.title.toLowerCase().includes("toner") &&
+                    !item.title.toLowerCase().includes("waste") &&
+                    item.title.toLowerCase().match(/cyan|magenta|yellow|color/i)
                 );
             case "waste":
                 return supplies.filter(item => 
                     item.title.toLowerCase().includes("waste") || 
                     item.title.toLowerCase().includes("collection")
                 );
-            case "imaging":
+            case "imaging-drum":
                 return supplies.filter(item => 
                     item.title.toLowerCase().includes("imaging") || 
-                    item.title.toLowerCase().includes("drum") || 
-                    item.title.toLowerCase().includes("developer")
+                    item.title.toLowerCase().includes("drum") ||
+                    item.title.toLowerCase().includes("image unit") ||
+                    item.title.toLowerCase().includes("iu-")
+                );
+            case "developer":
+                return supplies.filter(item => 
+                    item.title.toLowerCase().includes("developer") ||
+                    item.title.toLowerCase().includes("development")
+                );
+            case "maintenance":
+                return supplies.filter(item => 
+                    item.title.toLowerCase().includes("maintenance") || 
+                    item.title.toLowerCase().includes("kit") ||
+                    item.title.toLowerCase().includes("fuser")
                 );
             default:
                 return supplies;
         }
+    };
+    
+    // Group supplies by type (for displaying categorized lists)
+    const groupSuppliesByType = () => {
+        if (!supplies || supplies.length === 0) return [];
+        
+        const groups = {
+            'Black Toner Cartridges': [],
+            'Color Toner Cartridges': [],
+            'Imaging Drums & Units': [],
+            'Developers': [],
+            'Waste Toner Collectors': [],
+            'Maintenance Kits': [],
+            'Other Supplies': []
+        };
+        
+        supplies.forEach(item => {
+            if (!item || !item.title) return;
+            
+            const title = item.title.toLowerCase();
+            const compatInfo = getCompatibilityInfo(item);
+            const partNumber = extractPartNumber(item);
+            
+            // Check if this is a color toner cartridge based on part number or title
+            const isColorToner = 
+                (partNumber && /^(TN|A0)[0-9]+(C|M|Y)/i.test(partNumber)) ||
+                (title && (title.includes('cyan') || title.includes('magenta') || 
+                          title.includes('yellow') || title.includes('color')));
+                           
+            // Determine the appropriate category
+            if (compatInfo?.supplyType?.includes('Drum') || 
+                title.includes('drum') || 
+                title.includes('imaging unit') ||
+                title.includes('image unit') ||
+                title.includes('iu-')) {
+                groups['Imaging Drums & Units'].push(item);
+            } else if (title.includes('developer') || title.includes('development')) {
+                groups['Developers'].push(item);
+            } else if (title.includes('maintenance') || title.includes('kit') || title.includes('fuser')) {
+                groups['Maintenance Kits'].push(item);
+            } else if (title.includes('waste') || title.includes('collection')) {
+                groups['Waste Toner Collectors'].push(item);
+            } else if (title.includes('toner')) {
+                // Sort toners by black vs. color
+                if (isColorToner) {
+                    groups['Color Toner Cartridges'].push(item);
+                } else {
+                    groups['Black Toner Cartridges'].push(item);
+                }
+            } else {
+                groups['Other Supplies'].push(item);
+            }
+        });
+        
+        // Return only groups that have items
+        return Object.entries(groups)
+            .filter(([_, items]) => items.length > 0)
+            .map(([name, items]) => ({ 
+                name, 
+                items: items.sort((a, b) => {
+                    // Sort by part number if available
+                    const partA = extractPartNumber(a);
+                    const partB = extractPartNumber(b);
+                    
+                    if (partA !== 'N/A' && partB !== 'N/A') {
+                        return partA.localeCompare(partB);
+                    }
+                    
+                    // Otherwise sort by title
+                    return a.title?.localeCompare(b.title || '') || 0;
+                })
+            }));
     };
     
     // Helper function to extract OEM part number from product
@@ -414,6 +548,19 @@ const ModelSupplies = () => {
         return compatibilityInfo[partNumber] || null;
     };
 
+    // Helper function to get display name for tab
+    const getTabDisplayName = (tab) => {
+        switch(tab) {
+            case 'black-toner': return 'black toner cartridges';
+            case 'color-toner': return 'color toner cartridges';
+            case 'imaging-drum': return 'imaging units';
+            case 'developer': return 'developers';
+            case 'waste': return 'waste collection units';
+            case 'maintenance': return 'maintenance kits';
+            default: return tab;
+        }
+    };
+
     return (
         <div className={styles.main}>
             <Header />
@@ -451,14 +598,32 @@ const ModelSupplies = () => {
                                 className={moduleStyles.tabButton}
                                 onClick={() => setActiveTab(null)}
                             >
-                                Clear Filters
+                                All Supplies
                             </button>
                         )}
                         <button 
-                            className={`${moduleStyles.tabButton} ${activeTab === 'toner' ? moduleStyles.activeTab : ''}`}
-                            onClick={() => setActiveTab(activeTab === 'toner' ? null : 'toner')}
+                            className={`${moduleStyles.tabButton} ${activeTab === 'black-toner' ? moduleStyles.activeTab : ''}`}
+                            onClick={() => setActiveTab(activeTab === 'black-toner' ? null : 'black-toner')}
                         >
-                            Toner Cartridges
+                            Black Toner
+                        </button>
+                        <button 
+                            className={`${moduleStyles.tabButton} ${activeTab === 'color-toner' ? moduleStyles.activeTab : ''}`}
+                            onClick={() => setActiveTab(activeTab === 'color-toner' ? null : 'color-toner')}
+                        >
+                            Color Toner
+                        </button>
+                        <button 
+                            className={`${moduleStyles.tabButton} ${activeTab === 'imaging-drum' ? moduleStyles.activeTab : ''}`}
+                            onClick={() => setActiveTab(activeTab === 'imaging-drum' ? null : 'imaging-drum')}
+                        >
+                            Imaging Units
+                        </button>
+                        <button 
+                            className={`${moduleStyles.tabButton} ${activeTab === 'developer' ? moduleStyles.activeTab : ''}`}
+                            onClick={() => setActiveTab(activeTab === 'developer' ? null : 'developer')}
+                        >
+                            Developers
                         </button>
                         <button 
                             className={`${moduleStyles.tabButton} ${activeTab === 'waste' ? moduleStyles.activeTab : ''}`}
@@ -467,10 +632,10 @@ const ModelSupplies = () => {
                             Waste Collection
                         </button>
                         <button 
-                            className={`${moduleStyles.tabButton} ${activeTab === 'imaging' ? moduleStyles.activeTab : ''}`}
-                            onClick={() => setActiveTab(activeTab === 'imaging' ? null : 'imaging')}
+                            className={`${moduleStyles.tabButton} ${activeTab === 'maintenance' ? moduleStyles.activeTab : ''}`}
+                            onClick={() => setActiveTab(activeTab === 'maintenance' ? null : 'maintenance')}
                         >
-                            Imaging Units
+                            Maintenance Kits
                         </button>
                     </div>
                 </div>
@@ -482,69 +647,141 @@ const ModelSupplies = () => {
                         </div>
                     ) : (
                         filterSuppliesByType().length > 0 ? (
-                            <div className={styles.boxContainer}>
-                                {filterSuppliesByType().map((item) => {
-                                    const partNumber = extractPartNumber(item);
-                                    const compatInfo = getCompatibilityInfo(item);
-                                    
-                                    return (
-                                        <div key={item.id || item.oemNos[0]?.oemNo} className={styles.box}>
-                                            {/* Compatibility Badge */}
-                                            {compatInfo && (
-                                                <div className={styles.compatibilityBadge}>
-                                                    {compatInfo.models.length > 1 ? 'Compatible with multiple models' : ``}
+                            activeTab ? (
+                                <div className={styles.boxContainer}>
+                                    {filterSuppliesByType().map((item) => {
+                                        const partNumber = extractPartNumber(item);
+                                        const compatInfo = getCompatibilityInfo(item);
+                                        
+                                        return (
+                                            <div key={item.id || item.oemNos[0]?.oemNo} className={styles.box}>
+                                                {/* Compatibility Badge */}
+                                                {compatInfo && (
+                                                    <div className={styles.compatibilityBadge}>
+                                                        {compatInfo.models.length > 1 ? 'Compatible with multiple models' : ``}
+                                                    </div>
+                                                )}
+                                                
+                                                <Image
+                                                    alt={"image of toner"}
+                                                    style={{ borderRadius: "5px" }}
+                                                    src={item.images && item.images[0] ? item.images[0] : "/static/toner-placeholder.webp"}
+                                                    width={180}
+                                                    height={180}
+                                                />
+                                                
+                                                {/* Part Number Tag */}
+                                                <div className={styles.partNumberTag}>
+                                                    Part #: {partNumber}
                                                 </div>
-                                            )}
-                                            
-                                            <Image
-                                                alt={"image of toner"}
-                                                style={{ borderRadius: "5px" }}
-                                                src={item.images && item.images[0] ? item.images[0] : "/static/toner-placeholder.webp"}
-                                                width={180}
-                                                height={180}
-                                            />
-                                            
-                                            {/* Part Number Tag */}
-                                            <div className={styles.partNumberTag}>
-                                                Part #: {partNumber}
-                                            </div>
-                                            
-                                            <div className={styles.titleSmallBlack}>
-                                                {item.title}
-                                            </div>
-                                            
-                                            {/* Compatible Models Section */}
-                                            {compatInfo && (
-                                                <div className={styles.compatibilityInfo}>
-                                                    {compatInfo.description}
+                                                
+                                                <div className={styles.titleSmallBlack}>
+                                                    {item.title}
                                                 </div>
-                                            )}
-                                            
-                                            <div className={styles.priceContainer}>
-                                                <h6 className={styles.price}>
-                                                    ${item.serviceLevels[0].price}
-                                                </h6>
-                                                <button
-                                                    className={styles.addToCartButton}
-                                                    onClick={() => {
-                                                        const newItem = {
-                                                            ...item,
-                                                            quantity: 1,
-                                                        };
-                                                        setCart([...cart, newItem]);
-                                                    }}
-                                                >
-                                                    Add to Cart
-                                                </button>
+                                                
+                                                {/* Compatible Models Section */}
+                                                {compatInfo && (
+                                                    <div className={styles.compatibilityInfo}>
+                                                        {compatInfo.description}
+                                                    </div>
+                                                )}
+                                                
+                                                <div className={styles.priceContainer}>
+                                                    <h6 className={styles.price}>
+                                                        ${item.serviceLevels[0].price}
+                                                    </h6>
+                                                    <button
+                                                        className={styles.addToCartButton}
+                                                        onClick={() => {
+                                                            const newItem = {
+                                                                ...item,
+                                                                quantity: 1,
+                                                            };
+                                                            setCart([...cart, newItem]);
+                                                        }}
+                                                    >
+                                                        Add to Cart
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                // When no tab is selected, group supplies by type
+                                <div className={moduleStyles.typeGroupsContainer}>
+                                    {groupSuppliesByType().map((group) => (
+                                        <div key={group.name} className={moduleStyles.typeGroup}>
+                                            <h3 className={moduleStyles.typeGroupHeader}>
+                                                {group.name} <span className={moduleStyles.groupCount}>({group.items.length})</span>
+                                            </h3>
+                                            <div className={styles.boxContainer}>
+                                                {group.items.map((item) => {
+                                                    const partNumber = extractPartNumber(item);
+                                                    const compatInfo = getCompatibilityInfo(item);
+                                                    
+                                                    return (
+                                                        <div key={item.id || item.oemNos[0]?.oemNo} className={styles.box}>
+                                                            {/* Compatibility Badge */}
+                                                            {compatInfo && (
+                                                                <div className={styles.compatibilityBadge}>
+                                                                    {compatInfo.models.length > 1 ? 'Compatible with multiple models' : ``}
+                                                                </div>
+                                                            )}
+                                                            
+                                                            <Image
+                                                                alt={"image of toner"}
+                                                                style={{ borderRadius: "5px" }}
+                                                                src={item.images && item.images[0] ? item.images[0] : "/static/toner-placeholder.webp"}
+                                                                width={180}
+                                                                height={180}
+                                                            />
+                                                            
+                                                            {/* Part Number Tag */}
+                                                            <div className={styles.partNumberTag}>
+                                                                Part #: {partNumber}
+                                                            </div>
+                                                            
+                                                            <div className={styles.titleSmallBlack}>
+                                                                {item.title}
+                                                            </div>
+                                                            
+                                                            {/* Compatible Models Section */}
+                                                            {compatInfo && (
+                                                                <div className={styles.compatibilityInfo}>
+                                                                    {compatInfo.description}
+                                                                </div>
+                                                            )}
+                                                            
+                                                            <div className={styles.priceContainer}>
+                                                                <h6 className={styles.price}>
+                                                                    ${item.serviceLevels[0].price}
+                                                                </h6>
+                                                                <button
+                                                                    className={styles.addToCartButton}
+                                                                    onClick={() => {
+                                                                        const newItem = {
+                                                                            ...item,
+                                                                            quantity: 1,
+                                                                        };
+                                                                        setCart([...cart, newItem]);
+                                                                    }}
+                                                                >
+                                                                    Add to Cart
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
-                                    );
-                                })}
-                            </div>
+                                    ))}
+                                </div>
+                            )
                         ) : (
                             <div className={moduleStyles.emptyProductsContainer}>
                                 <div className={moduleStyles.nothing}>
-                                    No {activeTab ? activeTab : 'supplies'} found for this model
+                                    No {activeTab ? getTabDisplayName(activeTab) : 'supplies'} found for this model
                                 </div>
                             </div>
                         )

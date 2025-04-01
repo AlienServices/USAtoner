@@ -156,21 +156,115 @@ export default function Data() {
       
       const requestOptions = {
         method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ token: aToken.accessToken, search: "brother" })
       };
       
-      const response = await fetch('/api/products', requestOptions);
-      const data1 = await response.json();
+      // Create parallel requests for regular API and DM API
+      const [regularResponse, dmResponse] = await Promise.all([
+        fetch('/api/products', requestOptions),
+        fetch('/api/dm-brand-products', {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ brand: "brother" })
+        })
+      ]);
+      
+      if (!regularResponse.ok) {
+        throw new Error(`HTTP error! status: ${regularResponse.status}`);
+      }
+      
+      // Process regular products
+      let data1;
+      try {
+        data1 = await regularResponse.json();
+        console.log("Regular API Response:", JSON.stringify(data1).substring(0, 200) + "...");
+      } catch (error) {
+        console.error("Error parsing regular response:", error);
+        throw new Error("Failed to parse server response");
+      }
+      
+      // Extract regular products
+      let regularProducts = [];
+      
+      if (data1 && typeof data1 === 'object') {
+        if (data1.cancel && Array.isArray(data1.cancel.products)) {
+          regularProducts = data1.cancel.products;
+        } else if (data1.products && Array.isArray(data1.products)) {
+          regularProducts = data1.products;
+        } else if (Array.isArray(data1)) {
+          regularProducts = data1;
+        } else if (data1.data && Array.isArray(data1.data)) {
+          regularProducts = data1.data;
+        } else if (data1.results && Array.isArray(data1.results)) {
+          regularProducts = data1.results;
+        } else {
+          // Try to find any array in the response
+          for (const key in data1) {
+            if (Array.isArray(data1[key])) {
+              regularProducts = data1[key];
+              break;
+            } else if (data1[key] && typeof data1[key] === 'object') {
+              for (const subKey in data1[key]) {
+                if (Array.isArray(data1[key][subKey])) {
+                  regularProducts = data1[key][subKey];
+                  break;
+                }
+              }
+              if (regularProducts.length > 0) break;
+            }
+          }
+        }
+      }
+      
+      console.log(`Found ${regularProducts.length} regular products`);
+      
+      // Process DM products
+      let dmProducts = [];
+      
+      if (dmResponse.ok) {
+        try {
+          const dmData = await dmResponse.json();
+          console.log("DM API Response:", JSON.stringify(dmData).substring(0, 200) + "...");
+          
+          if (dmData && dmData.success && dmData.data && Array.isArray(dmData.data.products)) {
+            dmProducts = dmData.data.products;
+            console.log(`Found ${dmProducts.length} DM products`);
+          }
+        } catch (dmError) {
+          console.error("Error processing DM products:", dmError);
+          // Continue with regular products even if DM fails
+        }
+      } else {
+        console.error(`DM API responded with status: ${dmResponse?.status || 'unknown'}`);
+      }
+      
+      // Combine both product sets
+      const allProducts = [...regularProducts, ...dmProducts];
+      
+      if (allProducts.length === 0) {
+        throw new Error("No products found in API responses");
+      }
+      
+      // Filter for valid products
+      const validProducts = allProducts.filter(product => {
+        return product && 
+               typeof product === 'object';
+      });
       
       setSearching(true);
-      localStorage.setItem("brother", JSON.stringify(data1.cancel.products));
-      setProducts(data1.cancel.products);
+      localStorage.setItem("brother", JSON.stringify(validProducts));
+      setProducts(validProducts);
       
       // Extract and organize printer models
-      const models = extractPrinterModels(data1.cancel.products);
+      const models = extractPrinterModels(validProducts);
       setPrinterModels(models);
       // Initialize filteredProducts with all products
-      setFilteredProducts(data1.cancel.products);
+      setFilteredProducts(validProducts);
     } catch (err) {
       console.error("Error fetching products:", err);
     }

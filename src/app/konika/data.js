@@ -390,7 +390,7 @@ export default function Data() {
           }
         } catch (tokenApiError) {
           console.error('Token API error:', tokenApiError);
-          useFallbackData();
+          getFallbackData();
           return []; // Return empty array if we can't get a token
         }
       }
@@ -442,23 +442,23 @@ export default function Data() {
           }
         } catch (productApiError) {
           console.error('Products API error:', productApiError);
-          const fallbackProducts = useFallbackData();
+          const fallbackProducts = getFallbackData();
           return fallbackProducts; // Return the fallback products
         }
       } else {
         console.error('No access token available');
-        const fallbackProducts = useFallbackData();
+        const fallbackProducts = getFallbackData();
         return fallbackProducts; // Return the fallback products
       }
     } catch (error) {
       console.error('Error fetching products:', error);
-      const fallbackProducts = useFallbackData();
+      const fallbackProducts = getFallbackData();
       return fallbackProducts; // Return the fallback products
     }
   }
   
-  // Helper function to use fallback data
-  const useFallbackData = () => {
+  // Helper function to get fallback data
+  const getFallbackData = () => {
     try {
       console.log('Using fallback data');
       
