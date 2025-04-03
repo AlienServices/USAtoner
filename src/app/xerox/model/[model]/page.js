@@ -58,6 +58,16 @@ const ModelSupplies = () => {
                 '106R00768': ['Phaser 6510', 'Phaser 6510DN'],
                 '106R00769': ['Phaser 6510', 'Phaser 6510DN'],
                 '106R00770': ['Phaser 6510', 'Phaser 6510DN'],
+                // VersaLink B400 and B405
+                '106R03580': ['VersaLink B400', 'VersaLink B400dnm', 'VersaLink B400dn', 'VersaLink B400n', 'VersaLink B405', 'VersaLink B405dnm', 'VersaLink B405dn'],
+                '106R03582': ['VersaLink B400', 'VersaLink B400dn', 'VersaLink B405', 'VersaLink B405dn'],
+                '106R03584': ['VersaLink B400', 'VersaLink B400dn', 'VersaLink B405', 'VersaLink B405dn'],
+                '106R03941': ['VersaLink B400', 'VersaLink B405'],
+                '106R03942': ['VersaLink B400', 'VersaLink B405'],
+                // Phaser 3330 and WorkCentre 3335/3345
+                '106R03624': ['Phaser 3330', 'Phaser 3330dni', 'WorkCentre 3335', 'WorkCentre 3335dni', 'WorkCentre 3345', 'WorkCentre 3345dni'],
+                '106R03622': ['Phaser 3330', 'WorkCentre 3335', 'WorkCentre 3345'],
+                '106R03620': ['Phaser 3330', 'WorkCentre 3335', 'WorkCentre 3345']
                 // Add more mappings as needed
             };
 
@@ -74,13 +84,44 @@ const ModelSupplies = () => {
 
             // Normalize model number and prepare search patterns
             const normalizedModel = modelNumber.trim().toUpperCase();
-            const modelVariants = [
-                normalizedModel,
-                `Phaser ${normalizedModel}`,
-                `WorkCentre ${normalizedModel}`,
-                `AltaLink ${normalizedModel}`,
-                `VersaLink ${normalizedModel}`
-            ];
+            
+            // Extract base number from model if it exists (like B400 or 3330)
+            const baseNumberMatch = normalizedModel.match(/([A-Z]?[0-9]+)/i);
+            const baseNumber = baseNumberMatch ? baseNumberMatch[1] : normalizedModel;
+            
+            // Create more specific search variants for the main series
+            let modelVariants = [];
+            
+            // Handle common Xerox model prefixes
+            if (normalizedModel.startsWith('B4') || normalizedModel.startsWith('C4')) {
+                // VersaLink B400/B405/C400/C405 series
+                modelVariants = [
+                    normalizedModel,
+                    `VERSALINK ${normalizedModel}`,
+                    `VERSALINK ${baseNumber}`,
+                    `VERSALINK ${baseNumber}DN`,
+                    `VERSALINK ${baseNumber}DNM`
+                ];
+            } else if (normalizedModel.startsWith('33') || normalizedModel === '3330' || normalizedModel.includes('3330')) {
+                // Phaser 3330 and WorkCentre 3335/3345 series
+                modelVariants = [
+                    normalizedModel,
+                    `PHASER ${normalizedModel}`,
+                    `PHASER ${baseNumber}`,
+                    `PHASER ${baseNumber}DNI`,
+                    `WORKCENTRE 3335`,
+                    `WORKCENTRE 3345`
+                ];
+            } else {
+                // Generic variants
+                modelVariants = [
+                    normalizedModel,
+                    `PHASER ${normalizedModel}`,
+                    `WORKCENTRE ${normalizedModel}`,
+                    `ALTALINK ${normalizedModel}`,
+                    `VERSALINK ${normalizedModel}`
+                ];
+            }
 
             // If we have cached products, filter them by model number OR by compatible part numbers
             if (cachedProducts && cachedProducts.length > 0) {
@@ -105,9 +146,15 @@ const ModelSupplies = () => {
                             
                             // Check each part number mapping
                             for (const [partNumber, compatibleModels] of Object.entries(partToModelMap)) {
-                                if (oemNo.includes(partNumber) && 
+                                // More lenient matching - if the OEM number contains the part number
+                                // or if the normalized OEM number matches part number in any way
+                                if ((oemNo.includes(partNumber) || partNumber.includes(oemNo) || 
+                                    oemNo.replace(/[^0-9]/g, '').includes(partNumber.replace(/[^0-9]/g, ''))) && 
                                     compatibleModels.some(model => 
-                                        modelVariants.some(variant => variant.includes(model))
+                                        modelVariants.some(variant => 
+                                            variant.includes(model) || model.includes(variant) || 
+                                            (baseNumber && model.includes(baseNumber))
+                                        )
                                     )) {
                                     partMatch = true;
                                     break;
@@ -204,20 +251,77 @@ const ModelSupplies = () => {
             // If still no results, create fallback products based on known part numbers
             const fallbackProducts = [];
             
-            // Check if current model matches any in our part mapping
-            for (const [partNumber, compatibleModels] of Object.entries(partToModelMap)) {
-                if (compatibleModels.some(model => 
-                    modelVariants.some(variant => variant.includes(model)))) {
-                    
-                    // Add appropriate fallback products
-                    if (partNumber.startsWith('106R007')) {
-                        fallbackProducts.push({
-                            id: `${partNumber}-fallback`,
-                            title: `Xerox ${partNumber} Toner Cartridge (Compatible with Phaser ${normalizedModel})`,
-                            oemNos: [{ oemNo: partNumber }],
-                            serviceLevels: [{ price: 89.99 }],
-                            images: ["/static/toner-placeholder.webp"]
-                        });
+            // Create model-specific fallbacks for common models
+            if (normalizedModel.includes('B400') || normalizedModel === 'B400' || 
+                modelVariants.some(v => v.includes('VERSALINK B400'))) {
+                // VersaLink B400 specific fallbacks
+                fallbackProducts.push({
+                    id: `106R03580-fallback`,
+                    title: `Xerox 106R03580 Toner Cartridge (Compatible with VersaLink B400)`,
+                    oemNos: [{ oemNo: "106R03580" }],
+                    serviceLevels: [{ price: 89.99 }],
+                    images: ["/static/toner-placeholder.webp"]
+                });
+                
+                fallbackProducts.push({
+                    id: `106R03582-fallback`,
+                    title: `Xerox 106R03582 High Capacity Toner Cartridge (Compatible with VersaLink B400)`,
+                    oemNos: [{ oemNo: "106R03582" }],
+                    serviceLevels: [{ price: 119.99 }],
+                    images: ["/static/toner-placeholder.webp"]
+                });
+                
+                fallbackProducts.push({
+                    id: `B400-maintenance-fallback`,
+                    title: `Xerox VersaLink B400 Maintenance Kit`,
+                    oemNos: [{ oemNo: "XER-B400-MAINT" }],
+                    serviceLevels: [{ price: 149.99 }],
+                    images: ["/static/toner-placeholder.webp"]
+                });
+            } 
+            else if (normalizedModel.includes('3330') || normalizedModel === '3330' || 
+                    modelVariants.some(v => v.includes('PHASER 3330'))) {
+                // Phaser 3330 specific fallbacks
+                fallbackProducts.push({
+                    id: `106R03624-fallback`,
+                    title: `Xerox 106R03624 Toner Cartridge (Compatible with Phaser 3330)`,
+                    oemNos: [{ oemNo: "106R03624" }],
+                    serviceLevels: [{ price: 79.99 }],
+                    images: ["/static/toner-placeholder.webp"]
+                });
+                
+                fallbackProducts.push({
+                    id: `106R03622-fallback`,
+                    title: `Xerox 106R03622 High Capacity Toner Cartridge (Compatible with Phaser 3330)`,
+                    oemNos: [{ oemNo: "106R03622" }],
+                    serviceLevels: [{ price: 99.99 }],
+                    images: ["/static/toner-placeholder.webp"]
+                });
+                
+                fallbackProducts.push({
+                    id: `3330-drum-fallback`,
+                    title: `Xerox Phaser 3330 Drum Unit`,
+                    oemNos: [{ oemNo: "101R00555" }],
+                    serviceLevels: [{ price: 69.99 }],
+                    images: ["/static/toner-placeholder.webp"]
+                });
+            }
+            else {
+                // Check if current model matches any in our part mapping
+                for (const [partNumber, compatibleModels] of Object.entries(partToModelMap)) {
+                    if (compatibleModels.some(model => 
+                        modelVariants.some(variant => variant.includes(model)))) {
+                        
+                        // Add appropriate fallback products
+                        if (partNumber.startsWith('106R')) {
+                            fallbackProducts.push({
+                                id: `${partNumber}-fallback`,
+                                title: `Xerox ${partNumber} Toner Cartridge (Compatible with ${compatibleModels[0]})`,
+                                oemNos: [{ oemNo: partNumber }],
+                                serviceLevels: [{ price: 89.99 }],
+                                images: ["/static/toner-placeholder.webp"]
+                            });
+                        }
                     }
                 }
             }
@@ -230,14 +334,18 @@ const ModelSupplies = () => {
                 setSupplies([
                     {
                         id: "fallback1",
-                        title: `Xerox Phaser ${modelNumber} Black Toner`,
+                        title: `Xerox ${modelNumber.includes('B4') ? 'VersaLink' : 
+                               modelNumber.includes('33') && modelNumber.length > 4 ? 'WorkCentre' : 
+                               'Phaser'} ${modelNumber} Black Toner`,
                         oemNos: [{ oemNo: "XER-TONER-BK" }],
                         serviceLevels: [{ price: 79.99 }],
                         images: ["/static/toner-placeholder.webp"]
                     },
                     {
                         id: "fallback2",
-                        title: `Xerox Phaser ${modelNumber} Waste Toner Box`,
+                        title: `Xerox ${modelNumber.includes('B4') ? 'VersaLink' : 
+                               modelNumber.includes('33') && modelNumber.length > 4 ? 'WorkCentre' : 
+                               'Phaser'} ${modelNumber} Waste Toner Box`,
                         oemNos: [{ oemNo: "XER-WB" }],
                         serviceLevels: [{ price: 39.99 }],
                         images: ["/static/toner-placeholder.webp"]
@@ -292,7 +400,15 @@ const ModelSupplies = () => {
         }
         
         // Try to find specific part numbers we're interested in
-        const targetParts = ['106R00759', '106R00760', '106R00761', '106R00762', '106R00763', '106R00764', '106R00765', '106R00766', '106R00767', '106R00768', '106R00769', '106R00770'];
+        const targetParts = [
+            // Phaser 6510 series
+            '106R00759', '106R00760', '106R00761', '106R00762', '106R00763', '106R00764', 
+            '106R00765', '106R00766', '106R00767', '106R00768', '106R00769', '106R00770',
+            // VersaLink B400/B405 series
+            '106R03580', '106R03582', '106R03584', '106R03941', '106R03942',
+            // Phaser 3330 and WorkCentre 3335/3345 series
+            '106R03624', '106R03622', '106R03620'
+        ];
         
         for (const oem of product.oemNos) {
             if (!oem || !oem.oemNo) continue;
@@ -368,6 +484,40 @@ const ModelSupplies = () => {
             '106R00770': {
                 models: ['Phaser 6510', 'Phaser 6510DN'],
                 description: 'Compatible with Phaser 6510, 6510DN'
+            },
+            // VersaLink B400/B405 compatibility info
+            '106R03580': {
+                models: ['VersaLink B400', 'VersaLink B400dn', 'VersaLink B405', 'VersaLink B405dn'],
+                description: 'Compatible with VersaLink B400, B400dn, B405, B405dn'
+            },
+            '106R03582': {
+                models: ['VersaLink B400', 'VersaLink B400dn', 'VersaLink B405', 'VersaLink B405dn'],
+                description: 'Compatible with VersaLink B400, B405 Series'
+            },
+            '106R03584': {
+                models: ['VersaLink B400', 'VersaLink B400dn', 'VersaLink B405', 'VersaLink B405dn'],
+                description: 'Compatible with VersaLink B400, B405 Series'
+            },
+            '106R03941': {
+                models: ['VersaLink B400', 'VersaLink B405'],
+                description: 'Compatible with VersaLink B400, B405 Series'
+            },
+            '106R03942': {
+                models: ['VersaLink B400', 'VersaLink B405'],
+                description: 'Compatible with VersaLink B400, B405 Series'
+            },
+            // Phaser 3330 and WorkCentre 3335/3345 compatibility info
+            '106R03624': {
+                models: ['Phaser 3330', 'Phaser 3330dni', 'WorkCentre 3335', 'WorkCentre 3335dni', 'WorkCentre 3345', 'WorkCentre 3345dni'],
+                description: 'Compatible with Phaser 3330, WorkCentre 3335, WorkCentre 3345'
+            },
+            '106R03622': {
+                models: ['Phaser 3330', 'WorkCentre 3335', 'WorkCentre 3345'],
+                description: 'Compatible with Phaser 3330, WorkCentre 3335/3345'
+            },
+            '106R03620': {
+                models: ['Phaser 3330', 'WorkCentre 3335', 'WorkCentre 3345'],
+                description: 'Compatible with Phaser 3330, WorkCentre 3335/3345'
             }
         };
         
@@ -398,7 +548,10 @@ const ModelSupplies = () => {
                         </div>
                         <div className={moduleStyles.modelBox}>
                             <h2 className={moduleStyles.modelSubHeader}>
-                                Phaser {modelNumber}
+                                {modelNumber && modelNumber.includes('B4') ? 'VersaLink ' : 
+                                 modelNumber && modelNumber.includes('33') && modelNumber.length <= 4 ? 'Phaser ' : 
+                                 modelNumber && modelNumber.includes('33') && modelNumber.length > 4 ? 'WorkCentre ' : 
+                                 'Phaser '}{modelNumber}
                             </h2>
                         </div>
                     </div>
@@ -482,7 +635,7 @@ const ModelSupplies = () => {
                                             
                                             <div className={styles.priceContainer}>
                                                 <h6 className={styles.price}>
-                                                    ${item.serviceLevels[0].price}
+                                                    ${item.serviceLevels && item.serviceLevels[0] ? item.serviceLevels[0].price : (item.price || 79.99)}
                                                 </h6>
                                                 <button
                                                     className={styles.addToCartButton}

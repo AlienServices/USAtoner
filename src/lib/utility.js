@@ -276,21 +276,21 @@ const extractModelInfo = (product) => {
   
   // Xerox patterns
   const xeroxPatterns = [
-    // Phaser models
+    // Phaser models - updated to handle 3-digit models like 3330
     {
-      regex: /\b(?:Xerox\s+)?(?:Phaser|PHASER)\s+([0-9]{4}[A-Z]?)\b/i,
+      regex: /\b(?:Xerox\s+)?(?:Phaser|PHASER)\s+([0-9]{3,4}[A-Z]?)\b/i,
       extractModel: (matches) => `Phaser ${matches[1]}`,
       extractSeries: () => 'Phaser'
     },
-    // WorkCentre models
+    // WorkCentre models - updated to handle 3-digit models like 3335
     {
-      regex: /\b(?:Xerox\s+)?(?:WorkCentre|WORKCENTRE)\s+([0-9]{4}[A-Z]?)\b/i,
+      regex: /\b(?:Xerox\s+)?(?:WorkCentre|WORKCENTRE)\s+([0-9]{3,4}[A-Z]?)\b/i,
       extractModel: (matches) => `WorkCentre ${matches[1]}`,
       extractSeries: () => 'WorkCentre'
     },
-    // VersaLink models
+    // VersaLink models - improved pattern to better match B400
     {
-      regex: /\b(?:Xerox\s+)?(?:VersaLink|VERSALINK)\s+([A-Z][0-9]{3}[A-Z]?)\b/i,
+      regex: /\b(?:Xerox\s+)?(?:VersaLink|VERSALINK)\s+([A-Z][0-9]{3,4}[A-Z]?)\b/i,
       extractModel: (matches) => `VersaLink ${matches[1]}`,
       extractSeries: () => 'VersaLink'
     },
@@ -313,18 +313,24 @@ const extractModelInfo = (product) => {
         // Map common Xerox toner numbers to models
         const tonerToModel = {
           '106R01047': ['CopyCentre C20', 'WorkCentre M20/M20i'],
-          '106R01371': 'Phaser 3600',
+          '106R01371': ['Phaser 3600', 'Phaser 3600b', 'Phaser 3600dn', 'Phaser 3600n'],
           '106R01373': ['Phaser 3250', 'Phaser 3250d', 'Phaser 3250dn'],
-          '106R01412': 'Phaser 3300',
+          '106R01412': ['Phaser 3300', 'Phaser 3300mfp'],
           '106R01485': ['WorkCentre 3210', 'WorkCentre 3220'],
-          '106R01530': 'WorkCentre 3550',
+          '106R01530': ['WorkCentre 3550', 'WorkCentre 3550tm', 'WorkCentre 3550tsm', 'WorkCentre 3550xm', 'WorkCentre 3550m', 'WorkCentre 3550ts', 'WorkCentre 3550x', 'WorkCentre 3550yx', 'WorkCentre 3550t'],
           '106R01535': ['Phaser 4600', 'Phaser 4620', 'Phaser 4622', 'Phaser 4622dn', 'Phaser 4622dt'],
-          '106R02307': 'Phaser 3320',
+          '106R02307': ['Phaser 3320', 'Phaser 3320dni'],
           '106R02311': ['WorkCentre 3315', 'WorkCentre 3315dn', 'WorkCentre 3325', 'WorkCentre 3325dni'],
           '106R02722': ['Phaser 3610', 'Phaser 3610dn', 'Phaser 3610n', 'WorkCentre 3615'],
-          '106R02777': 'Phaser 3260',
-          '106R03580': 'WorkCentre 3345',
-          '106R03624': 'Phaser 6510'
+          '106R02724': ['Phaser 3610', 'Phaser 3610ydn', 'Phaser 3610dn', 'Phaser 3610n', 'WorkCentre 3615', 'WorkCentre 3615dn'],
+          '106R02731': ['Phaser 3610', 'Phaser 3610dn', 'Phaser 3610n', 'WorkCentre 3615'],
+          '106R02738': ['WorkCentre 3655', 'WorkCentre 3655i', 'WorkCentre 3655ix', 'WorkCentre 3655ixm', 'WorkCentre 3655x', 'WorkCentre 3655xm'],
+          '106R02740': ['WorkCentre 3655', 'WorkCentre 3655i', 'WorkCentre 3655ix', 'WorkCentre 3655ixm', 'WorkCentre 3655x', 'WorkCentre 3655xm'],
+          '106R02742': ['WorkCentre 3655', 'WorkCentre 3655i', 'WorkCentre 3655ix', 'WorkCentre 3655is', 'WorkCentre 3655x', 'WorkCentre 3655s'],
+          '106R02775': ['Phaser 3260', 'Phaser 3260dni', 'Phaser 3260di', 'WorkCentre 3215', 'WorkCentre 3215ni', 'WorkCentre 3225', 'WorkCentre 3225dni'],
+          '106R02777': ['Phaser 3260', 'Phaser 3260dni', 'Phaser 3260di', 'WorkCentre 3215', 'WorkCentre 3215ni', 'WorkCentre 3225', 'WorkCentre 3225dni'],
+          '106R03580': ['VersaLink B400', 'VersaLink B400dnm', 'VersaLink B400dn', 'VersaLink B400n', 'VersaLink B405', 'VersaLink B405dnm', 'VersaLink B405dn'],
+          '106R03624': ['Phaser 3330', 'Phaser 3330dnim', 'Phaser 3330dni', 'WorkCentre 3335', 'WorkCentre 3335dnim', 'WorkCentre 3335dni', 'WorkCentre 3345', 'WorkCentre 3345dnim', 'WorkCentre 3345dni'],
         };
         // Return the model value, whether it's a string or array
         return tonerToModel[matches[1]] || `Xerox ${matches[1]}`;
