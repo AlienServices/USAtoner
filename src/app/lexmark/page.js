@@ -239,7 +239,22 @@ export default function LexmarkPage() {
         const regularResponse = await fetch('/api/products', requestOptions);
         
         if (!regularResponse.ok) {
-          throw new Error(`HTTP error! status: ${regularResponse.status}`);
+          const errorText = await regularResponse.text();
+          let errorMessage = `API error (${regularResponse.status}): ${errorText || regularResponse.statusText}`;
+          
+          // Check for token expiration
+          try {
+            const errorJson = JSON.parse(errorText);
+            if (errorJson.details?.message === "Token expired") {
+              // Clear the expired token
+              localStorage.removeItem("token");
+              errorMessage = "Your session has expired. Please refresh the page to continue.";
+            }
+          } catch (e) {
+            // If we can't parse the error as JSON, use the original error message
+          }
+          
+          throw new Error(errorMessage);
         }
         
         // Process regular products
@@ -292,7 +307,14 @@ export default function LexmarkPage() {
         }
       } catch (regularApiError) {
         console.error("Error fetching regular products:", regularApiError);
-        // Continue with empty regularProducts array
+        // Check if it's a token expiration error
+        if (regularApiError.message.includes("session has expired")) {
+          setError(regularApiError.message);
+        } else {
+          setError(`Failed to fetch products: ${regularApiError.message}`);
+        }
+        regularProducts = [];
+        // Don't throw here, continue with empty array
       }
       
       // Now try to get DM API products
@@ -306,42 +328,40 @@ export default function LexmarkPage() {
           body: JSON.stringify({ brand: "lexmark" })
         });
         
-        if (dmResponse.ok) {
-          try {
-            const dmResponseText = await dmResponse.text();
-            
-            if (!dmResponseText || dmResponseText.trim() === '') {
-              console.warn("DM API returned empty response");
-            } else {
-              try {
-                const dmData = JSON.parse(dmResponseText);
-                console.log("DM API Response:", JSON.stringify(dmData).substring(0, 200) + "...");
-                
-                if (dmData && dmData.success && dmData.data && Array.isArray(dmData.data.products)) {
-                  // Tag DM products
-                  dmProducts = dmData.data.products.map(product => ({
-                    ...product,
-                    inventorySource: 'distributorMarketplace',
-                    inventoryName: 'Distributor Marketplace'
-                  }));
-                  console.log(`Found ${dmProducts.length} DM products`);
-                } else {
-                  console.warn("DM API response has no products array", 
-                    dmData.data ? Object.keys(dmData.data).join(', ') : 'no data object');
-                }
-              } catch (jsonError) {
-                console.error("Error parsing DM response JSON:", jsonError);
-              }
-            }
-          } catch (textError) {
-            console.error("Error getting text from DM response:", textError);
-          }
+        if (!dmResponse.ok) {
+          const errorText = await dmResponse.text();
+          throw new Error(`DM API error (${dmResponse.status}): ${errorText || dmResponse.statusText}`);
+        }
+        
+        const dmResponseText = await dmResponse.text();
+        
+        if (!dmResponseText || dmResponseText.trim() === '') {
+          console.warn("DM API returned empty response");
         } else {
-          console.error(`DM API responded with status: ${dmResponse.status}`);
+          try {
+            const dmData = JSON.parse(dmResponseText);
+            console.log("DM API Response:", JSON.stringify(dmData).substring(0, 200) + "...");
+            
+            if (dmData && dmData.success && dmData.data && Array.isArray(dmData.data.products)) {
+              // Tag DM products
+              dmProducts = dmData.data.products.map(product => ({
+                ...product,
+                inventorySource: 'distributorMarketplace',
+                inventoryName: 'Distributor Marketplace'
+              }));
+              console.log(`Found ${dmProducts.length} DM products`);
+            } else {
+              console.warn("DM API response has no products array", 
+                dmData.data ? Object.keys(dmData.data).join(', ') : 'no data object');
+            }
+          } catch (jsonError) {
+            console.error("Error parsing DM response JSON:", jsonError);
+          }
         }
       } catch (dmError) {
         console.error("Error processing DM products:", dmError);
         // Continue with empty dmProducts array
+        dmProducts = [];
       }
       
       // Create a function to deduplicate products
@@ -389,7 +409,9 @@ export default function LexmarkPage() {
       ];
       
       if (allProducts.length === 0) {
-        throw new Error("No products found in API responses");
+        setError("No products available at this time. Please try again later.");
+        setLoading(false);
+        return;
       }
       
       // Filter for valid products and deduplicate
@@ -673,7 +695,7 @@ export default function LexmarkPage() {
                   <div className={styles.modelGrid}>
                     {models.map(([model, modelData]) => (
                       <div key={model} className={styles.modelCard}>
-                        <h4 className={styles.modelName}>{model}</h4>
+                        <h4 className={styles.modelName}>{model.replace(/^Lexmark\s+/i, '')}</h4>
                         <p className={styles.suppliesCount}>
                           {modelData.count} supplies available
                           {modelData.inventorySources && (

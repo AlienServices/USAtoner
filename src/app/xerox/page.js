@@ -72,8 +72,10 @@ export default function XeroxPage() {
     if (inputData && inputData.trim()) {
       setSearching(true);
       setLoading(true);
-      window.location.replace('#toner');
-      search();
+      setTimeout(() => {
+        window.location.replace('#toner');
+        search();
+      }, 0);
     } else {
       resetToAllProducts();
     }
@@ -86,55 +88,57 @@ export default function XeroxPage() {
     setInputData('');
     setError(null);
     
-    if (toner && toner.length > 0) {
-      try {
-        // Extract models from all products
-        const allModels = extractPrinterModels(toner);
-        
-        // Filter out part numbers that might have been mistakenly identified as models
-        const filteredModels = allModels.filter(model => 
-          model.model && 
-          // Exclude common part number formats
-          !/^[0-9]{3}[A-Z][0-9]{5}$/i.test(model.model) &&
-          !/^[0-9]{4}-[0-9]{3}$/i.test(model.model)
-        );
-        
-        if (filteredModels.length > 0) {
-          const formattedModels = filteredModels.map(model => [
-            model.model,
-            {
-              count: model.products?.length || 0,
-              series: model.series || ''
-            }
-          ]);
+    setTimeout(() => {
+      if (toner && toner.length > 0) {
+        try {
+          // Extract models from all products
+          const allModels = extractPrinterModels(toner);
           
-          // Update printer models with all models
-          setPrinterModels(formattedModels);
-          setFilteredProducts(toner);
-          setLoading(false);
-        } else {
-          // If no valid models were found, use the fallback generator
-          console.log('No valid printer models found in reset, using fallback model generator');
+          // Filter out part numbers that might have been mistakenly identified as models
+          const filteredModels = allModels.filter(model => 
+            model.model && 
+            // Exclude common part number formats
+            !/^[0-9]{3}[A-Z][0-9]{5}$/i.test(model.model) &&
+            !/^[0-9]{4}-[0-9]{3}$/i.test(model.model)
+          );
+          
+          if (filteredModels.length > 0) {
+            const formattedModels = filteredModels.map(model => [
+              model.model,
+              {
+                count: model.products?.length || 0,
+                series: model.series || ''
+              }
+            ]);
+            
+            // Update printer models with all models
+            setPrinterModels(formattedModels);
+            setFilteredProducts(toner);
+            setLoading(false);
+          } else {
+            // If no valid models were found, use the fallback generator
+            console.log('No valid printer models found in reset, using fallback model generator');
+            const fallbackModels = generateFallbackModels(toner);
+            setPrinterModels(fallbackModels);
+            setFilteredProducts(toner);
+            setLoading(false);
+          }
+        } catch (modelError) {
+          console.error('Error extracting models for reset:', modelError);
+          
+          // Use fallback model generator if extraction fails
           const fallbackModels = generateFallbackModels(toner);
           setPrinterModels(fallbackModels);
           setFilteredProducts(toner);
           setLoading(false);
         }
-      } catch (modelError) {
-        console.error('Error extracting models for reset:', modelError);
-        
-        // Use fallback model generator if extraction fails
-        const fallbackModels = generateFallbackModels(toner);
-        setPrinterModels(fallbackModels);
-        setFilteredProducts(toner);
-        setLoading(false);
+      } else {
+        const cachedResults = loadFromCache();
+        if (!cachedResults || cachedResults.length === 0) {
+          getProducts();
+        }
       }
-    } else {
-      const cachedResults = loadFromCache();
-      if (!cachedResults || cachedResults.length === 0) {
-        getProducts();
-      }
-    }
+    }, 0);
   };
 
   async function search() {
@@ -358,7 +362,31 @@ export default function XeroxPage() {
         const regularResponse = await fetch('/api/products', requestOptions);
         
         if (!regularResponse.ok) {
-          throw new Error(`HTTP error! status: ${regularResponse.status}`);
+          const errorText = await regularResponse.text();
+          let errorMessage = `API error (${regularResponse.status}): ${errorText || regularResponse.statusText}`;
+          
+          // Check for token expiration or authentication issues
+          try {
+            const errorJson = JSON.parse(errorText);
+            if (errorJson.details?.message === "Token expired" || 
+                errorJson.details?.message === "Not Logged In" ||
+                errorJson.error?.includes("authentication")) {
+              // Clear the expired token
+              localStorage.removeItem("token");
+              errorMessage = "Your session has expired or you are not logged in. Please refresh the page and log in again.";
+              
+              // Set a user-friendly error message
+              setError(errorMessage);
+              setLoading(false);
+              
+              // Stop further processing
+              return;
+            }
+          } catch (e) {
+            // If we can't parse the error as JSON, use the original error message
+          }
+          
+          throw new Error(errorMessage);
         }
         
         // Process regular products
@@ -410,8 +438,23 @@ export default function XeroxPage() {
         }
       } catch (regularApiError) {
         console.error("Error fetching regular products:", regularApiError);
-        // Continue with empty regularProducts array
-        regularProducts = [];
+        
+        // Check if it's a token expiration or authentication error
+        if (regularApiError.message.includes("session has expired") || 
+            regularApiError.message.includes("Not Logged In") ||
+            regularApiError.message.includes("authentication")) {
+          setError("Authentication error: " + regularApiError.message);
+          
+          // Suggest refreshing the page to re-authenticate
+          console.log("Please refresh the page and log in again to continue.");
+          
+          // Continue with empty array but don't throw error to allow UI to show the error message
+          regularProducts = [];
+        } else {
+          setError(`Failed to fetch products: ${regularApiError.message}`);
+          regularProducts = [];
+        }
+        // Don't throw here, continue with empty array
       }
       
       // Now try to get DM API products
@@ -842,8 +885,8 @@ export default function XeroxPage() {
               <div key={letter} id={`letter-${letter}`} className={styles.modelGroup}>
                 <h3 className={styles.groupTitle}>{letter}</h3>
                 <div className={styles.modelGrid}>
-                  {models.map(([model, modelData]) => (
-                    <div key={model} className={styles.modelCard}>
+                  {models.map(([model, modelData], modelIndex) => (
+                    <div key={`${letter}-${model}-${modelIndex}`} className={styles.modelCard}>
                       <h4 className={styles.modelName}>{model}</h4>
                       <p className={styles.suppliesCount}>
                         {modelData.count} supplies available
@@ -898,15 +941,17 @@ export default function XeroxPage() {
                   value={inputData || ''}
                   onChange={(event) => {
                     setInputData(event.target.value);
-                    if (!event.target.value.trim()) {
-                      // If search is cleared, reset to show all products
-                      resetToAllProducts();
-                    } else if (event.target.value.trim().length > 2) {
-                      // If 3 or more characters, perform real-time search
-                      setSearching(true);
-                      window.location.replace('#toner');
-                      search();
-                    }
+                    setTimeout(() => {
+                      if (!event.target.value.trim()) {
+                        // If search is cleared, reset to show all products
+                        resetToAllProducts();
+                      } else if (event.target.value.trim().length > 2) {
+                        // If 3 or more characters, perform real-time search
+                        setSearching(true);
+                        window.location.replace('#toner');
+                        search();
+                      }
+                    }, 0);
                   }} 
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {

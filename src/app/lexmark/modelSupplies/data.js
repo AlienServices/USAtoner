@@ -92,12 +92,11 @@ const ModelSupplies = () => {
             }
 
             // Normalize model number
-            const normalizedModel = modelNumber.trim().toUpperCase().replace(/^LEXMARK\s+/i, '');
+            const normalizedModel = modelNumber.trim().toUpperCase().replace(/^LEXMARK\s*/i, '');
             
             // Create various patterns to match the model with different prefixes/formats
             const modelVariants = [
                 normalizedModel,
-                `LEXMARK ${normalizedModel}`,
                 `MS ${normalizedModel.replace(/^MS/, '')}`,
                 `MX ${normalizedModel.replace(/^MX/, '')}`,
                 `CS ${normalizedModel.replace(/^CS/, '')}`,
@@ -371,13 +370,16 @@ const ModelSupplies = () => {
             );
         }
         
+        // Create a unique key for the supplies box
+        const suppliesBoxKey = `supplies-box-${activeTab || 'default'}`;
+        
         return (
-            <div>
+            <div key="supplies-container">
                 <div className={moduleStyles.tabNavContainer}>
                     <div className={moduleStyles.tabNav}>
                         {Object.keys(supplies).map((supplyType) => (
                             <button
-                                key={supplyType}
+                                key={`tab-${supplyType}`}
                                 className={`${moduleStyles.tabButton} ${activeTab === supplyType ? moduleStyles.activeTab : ''}`}
                                 onClick={() => setActiveTab(supplyType)}
                             >
@@ -387,10 +389,10 @@ const ModelSupplies = () => {
                     </div>
                 </div>
                 
-                <div className={moduleStyles.suppliesBox}>
+                <div key={suppliesBoxKey} className={moduleStyles.suppliesBox}>
                     {activeTab && supplies[activeTab] && supplies[activeTab].length > 0 ? (
                         supplies[activeTab].map((product) => (
-                            <div key={product.id} className={moduleStyles.supplyItem}>
+                            <div key={`product-${product.id}`} className={moduleStyles.supplyItem}>
                                 <div className={moduleStyles.compatibilityBadge}>
                                     Compatible
                                 </div>
@@ -420,7 +422,6 @@ const ModelSupplies = () => {
                                     
                                     <div className={moduleStyles.supplyPrice}>
                                         ${(() => {
-                                            // Safely handle price calculation
                                             try {
                                                 if (product.serviceLevels && 
                                                     product.serviceLevels[0] && 
@@ -471,7 +472,7 @@ const ModelSupplies = () => {
                 
                 <div className={moduleStyles.modelBox}>
                     <h2 className={moduleStyles.modelSubHeader}>
-                        Lexmark {modelNumber} Supplies
+                        Lexmark {modelNumber.replace(/^Lexmark\s*/i, '')} Supplies
                     </h2>
                 </div>
                 

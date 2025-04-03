@@ -34,51 +34,59 @@ export const extractPrinterModels = (products) => {
         let modelInfo = extractModelInfo(product);
         
         if (modelInfo && modelInfo.model) {
-          const modelKey = modelInfo.model.trim().toUpperCase();
-          
-          if (!modelKey) return;
+          // Handle case where model is an array (multiple compatible models)
+          const modelsToProcess = Array.isArray(modelInfo.model) 
+            ? modelInfo.model 
+            : [modelInfo.model];
           
           // Get inventory source from product
           const inventorySource = product.inventorySource || 'unknown';
           
-          if (!modelMap.has(modelKey)) {
-            modelMap.set(modelKey, {
-              model: modelInfo.model,
-              series: modelInfo.series || '',
-              year: modelInfo.year || 0,
-              products: [product],
-              inventorySources: {
-                primary: inventorySource === 'primary' ? 1 : 0,
-                distributorMarketplace: inventorySource === 'distributorMarketplace' ? 1 : 0,
-                unknown: inventorySource === 'unknown' ? 1 : 0
-              }
-            });
-          } else {
-            // Add this product to existing model
-            const existingModel = modelMap.get(modelKey);
+          // Process each model in the array (or the single model as an array of one)
+          modelsToProcess.forEach(modelValue => {
+            const modelKey = modelValue.trim().toUpperCase();
             
-            if (existingModel.products && Array.isArray(existingModel.products)) {
-              existingModel.products.push(product);
+            if (!modelKey) return;
+            
+            if (!modelMap.has(modelKey)) {
+              modelMap.set(modelKey, {
+                model: modelValue,
+                series: modelInfo.series || '',
+                year: modelInfo.year || 0,
+                products: [product],
+                inventorySources: {
+                  primary: inventorySource === 'primary' ? 1 : 0,
+                  distributorMarketplace: inventorySource === 'distributorMarketplace' ? 1 : 0,
+                  unknown: inventorySource === 'unknown' ? 1 : 0
+                }
+              });
             } else {
-              existingModel.products = [product];
+              // Add this product to existing model
+              const existingModel = modelMap.get(modelKey);
+              
+              if (existingModel.products && Array.isArray(existingModel.products)) {
+                existingModel.products.push(product);
+              } else {
+                existingModel.products = [product];
+              }
+              
+              // Update inventory source count
+              if (!existingModel.inventorySources) {
+                existingModel.inventorySources = {
+                  primary: 0,
+                  distributorMarketplace: 0,
+                  unknown: 0
+                };
+              }
+              existingModel.inventorySources[inventorySource] = 
+                (existingModel.inventorySources[inventorySource] || 0) + 1;
+              
+              // Update year if the new product has a more specific year
+              if (modelInfo.year && (!existingModel.year || modelInfo.year < existingModel.year)) {
+                existingModel.year = modelInfo.year;
+              }
             }
-            
-            // Update inventory source count
-            if (!existingModel.inventorySources) {
-              existingModel.inventorySources = {
-                primary: 0,
-                distributorMarketplace: 0,
-                unknown: 0
-              };
-            }
-            existingModel.inventorySources[inventorySource] = 
-              (existingModel.inventorySources[inventorySource] || 0) + 1;
-            
-            // Update year if the new product has a more specific year
-            if (modelInfo.year && (!existingModel.year || modelInfo.year < existingModel.year)) {
-              existingModel.year = modelInfo.year;
-            }
-          }
+          });
         }
       } catch (productError) {
         console.error("Error processing product in extractPrinterModels:", productError);
@@ -195,25 +203,25 @@ const extractModelInfo = (product) => {
     // B Series
     {
       regex: /\bLexmark\s+B([0-9]{4}[a-z]*)\b/i,
-      extractModel: (matches) => `Lexmark B${matches[1]}`,
+      extractModel: (matches) => `B${matches[1]}`,
       extractSeries: () => 'B Series'
     },
     // X Series
     {
       regex: /\bLexmark\s+X([0-9]{3,4}[a-z]*)\b/i,
-      extractModel: (matches) => `Lexmark X${matches[1]}`,
+      extractModel: (matches) => `X${matches[1]}`,
       extractSeries: () => 'X Series'
     },
     // T Series
     {
       regex: /\bLexmark\s+T([0-9]{3,4}[a-z]*)\b/i, 
-      extractModel: (matches) => `Lexmark T${matches[1]}`,
+      extractModel: (matches) => `T${matches[1]}`,
       extractSeries: () => 'T Series'
     },
     // E Series
     {
       regex: /\bLexmark\s+E([0-9]{3,4}[a-z]*)\b/i,
-      extractModel: (matches) => `Lexmark E${matches[1]}`,
+      extractModel: (matches) => `E${matches[1]}`,
       extractSeries: () => 'E Series'
     },
     // Match toner part numbers to common models
@@ -304,10 +312,21 @@ const extractModelInfo = (product) => {
       extractModel: (matches) => {
         // Map common Xerox toner numbers to models
         const tonerToModel = {
+          '106R01047': ['CopyCentre C20', 'WorkCentre M20/M20i'],
+          '106R01371': 'Phaser 3600',
+          '106R01373': ['Phaser 3250', 'Phaser 3250d', 'Phaser 3250dn'],
+          '106R01412': 'Phaser 3300',
+          '106R01485': ['WorkCentre 3210', 'WorkCentre 3220'],
+          '106R01530': 'WorkCentre 3550',
+          '106R01535': ['Phaser 4600', 'Phaser 4620', 'Phaser 4622', 'Phaser 4622dn', 'Phaser 4622dt'],
+          '106R02307': 'Phaser 3320',
+          '106R02311': ['WorkCentre 3315', 'WorkCentre 3315dn', 'WorkCentre 3325', 'WorkCentre 3325dni'],
+          '106R02722': ['Phaser 3610', 'Phaser 3610dn', 'Phaser 3610n', 'WorkCentre 3615'],
           '106R02777': 'Phaser 3260',
           '106R03580': 'WorkCentre 3345',
           '106R03624': 'Phaser 6510'
         };
+        // Return the model value, whether it's a string or array
         return tonerToModel[matches[1]] || `Xerox ${matches[1]}`;
       },
       extractSeries: (matches) => 'Xerox'
@@ -506,10 +525,11 @@ const extractModelInfo = (product) => {
       const lexmarkModelMatch = title.match(/\b(?:Lexmark\s+)?(?:MS|MX|CS|CX|B|T|E|X)[0-9]{3,4}[a-z]*\b/i);
       
       if (lexmarkModelMatch) {
-        model = lexmarkModelMatch[0]; // Use the full match
+        // Extract just the model without "Lexmark" prefix
+        model = lexmarkModelMatch[0].replace(/^Lexmark\s+/i, '');
         
         // Determine series
-        const modelPrefix = model.match(/^(?:Lexmark\s+)?([A-Z]+)/i);
+        const modelPrefix = model.match(/^([A-Z]+)/i);
         if (modelPrefix && modelPrefix[1]) {
           const prefix = modelPrefix[1].toUpperCase();
           if (prefix === 'MS' || prefix === 'MX') {
