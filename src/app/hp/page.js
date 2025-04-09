@@ -12,6 +12,19 @@ import { removeCloverImaging, extractPrinterModels } from "../../lib/utility";
 import PrinterModelList from "../components/PrinterModelList";
 import OriginFilter from "../components/OriginFilter";
 
+// Custom styles for DM inventory indicators
+const customStyles = {
+  dmModelCard: {
+    border: '2px solid #ffc107', // Yellow border for DM models
+    background: 'linear-gradient(to bottom, #fffbea, #fff)'
+  },
+  dmPrimaryBadge: {
+    backgroundColor: '#ffc107', // Yellow background for DM badge
+    color: '#000',
+    fontWeight: 'bold'
+  }
+};
+
 export default function HPPage() {
   const { cart, setCart, tonerOem } = useContext(CartContext);
   const [inputData, setInputData] = useState('');
@@ -413,7 +426,18 @@ export default function HPPage() {
         regularResponse = await fetch('/api/products', requestOptions);
         
         if (!regularResponse.ok) {
-          console.error("HTTP error fetching products:", regularResponse.status, regularResponse.statusText);
+          if (regularResponse.status === 500) {
+            console.warn("Server error (500) fetching products, attempting to use cached data");
+            const cachedProducts = loadFromCache();
+            if (cachedProducts && cachedProducts.length > 0) {
+              console.log("Using cached products due to server error");
+              setProducts(cachedProducts);
+              setFilteredProducts(cachedProducts);
+              setLoading(false);
+              return;
+            }
+            throw new Error("Server error and no cached data available");
+          }
           throw new Error(`HTTP error! status: ${regularResponse.status}`);
         }
       } catch (fetchError) {
@@ -421,18 +445,9 @@ export default function HPPage() {
         // Attempt to load from cache if available
         const cachedProducts = loadFromCache();
         if (cachedProducts && cachedProducts.length > 0) {
-          console.log("Using cached products due to fetch error");
-          // Process cached products
-          try {
-            setProducts(cachedProducts);
-            setFilteredProducts(cachedProducts);
-            
-            // Process model data from cached products
-            processProductModels(cachedProducts);
-          } catch (cacheProcessError) {
-            console.error("Error processing cached products:", cacheProcessError);
-            setError("Error processing cached products: " + cacheProcessError.message);
-          }
+          console.log("Using cached products due to network error");
+          setProducts(cachedProducts);
+          setFilteredProducts(cachedProducts);
           setLoading(false);
           return;
         }
@@ -1176,30 +1191,52 @@ export default function HPPage() {
               <div key={letter} id={`letter-${letter}`} className={styles.modelGroup}>
                 <h3 className={styles.groupTitle}>{letter}</h3>
                 <div className={styles.modelGrid}>
-                  {models.map(([model, modelData]) => (
-                    <div key={model} className={styles.modelCard}>
-                      <h4 className={styles.modelName}>{model}</h4>
-                      <p className={styles.suppliesCount}>
-                        {modelData.count} supplies available
-                        {modelData.inventorySources && (
-                          <span className={styles.inventorySourceBadges}>
-                            {modelData.inventorySources.primary > 0 && 
-                              <span className={styles.primaryBadge} title="Primary Inventory">P:{modelData.inventorySources.primary}</span>
-                            }
-                            {modelData.inventorySources.distributorMarketplace > 0 && 
-                              <span className={styles.dmBadge} title="Distributor Marketplace">DM:{modelData.inventorySources.distributorMarketplace}</span>
-                            }
-                          </span>
-                        )}
-                      </p>
-                      <Link 
-                        href={`/hp/modelSupplies?model=${encodeURIComponent(model)}`}
-                        className={styles.viewSuppliesButton}
+                  {models.map(([model, modelData]) => {
+                    // Determine if this model is primarily from DM inventory
+                    const isDMPrimary = modelData?.inventorySources?.distributorMarketplace > modelData?.inventorySources?.primary;
+                    
+                    return (
+                      <div 
+                        key={model} 
+                        className={styles.modelCard}
+                        style={isDMPrimary ? customStyles.dmModelCard : {}}
                       >
-                        View Supplies
-                      </Link>
-                    </div>
-                  ))}
+                        <h4 className={styles.modelName}>{model}</h4>
+                        <p className={styles.suppliesCount}>
+                          {modelData.count} supplies available
+                          {modelData.inventorySources && (
+                            <span className={styles.inventorySourceBadges}>
+                              {modelData.inventorySources.primary > 0 && 
+                                <span className={styles.primaryBadge} title="Primary Inventory">P:{modelData.inventorySources.primary}</span>
+                              }
+                              {modelData.inventorySources.distributorMarketplace > 0 && 
+                                <span 
+                                  className={styles.dmBadge}
+                                  style={isDMPrimary ? customStyles.dmPrimaryBadge : {}}
+                                  title="Distributor Marketplace"
+                                >
+                                  DM:{modelData.inventorySources.distributorMarketplace}
+                                </span>
+                              }
+                            </span>
+                          )}
+                        </p>
+                        {/* Show primary inventory source indicator */}
+                        <div className={styles.inventoryIndicator}>
+                          {isDMPrimary ? 
+                            <span title="Primarily from Distributor Marketplace">DM Inventory</span> : 
+                            <span title="Primarily from Primary Inventory">Primary Inventory</span>
+                          }
+                        </div>
+                        <Link 
+                          href={`/hp/modelSupplies?model=${encodeURIComponent(model)}`}
+                          className={styles.viewSuppliesButton}
+                        >
+                          View Supplies
+                        </Link>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ))}

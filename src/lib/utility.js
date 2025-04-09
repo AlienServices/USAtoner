@@ -330,7 +330,15 @@ const extractModelInfo = (product) => {
           '106R02775': ['Phaser 3260', 'Phaser 3260dni', 'Phaser 3260di', 'WorkCentre 3215', 'WorkCentre 3215ni', 'WorkCentre 3225', 'WorkCentre 3225dni'],
           '106R02777': ['Phaser 3260', 'Phaser 3260dni', 'Phaser 3260di', 'WorkCentre 3215', 'WorkCentre 3215ni', 'WorkCentre 3225', 'WorkCentre 3225dni'],
           '106R03580': ['VersaLink B400', 'VersaLink B400dnm', 'VersaLink B400dn', 'VersaLink B400n', 'VersaLink B405', 'VersaLink B405dnm', 'VersaLink B405dn'],
+          '106R03582': ['VersaLink B400', 'VersaLink B400dnm', 'VersaLink B400dn', 'VersaLink B400n', 'VersaLink B405', 'VersaLink B405dnm', 'VersaLink B405dn'],
+          '106R03584': ['VersaLink B400', 'VersaLink B400dnm', 'VersaLink B400dn', 'VersaLink B400n', 'VersaLink B405', 'VersaLink B405dnm', 'VersaLink B405dn'],
           '106R03624': ['Phaser 3330', 'Phaser 3330dnim', 'Phaser 3330dni', 'WorkCentre 3335', 'WorkCentre 3335dnim', 'WorkCentre 3335dni', 'WorkCentre 3345', 'WorkCentre 3345dnim', 'WorkCentre 3345dni'],
+          '106R03944': ['VersaLink B600', 'VersaLink B600dn', 'VersaLink B600dnm', 'VersaLink B600dt', 'VersaLink B600dx', 'VersaLink B600dxf', 'VersaLink B600dxp', 
+            'VersaLink B605', 'VersaLink B605s', 'VersaLink B605sf', 'VersaLink B605sp', 'VersaLink B605x', 'VersaLink B605xf', 'VersaLink B605xp', 'VersaLink B605xtf', 
+            'VersaLink B605xtp', 'VersaLink B610', 'VersaLink B610dn', 'VersaLink B610dnm', 'VersaLink B610dt', 'VersaLink B610dx', 'VersaLink B610dxf', 'VersaLink B610dxp',
+            'VersaLink B610ydn', 'VersaLink B615', 'VersaLink B615sf', 'VersaLink B615sl', 'VersaLink B615sp', 'VersaLink B615xf', 'VersaLink B615xl', 'VersaLink B615xp', 
+            'VersaLink B615xtf', 'VersaLink B615xtp'],
+          '106R04347': ['B205', 'B205ni', 'B210', 'B210dni', 'B215', 'B215dni']
         };
         // Return the model value, whether it's a string or array
         return tonerToModel[matches[1]] || `Xerox ${matches[1]}`;

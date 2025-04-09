@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState, useContext } from "react";
+import React, { useEffect, useRef, useState, useContext, useCallback } from "react";
 import Header from "../../components/Header";
 import Image from "next/image";
 import styles from "../../page.module.css";
@@ -15,7 +15,7 @@ const ModelSupplies = () => {
     const { cart, setCart } = useContext(CartContext);
     const [activeTab, setActiveTab] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [supplies, setSupplies] = useState([]);
+    const [supplies, setSupplies] = useState({});
     
     // Define Dell part number to model mapping
     const partToModelMap = {
@@ -54,13 +54,55 @@ const ModelSupplies = () => {
         '593-BBKI': ['H625', 'H625cdw', 'H825', 'H825cdw', 'S2825', 'S2825cdn']  // Yellow
     };
 
-    useEffect(() => {
-        if (modelNumber) {
-            getModelSupplies();
+    // Group supplies by their type (toner, drum, etc.)
+    const groupSuppliesByType = (products) => {
+        if (!products || !Array.isArray(products) || products.length === 0) {
+            return {};
         }
-    }, [modelNumber]);
+        
+        const groupedSupplies = {};
+        
+        products.forEach(product => {
+            if (!product || !product.title) return;
+            
+            const title = product.title.toUpperCase();
+            
+            // Determine supply type
+            let supplyType = "Other Supplies";
+            
+            if (title.includes('TONER')) {
+                if (title.includes('BLACK')) {
+                    supplyType = "Black Toner";
+                } else if (title.includes('CYAN')) {
+                    supplyType = "Cyan Toner";
+                } else if (title.includes('MAGENTA')) {
+                    supplyType = "Magenta Toner";
+                } else if (title.includes('YELLOW')) {
+                    supplyType = "Yellow Toner";
+                } else {
+                    supplyType = "Toner";
+                }
+            } else if (title.includes('DRUM') || title.includes('IMAGING')) {
+                supplyType = "Imaging Units";
+            } else if (title.includes('MAINTENANCE') || title.includes('FUSER')) {
+                supplyType = "Maintenance Kits";
+            } else if (title.includes('WASTE')) {
+                supplyType = "Waste Containers";
+            }
+            
+            // Add to the appropriate group
+            if (!groupedSupplies[supplyType]) {
+                groupedSupplies[supplyType] = [];
+            }
+            
+            groupedSupplies[supplyType].push(product);
+        });
+        
+        return groupedSupplies;
+    };
 
-    async function getModelSupplies() {
+    // Wrap getModelSupplies in useCallback to prevent it from changing on every render
+    const getModelSupplies = useCallback(async () => {
         try {
             setIsLoading(true);
             let accessToken = null;
@@ -219,7 +261,7 @@ const ModelSupplies = () => {
         } finally {
             setIsLoading(false);
         }
-    }
+    }, [modelNumber, partToModelMap]);
 
     // Helper function to categorize Dell models
     const getCategoryFromModel = (modelNumber) => {
@@ -236,52 +278,22 @@ const ModelSupplies = () => {
         return "Other";
     };
 
-    // Group supplies by their type (toner, drum, etc.)
-    const groupSuppliesByType = (products) => {
-        if (!products || !Array.isArray(products) || products.length === 0) {
-            return {};
-        }
+    useEffect(() => {
+        let isMounted = true;
         
-        const groupedSupplies = {};
-        
-        products.forEach(product => {
-            if (!product || !product.title) return;
-            
-            const title = product.title.toUpperCase();
-            
-            // Determine supply type
-            let supplyType = "Other Supplies";
-            
-            if (title.includes('TONER')) {
-                if (title.includes('BLACK')) {
-                    supplyType = "Black Toner";
-                } else if (title.includes('CYAN')) {
-                    supplyType = "Cyan Toner";
-                } else if (title.includes('MAGENTA')) {
-                    supplyType = "Magenta Toner";
-                } else if (title.includes('YELLOW')) {
-                    supplyType = "Yellow Toner";
-                } else {
-                    supplyType = "Toner";
-                }
-            } else if (title.includes('DRUM') || title.includes('IMAGING')) {
-                supplyType = "Imaging Units";
-            } else if (title.includes('MAINTENANCE') || title.includes('FUSER')) {
-                supplyType = "Maintenance Kits";
-            } else if (title.includes('WASTE')) {
-                supplyType = "Waste Containers";
+        const initializeSupplies = async () => {
+            if (modelNumber && isMounted) {
+                await getModelSupplies();
             }
-            
-            // Add to the appropriate group
-            if (!groupedSupplies[supplyType]) {
-                groupedSupplies[supplyType] = [];
-            }
-            
-            groupedSupplies[supplyType].push(product);
-        });
+        };
         
-        return groupedSupplies;
-    };
+        initializeSupplies();
+        
+        // Cleanup function
+        return () => {
+            isMounted = false;
+        };
+    }, [modelNumber, getModelSupplies]);
 
     function extractPartNumber(product) {
         if (!product) return '';
@@ -388,10 +400,10 @@ const ModelSupplies = () => {
                     </div>
                 </div>
                 
-                <div className={moduleStyles.suppliesBox}>
+                <div key="supplies-box" className={moduleStyles.suppliesBox}>
                     {activeTab && supplies[activeTab] && supplies[activeTab].length > 0 ? (
-                        supplies[activeTab].map((product) => (
-                            <div key={product.id} className={moduleStyles.supplyItem}>
+                        supplies[activeTab].map((product, index) => (
+                            <div key={product.id || `product-${index}`} className={moduleStyles.supplyItem}>
                                 <div className={moduleStyles.compatibilityBadge}>
                                     Compatible
                                 </div>

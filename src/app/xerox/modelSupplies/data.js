@@ -21,7 +21,7 @@ const ModelSupplies = () => {
     const partToModelMap = {
         // Xerox Phaser series
         '106R02777': ['Phaser 3260', 'WorkCentre 3215', 'WorkCentre 3225'],
-        '106R03580': ['Phaser 3330', 'WorkCentre 3335', 'WorkCentre 3345'],
+        '106R03580': ['VersaLink B400', 'VersaLink B405'],
         '106R01159': ['Phaser 3117', 'Phaser 3122', 'Phaser 3124', 'Phaser 3125'],
         '106R01374': ['Phaser 3250', 'Phaser 3250D', 'Phaser 3250DN'],
         '106R01634': ['Phaser 6000', 'Phaser 6010', 'WorkCentre 6015'], // Cyan
@@ -40,7 +40,7 @@ const ModelSupplies = () => {
         // Xerox WorkCentre series
         '106R02778': ['WorkCentre 3215', 'WorkCentre 3225', 'Phaser 3260'],
         '106R02782': ['WorkCentre 3335', 'WorkCentre 3345', 'Phaser 3330'],
-        '106R03624': ['WorkCentre 3655', 'WorkCentre 3655i'],
+        '106R03624': ['Phaser 3330', 'WorkCentre 3335', 'WorkCentre 3345'],
         '106R01486': ['WorkCentre 3210', 'WorkCentre 3220'],
         '106R01487': ['WorkCentre 3210', 'WorkCentre 3220'],
         

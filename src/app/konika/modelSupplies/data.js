@@ -177,46 +177,128 @@ const ModelSupplies = () => {
                 }
             }
             
-            // If no products found in cache or no matches, try API
-            const requestOptions = {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    token: accessToken,
-                    search: `konica minolta ${modelNumber}`
-                })
-            };
+            // If no products found in cache or no matches, try both APIs
+            let regularProducts = [];
+            let dmProducts = [];
             
+            // Try regular API first
             try {
-                const response = await fetch('/api/products', requestOptions);
+                const regularResponse = await fetch('/api/products', {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        token: accessToken,
+                        search: `konica minolta ${modelNumber}`
+                    })
+                });
                 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                if (regularResponse.ok) {
+                    const data = await regularResponse.json();
+                    
+                    // Extract products based on response format
+                    if (data.cancel && Array.isArray(data.cancel.products)) {
+                        regularProducts = data.cancel.products;
+                    } else if (data.products && Array.isArray(data.products)) {
+                        regularProducts = data.products;
+                    } else if (Array.isArray(data)) {
+                        regularProducts = data;
+                    }
+                    
+                    // Tag products with source information
+                    regularProducts = regularProducts.map(product => ({
+                        ...product,
+                        inventorySource: 'primary',
+                        inventoryName: 'Primary Inventory'
+                    }));
                 }
+            } catch (regularError) {
+                console.error('Error fetching from regular API:', regularError);
+            }
+            
+            // Try DM API
+            try {
+                const dmResponse = await fetch('/api/dm-brand-products', {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        brand: "konica",
+                        model: modelNumber
+                    })
+                });
                 
-                const data = await response.json();
-                
-                // Extract products based on response format
-                let products = [];
-                if (data.cancel && Array.isArray(data.cancel.products)) {
-                    products = data.cancel.products;
-                } else if (data.products && Array.isArray(data.products)) {
-                    products = data.products;
-                } else if (Array.isArray(data)) {
-                    products = data;
+                if (dmResponse.ok) {
+                    const dmData = await dmResponse.json();
+                    
+                    if (dmData && dmData.success && dmData.data && Array.isArray(dmData.data.products)) {
+                        // Tag DM products
+                        dmProducts = dmData.data.products.map(product => ({
+                            ...product,
+                            inventorySource: 'distributorMarketplace',
+                            inventoryName: 'Distributor Marketplace'
+                        }));
+                    }
                 }
+            } catch (dmError) {
+                console.error('Error fetching from DM API:', dmError);
+            }
+            
+            // Combine and deduplicate products
+            const allProducts = [...regularProducts, ...dmProducts];
+            
+            if (allProducts.length > 0) {
+                // Filter products by model compatibility
+                const compatibleProducts = allProducts.filter(product => {
+                    if (!product || !product.title) return false;
+                    
+                    // Check direct model matches
+                    const title = product.title.toUpperCase();
+                    if (modelVariants.some(variant => title.includes(variant))) {
+                        return true;
+                    }
+                    
+                    // Check part number compatibility
+                    if (product.oemNos && Array.isArray(product.oemNos)) {
+                        for (const oem of product.oemNos) {
+                            if (!oem || !oem.oemNo) continue;
+                            
+                            const oemNo = oem.oemNo.toUpperCase();
+                            for (const [partNumber, compatibleModels] of Object.entries(partToModelMap)) {
+                                if ((oemNo === partNumber.toUpperCase() || oemNo.includes(partNumber.toUpperCase())) && 
+                                    compatibleModels.some(model => {
+                                        const modelUpper = model.toUpperCase();
+                                        return normalizedModel === modelUpper || 
+                                               normalizedModel.includes(modelUpper) ||
+                                               modelUpper.includes(normalizedModel) ||
+                                               (baseModel && modelUpper.includes(baseModel));
+                                    })) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                    
+                    return false;
+                });
                 
-                if (products.length > 0) {
-                    const groupedSupplies = groupSuppliesByType(products);
+                if (compatibleProducts.length > 0) {
+                    const groupedSupplies = groupSuppliesByType(compatibleProducts);
                     setSupplies(groupedSupplies);
                     setActiveTab(Object.keys(groupedSupplies)[0] || null);
+                    
+                    // Update cache with new products
+                    try {
+                        localStorage.setItem("konika", JSON.stringify(compatibleProducts));
+                    } catch (cacheError) {
+                        console.error('Error updating cache:', cacheError);
+                    }
                 } else {
                     setSupplies({});
                 }
-            } catch (apiError) {
-                console.error('API request failed:', apiError);
+            } else {
                 setSupplies({});
             }
         } catch (err) {

@@ -23,10 +23,12 @@ export default function Data() {
   const [searching, setSearching] = useState(false);
   const [products, setProducts] = useState([]);
   const [searchResult, setSearchResult] = useState();
+  const [currentSearchTerm, setCurrentSearchTerm] = useState('');
   const [message, setMessage] = useState("this is the test message");
   const tawkMessengerRef = useRef();
   const [toner, setToner] = useState()
   const captchaRef = useRef(null);
+  const [inventoryLoaded, setInventoryLoaded] = useState(false);
   const [originFilters, setOriginFilters] = useState({
     usaMade: false,
     americasMade: false,
@@ -34,6 +36,7 @@ export default function Data() {
     chineseMade: false
   });
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [error, setError] = useState(null);
 
   const onLoad = () => {
     console.log("onLoad works!");
@@ -99,43 +102,355 @@ export default function Data() {
     }
   }
 
-
-  async function search() {
-    const aToken = JSON.parse(localStorage.getItem("token"))
-    const requestOptions = {
-      method: "POST",
-
-      body:
-        JSON.stringify({
-          token: aToken.accessToken,
-          search: inputData
-        })
-    }
+  // Add new function to handle token refresh
+  async function refreshToken() {
     try {
-      const response = await fetch('/api/products', requestOptions);
-      const data1 = await response.json();
-      console.log(data1.cancel.products, "this is the product response")
-      setSearching(true)
-      setSearchResult(data1.cancel.products)
-      // Also update filteredProducts
-      setFilteredProducts(filterProductsByOrigin(data1.cancel.products));
-    } catch (err) {
+      const response = await fetch('/api/token', {
+        method: 'POST'
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to refresh token');
+      }
+      
+      const data = await response.json();
+      if (data.cancel && data.cancel.accessToken) {
+        localStorage.setItem("token", JSON.stringify(data.cancel));
+        return data.cancel.accessToken;
+      }
+      throw new Error('Invalid token response');
+    } catch (error) {
+      console.error('Token refresh failed:', error);
+      throw error;
     }
   }
 
-
-  async function getProducts() {
+  async function search() {
+    if (!inputData || inputData.trim() === '') {
+      return;
+    }
+    
+    // Get token from localStorage
+    let aToken;
+    try {
+      aToken = JSON.parse(localStorage.getItem("token"));
+      if (!aToken || !aToken.accessToken) {
+        console.log("No valid token found, attempting to refresh...");
+        aToken = { accessToken: await refreshToken() };
+      }
+    } catch (err) {
+      console.error("Error parsing token:", err);
+      try {
+        console.log("Attempting to refresh token after parse error...");
+        aToken = { accessToken: await refreshToken() };
+      } catch (refreshError) {
+        console.error("Failed to refresh token:", refreshError);
+        setError("Authentication error. Please refresh the page to continue.");
+        return;
+      }
+    }
+    
+    // Preprocess search term - normalize for better searching
+    let searchTerm = inputData.trim();
+    let isBrandSearch = false;
+    
+    // Check if it's likely an OEM part number and format appropriately
+    const oemPatterns = [
+      /^(CE|CC|CF|Q|CB)\d{3,4}[A-Z]?$/i,  // HP patterns like CE285A, CF380A
+      /^(TN|DR)-\d{3,4}[A-Z]?$/i,          // Brother patterns like TN-760
+      /^(593-|331-|332-)\w{4,5}$/i,        // Dell patterns like 593-BBKD
+      /^(106R|113R)\d{5}$/i,               // Xerox patterns like 106R01371
+      /^\d{2}[A-Z]\d{4}$/i                 // Lexmark patterns like 50F1000
+    ];
+    
+    const isLikelyOemNumber = oemPatterns.some(pattern => pattern.test(searchTerm));
+    
+    // If appears to be an OEM number, ensure proper formatting
+    if (isLikelyOemNumber) {
+      // Make sure HP part numbers are uppercase at the end (e.g., CE285A not CE285a)
+      searchTerm = searchTerm.replace(/^(CE|CC|CF|Q|CB)(\d{3,4})([a-z])$/i, (_, p1, p2, p3) => 
+        `${p1}${p2}${p3.toUpperCase()}`
+      );
+      
+      // For Brother, ensure proper dash (TN-760 not TN760)
+      if (/^(TN|DR)\d{3,4}[A-Z]?$/i.test(searchTerm)) {
+        searchTerm = searchTerm.replace(/^(TN|DR)(\d{3,4}[A-Z]?)$/i, "$1-$2");
+      }
+    } else {
+      // If not an OEM number, check if it's a brand name
+      // Known printer brands with their correct search terms
+      const brandMapping = {
+        'hp': 'HP',
+        'hewlett packard': 'HP',
+        'hewlett-packard': 'HP',
+        'brother': 'Brother',
+        'canon': 'Canon',
+        'xerox': 'Xerox',
+        'lexmark': 'Lexmark',
+        'dell': 'Dell',
+        'konica': 'Konica Minolta',
+        'minolta': 'Konica Minolta',
+        'konica minolta': 'Konica Minolta',
+        'konika': 'Konica Minolta',
+        'kyocera': 'Kyocera',
+        'epson': 'Epson',
+        'samsung': 'Samsung',
+        'ricoh': 'Ricoh',
+        'sharp': 'Sharp',
+        'toshiba': 'Toshiba',
+        'panasonic': 'Panasonic',
+        'oki': 'Oki',
+        'okidata': 'Oki'
+      };
+      
+      const lowercaseSearch = searchTerm.toLowerCase();
+      
+      // Check if search term exactly matches or contains a brand name
+      for (const [brandKey, brandValue] of Object.entries(brandMapping)) {
+        if (lowercaseSearch === brandKey || 
+            lowercaseSearch.includes(brandKey) && 
+            // Make sure we're matching full words, not partial matches
+            (lowercaseSearch === brandKey || 
+             lowercaseSearch.startsWith(brandKey + ' ') || 
+             lowercaseSearch.endsWith(' ' + brandKey) || 
+             lowercaseSearch.includes(' ' + brandKey + ' '))) {
+          console.log(`Detected brand search: ${brandKey} -> ${brandValue}`);
+          searchTerm = brandValue;
+          isBrandSearch = true;
+          break;
+        }
+      }
+    }
+    
+    console.log(`Processing search with term: "${searchTerm}"`);
+    
+    // Store the current search term for the UI
+    setCurrentSearchTerm(searchTerm);
+    
+    // Set loading state
+    setSearching(true);
+    
+    // For brand searches, we might need to append a common model term to get better results
+    if (isBrandSearch) {
+      // First try to get brand-specific inventory
+      try {
+        console.log(`Fetching brand-specific inventory for: ${searchTerm}`);
+        const dmResponse = await fetch('/api/dm-brand-products', {
+          method: 'POST',
+          body: JSON.stringify({ brand: searchTerm })
+        });
+        
+        if (dmResponse.ok) {
+          const dmData = await dmResponse.json();
+          if (dmData.success && dmData.data && Array.isArray(dmData.data.products)) {
+            console.log(`Found ${dmData.data.products.length} brand-specific products`);
+            
+            // Format these products to match the expected structure
+            const formattedDmProducts = dmData.data.products.map(product => ({
+              ...product,
+              serviceLevels: product.serviceLevels || [{ price: product.price || '0.00' }],
+              images: product.images || ['/static/toner-placeholder.webp'],
+              oemNos: product.oemNos || [{ oemNo: product.referenceNumber || 'Unknown', oem: product.manufacturer || searchTerm }]
+            }));
+            
+            // Also fetch regular products
+            const regularResponse = await fetch('/api/products', {
+              method: 'POST',
+              body: JSON.stringify({
+                token: aToken.accessToken,
+                search: searchTerm
+              })
+            });
+            
+            if (regularResponse.ok) {
+              const regularData = await regularResponse.json();
+              if (regularData.cancel && Array.isArray(regularData.cancel.products)) {
+                // Combine both result sets
+                const combinedProducts = [...formattedDmProducts, ...regularData.cancel.products];
+                console.log(`Combined ${combinedProducts.length} products from both sources`);
+                setSearchResult(combinedProducts);
+                setFilteredProducts(filterProductsByOrigin(combinedProducts));
+                return;
+              }
+            }
+            
+            // If we can't get regular products, just use the DM ones
+            setSearchResult(formattedDmProducts);
+            setFilteredProducts(filterProductsByOrigin(formattedDmProducts));
+            return;
+          }
+        }
+      } catch (brandError) {
+        console.error("Error fetching brand-specific inventory:", brandError);
+        // Fall back to regular search
+      }
+      
+      // Enhance brand searches with common terms
+      if (searchTerm === 'HP') {
+        searchTerm = 'HP LaserJet';
+      } else if (searchTerm === 'Brother') {
+        searchTerm = 'Brother TN';
+      } else if (searchTerm === 'Lexmark') {
+        searchTerm = 'Lexmark toner';
+      } else if (searchTerm === 'Konica Minolta') {
+        searchTerm = 'Konica Minolta bizhub';
+      }
+      
+      console.log(`Enhanced brand search to: "${searchTerm}"`);
+    }
+    
     const requestOptions = {
       method: "POST",
-      body: JSON.stringify({ token: token, search: "" })
-    }
+      body: JSON.stringify({
+        token: aToken.accessToken,
+        search: searchTerm
+      })
+    };
+    
     try {
       const response = await fetch('/api/products', requestOptions);
-      const data1 = await response.json();
-      setSearching(true)
-      localStorage.setItem("main", JSON.stringify(data1.cancel.products))
-      setProducts(data1.cancel.products)      
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.cancel && Array.isArray(data.cancel.products)) {
+        console.log(`Found ${data.cancel.products.length} products for search: "${searchTerm}"`);
+        setSearchResult(data.cancel.products);
+        setFilteredProducts(filterProductsByOrigin(data.cancel.products));
+      } else {
+        console.warn("Search returned no products or unexpected format");
+        setSearchResult([]);
+        setFilteredProducts([]);
+      }
     } catch (err) {
+      console.error("Search error:", err);
+      setSearchResult([]);
+      setFilteredProducts([]);
+    } finally {
+      // Always ensure searching state is updated even if there's an error
+      setSearching(false);
+      setSearching(true); // We need to keep this true to show the results UI
+    }
+  }
+
+  const handleSearch = () => {
+    window.location.replace('/#toner');
+    search();
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  async function getProducts() {
+    let aToken;
+    try {
+      aToken = JSON.parse(localStorage.getItem("token"));
+      if (!aToken || !aToken.accessToken) {
+        console.log("No valid token found, attempting to refresh...");
+        aToken = { accessToken: await refreshToken() };
+      }
+    } catch (err) {
+      console.error("Error parsing token:", err);
+      try {
+        console.log("Attempting to refresh token after parse error...");
+        aToken = { accessToken: await refreshToken() };
+      } catch (refreshError) {
+        console.error("Failed to refresh token:", refreshError);
+        setError("Authentication error. Please refresh the page to continue.");
+        return;
+      }
+    }
+
+    const requestOptions = {
+      method: "POST",
+      body: JSON.stringify({ token: aToken.accessToken, search: "" })
+    };
+
+    try {
+      const response = await fetch('/api/products', requestOptions);
+      
+      if (response.status === 401) {
+        // Token expired, try to refresh
+        try {
+          const newToken = await refreshToken();
+          // Retry with new token
+          const retryResponse = await fetch('/api/products', {
+            method: "POST",
+            body: JSON.stringify({ token: newToken, search: "" })
+          });
+          
+          if (!retryResponse.ok) {
+            throw new Error('Failed to fetch products after token refresh');
+          }
+          
+          const data1 = await retryResponse.json();
+          await processProducts(data1);
+        } catch (refreshError) {
+          console.error("Failed to refresh token:", refreshError);
+          setError("Session expired. Please refresh the page to continue.");
+        }
+      } else if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      } else {
+        const data1 = await response.json();
+        await processProducts(data1);
+      }
+    } catch (err) {
+      console.error("Error fetching products:", err);
+      setError(err.message || "Failed to fetch products");
+    }
+  }
+
+  // Helper function to process products data
+  async function processProducts(data1) {
+    if (data1.cancel && Array.isArray(data1.cancel.products)) {
+      setSearching(true);
+      localStorage.setItem("main", JSON.stringify(data1.cancel.products));
+      setProducts(data1.cancel.products);
+      
+      // Try to also get brand-specific inventories for popular brands
+      try {
+        const popularBrands = ['HP', 'Brother', 'Xerox', 'Lexmark', 'Dell', 'Konica Minolta'];
+        const brandProducts = [];
+        
+        for (const brand of popularBrands) {
+          const dmResponse = await fetch('/api/dm-brand-products', {
+            method: 'POST',
+            body: JSON.stringify({ brand })
+          });
+          
+          if (dmResponse.ok) {
+            const dmData = await dmResponse.json();
+            if (dmData.success && dmData.data && Array.isArray(dmData.data.products)) {
+              // Format these products to match the expected structure
+              const formattedDmProducts = dmData.data.products.map(product => ({
+                ...product,
+                serviceLevels: product.serviceLevels || [{ price: product.price || '0.00' }],
+                images: product.images || ['/static/toner-placeholder.webp'],
+                oemNos: product.oemNos || [{ oemNo: product.referenceNumber || 'Unknown', oem: product.manufacturer || brand }]
+              }));
+              
+              brandProducts.push(...formattedDmProducts);
+            }
+          }
+        }
+        
+        if (brandProducts.length > 0) {
+          // Combine with regular products
+          const combinedProducts = [...data1.cancel.products, ...brandProducts];
+          localStorage.setItem("main", JSON.stringify(combinedProducts));
+          setProducts(combinedProducts);
+          setInventoryLoaded(true);
+        }
+      } catch (dmError) {
+        console.error("Error fetching additional brand inventory:", dmError);
+      }
     }
   }
 
@@ -181,16 +496,21 @@ export default function Data() {
                   Shop from our Toners & Supplies
                 </div>
               </h1>
-              <input onChange={(event) => {
-                setInputData(event.target.value)
-              }} onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  setSearching(!searching)
-                  window.location.replace('/#toner')
-                  search()
-
-                }
-              }} className={styles.search} placeholder="Search by OEM, Brand, or Model"></input>
+              <div className={styles.searchContainer}>
+                <input 
+                  value={inputData || ''}
+                  onChange={(event) => setInputData(event.target.value)}
+                  onKeyDown={handleKeyDown}
+                  className={styles.search} 
+                  placeholder="Search by OEM, Brand, or Model"
+                />
+                <button 
+                  onClick={handleSearch}
+                  className={styles.searchButton}
+                >
+                  Search
+                </button>
+              </div>
             </div>
             <div className={styles.displayNone}>
               <Image
@@ -295,7 +615,24 @@ export default function Data() {
                 </div>
               ) : (
                 <div className={styles.emptyProductsContainer}>
-                  <div className={styles.nothing}>No Products Found, Try Changing Your Filter or Search</div>
+                  <div className={styles.nothingContainer}>
+                    <div className={styles.nothing}>No Products Found</div>
+                    {currentSearchTerm && (
+                      <div className={styles.searchInfo}>
+                        <p>No results found for: <strong>"{currentSearchTerm}"</strong></p>
+                        <div className={styles.searchSuggestions}>
+                          <p>Suggestions:</p>
+                          <ul>
+                            <li>Check the spelling of your search term</li>
+                            <li>Try using a more specific part number (e.g., CE285A, TN-760)</li>
+                            <li>Search by printer model (e.g., "LaserJet Pro M402n")</li>
+                            <li>Try a different brand name (HP, Brother, Xerox, etc.)</li>
+                            <li>Clear any active filters that might be restricting results</li>
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
