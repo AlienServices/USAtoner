@@ -142,11 +142,13 @@ export async function POST(request) {
                 productsArray.forEach((product, index) => {
                     // Ensure every product has an origin property
                     // This is for demonstration - in real implementation, you'd have actual origin data
-                    if (index % 4 === 0) {
+                    if (index % 5 === 0) {
                         product.origin = "USA";
-                    } else if (index % 4 === 1) {
+                    } else if (index % 5 === 1) {
                         product.origin = "Canada";
-                    } else if (index % 4 === 2) {
+                    } else if (index % 5 === 2) {
+                        product.origin = "Mexico";
+                    } else if (index % 5 === 3) {
                         product.origin = "Germany";
                     } else {
                         product.origin = "China";
@@ -155,6 +157,11 @@ export async function POST(request) {
                     // Ensure the property exists and is accessible
                     if (!product.origin) {
                         product.origin = "Unknown";
+                    }
+                    
+                    // Add origin to product title for easy visibility
+                    if (!product.title.includes("Origin:")) {
+                        product.title = `${product.title} (Origin: ${product.origin})`;
                     }
                 });
                 

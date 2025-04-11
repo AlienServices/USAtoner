@@ -57,6 +57,12 @@ export default function Data() {
 
   // Function to filter products based on origin
   const filterProductsByOrigin = (products) => {
+    // Safety check for null/undefined products
+    if (!products || !Array.isArray(products)) {
+      console.error("Brother - Products is not an array:", products);
+      return [];
+    }
+    
     // If no filters are active, return all products
     if (!originFilters.usaMade && !originFilters.americasMade && !originFilters.worldWideMade) {
       return products;
@@ -64,28 +70,28 @@ export default function Data() {
 
     return products.filter(product => {
       // Check if product has origin information
-      const origin = product.origin || 'unknown';
+      const origin = (product.origin || 'unknown').toLowerCase();
       
       // Apply filters
-      if (originFilters.usaMade && origin.toLowerCase().includes('usa')) {
+      if (originFilters.usaMade && origin.includes('usa')) {
         return true;
       }
       
       if (originFilters.americasMade && 
-          (origin.toLowerCase().includes('usa') || 
-           origin.toLowerCase().includes('canada') || 
-           origin.toLowerCase().includes('mexico') ||
-           origin.toLowerCase().includes('americas'))) {
+          (origin.includes('usa') || 
+           origin.includes('canada') || 
+           origin.includes('mexico') ||
+           origin.includes('americas'))) {
         return true;
       }
       
       if (originFilters.worldWideMade) {
         // Only show Chinese products if the Chinese toggle is on
-        if (origin.toLowerCase().includes('china')) {
+        if (origin.includes('china')) {
           return originFilters.chineseMade;
         }
         // For all other worldwide products, show them
-        return true;
+        return !origin.includes('china') || originFilters.chineseMade;
       }
       
       return false;

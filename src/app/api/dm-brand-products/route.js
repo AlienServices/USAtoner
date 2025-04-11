@@ -113,7 +113,7 @@ function generateMockProducts(brand) {
     mockProducts.push(
       {
         id: "DM-HP-1",
-        title: "HP 26A Black Original LaserJet Toner Cartridge",
+        title: "HP 26A Black Original LaserJet Toner Cartridge (Origin: USA)",
         oemNos: [{ oemNo: "CF226A", oem: "HP" }],
         manufacturer: "HP",
         referenceNumber: "CF226A",
@@ -122,7 +122,7 @@ function generateMockProducts(brand) {
       },
       {
         id: "DM-HP-2",
-        title: "HP 78A Black Original LaserJet Toner Cartridge",
+        title: "HP 78A Black Original LaserJet Toner Cartridge (Origin: Mexico)",
         oemNos: [{ oemNo: "CE278A", oem: "HP" }],
         manufacturer: "HP",
         referenceNumber: "CE278A",
@@ -131,11 +131,29 @@ function generateMockProducts(brand) {
       },
       {
         id: "DM-HP-3",
-        title: "HP 55X High Yield Black Original LaserJet Toner Cartridge",
+        title: "HP 55X High Yield Black Original LaserJet Toner Cartridge (Origin: China)",
         oemNos: [{ oemNo: "CE255X", oem: "HP" }],
         manufacturer: "HP",
         referenceNumber: "CE255X",
         origin: "China",
+        ...commonProps
+      },
+      {
+        id: "DM-HP-4",
+        title: "HP 305A Cyan Original LaserJet Toner Cartridge (Origin: Germany)",
+        oemNos: [{ oemNo: "CE411A", oem: "HP" }],
+        manufacturer: "HP",
+        referenceNumber: "CE411A",
+        origin: "Germany",
+        ...commonProps
+      },
+      {
+        id: "DM-HP-5",
+        title: "HP 305A Magenta Original LaserJet Toner Cartridge (Origin: Canada)",
+        oemNos: [{ oemNo: "CE413A", oem: "HP" }],
+        manufacturer: "HP",
+        referenceNumber: "CE413A",
+        origin: "Canada",
         ...commonProps
       }
     );

@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -9,6 +9,7 @@ import styles from '../../../page.module.css';
 import { CartContext } from '../../../providers/cart';
 import { removeCloverImaging } from '../../../../lib/utility';
 import { Audio } from 'react-loader-spinner';
+import OriginFilter from '../../../components/OriginFilter';
 
 export default function ModelProducts() {
   const params = useParams();
@@ -18,6 +19,13 @@ export default function ModelProducts() {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [originFilters, setOriginFilters] = useState({
+    usaMade: false,
+    americasMade: false,
+    worldWideMade: false,
+    chineseMade: false
+  });
+  const initialLoadRef = useRef(true);
 
   useEffect(() => {
     const fetchModelProducts = async () => {
@@ -56,8 +64,16 @@ export default function ModelProducts() {
         const data = await response.json();
         
         if (data && data.cancel && data.cancel.products) {
-          setProducts(data.cancel.products);
-          setFilteredProducts(data.cancel.products);
+          const productsData = data.cancel.products;
+          setProducts(productsData);
+          // Initial load - just set the filtered products without additional filtering
+          if (initialLoadRef.current) {
+            setFilteredProducts(productsData);
+            initialLoadRef.current = false;
+          } else {
+            // Not initial load - apply filters
+            applyFilters(activeFilter, originFilters, productsData);
+          }
         }
       } catch (error) {
         console.error("Error fetching model products:", error);
@@ -69,31 +85,90 @@ export default function ModelProducts() {
     fetchModelProducts();
   }, [modelName]);
 
+  // Apply filters when activeFilter or originFilters change, but only after initial load
+  useEffect(() => {
+    if (!initialLoadRef.current && products.length > 0) {
+      applyFilters(activeFilter, originFilters, products);
+    }
+  }, [activeFilter, originFilters]);
+
+  // Handle origin filter changes
+  const handleOriginFilterChange = (filters) => {
+    setOriginFilters(filters);
+  };
+
   // Filter products by type (toner, drum, etc.)
   const filterByType = (type) => {
     setActiveFilter(type);
-    
-    if (type === 'all') {
-      setFilteredProducts(products);
-      return;
+  };
+
+  // Filter products by origin
+  const filterProductsByOrigin = (products, filters) => {
+    // Safety check for null/undefined products
+    if (!products || !Array.isArray(products)) {
+      console.error("Brother - Products is not an array:", products);
+      return [];
     }
     
-    const filtered = products.filter(product => {
-      const title = removeCloverImaging(product.title || '').toLowerCase();
+    // If no filters are active, return all products
+    if (!filters.usaMade && !filters.americasMade && !filters.worldWideMade) {
+      return products;
+    }
+
+    return products.filter(product => {
+      // Check if product has origin information
+      const origin = (product.origin || 'unknown').toLowerCase();
       
-      switch(type) {
-        case 'toner':
-          return title.includes('toner') || title.includes('cartridge');
-        case 'drum':
-          return title.includes('drum') || title.includes('imaging');
-        case 'maintenance':
-          return title.includes('maintenance') || title.includes('kit') || title.includes('fuser');
-        default:
-          return true;
+      // Apply filters
+      if (filters.usaMade && origin.includes('usa')) {
+        return true;
       }
+      
+      if (filters.americasMade && 
+          (origin.includes('usa') || 
+           origin.includes('canada') || 
+           origin.includes('mexico') ||
+           origin.includes('americas'))) {
+        return true;
+      }
+      
+      if (filters.worldWideMade) {
+        // If the product is from China, only show if Chinese products are allowed
+        if (origin.includes('china')) {
+          return filters.chineseMade;
+        }
+        // For all other worldwide products (not Chinese), show them if worldwide is selected
+        return true;
+      }
+      
+      return false;
     });
+  };
+
+  // Apply both type and origin filters
+  const applyFilters = (type, origins, productsToFilter = products) => {
+    let typeFiltered = productsToFilter;
     
-    setFilteredProducts(filtered);
+    if (type !== 'all') {
+      typeFiltered = productsToFilter.filter(product => {
+        const title = removeCloverImaging(product.title || '').toLowerCase();
+        
+        switch(type) {
+          case 'toner':
+            return title.includes('toner') || title.includes('cartridge');
+          case 'drum':
+            return title.includes('drum') || title.includes('imaging');
+          case 'maintenance':
+            return title.includes('maintenance') || title.includes('kit') || title.includes('fuser');
+          default:
+            return true;
+        }
+      });
+    }
+    
+    // Apply origin filters on top of type filtering
+    const finalFiltered = filterProductsByOrigin(typeFiltered, origins);
+    setFilteredProducts(finalFiltered);
   };
 
   // Group products by color
@@ -152,6 +227,11 @@ export default function ModelProducts() {
           >
             Maintenance Kits
           </button>
+        </div>
+        
+        {/* Origin Filter */}
+        <div className={styles.originFilterContainer} style={{padding: '20px'}}>
+          <OriginFilter onFilterChange={handleOriginFilterChange} />
         </div>
         
         {loading ? (

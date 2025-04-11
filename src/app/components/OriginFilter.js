@@ -1,42 +1,79 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from '../page.module.css';
 
 const OriginFilter = ({ onFilterChange }) => {
   const [usaMade, setUsaMade] = useState(false);
   const [americasMade, setAmericasMade] = useState(false);
-  const [worldWideMade, setWorldWideMade] = useState(false);
-  const [chineseMade, setChineseMade] = useState(false);
+  const [worldWideMade, setWorldWideMade] = useState(true); // Default to worldwide
+  const [chineseMade, setChineseMade] = useState(false); // Default to NOT showing Chinese products
+
+  // Initial setup - apply default filters on mount
+  useEffect(() => {
+    // Apply default filters - show worldwide but not Chinese
+    const defaultFilters = {
+      usaMade: false,
+      americasMade: false,
+      worldWideMade: true,
+      chineseMade: false
+    };
+    
+    console.log('OriginFilter: Setting default filters:', defaultFilters);
+    onFilterChange(defaultFilters);
+  }, []);
 
   const handleFilterChange = (filterType, value) => {
+    let updatedFilters = {};
+    
     switch (filterType) {
       case 'usa':
         setUsaMade(value);
+        updatedFilters = {
+          usaMade: value,
+          americasMade: americasMade,
+          worldWideMade: worldWideMade,
+          chineseMade: chineseMade
+        };
         break;
       case 'americas':
         setAmericasMade(value);
+        updatedFilters = {
+          usaMade: usaMade,
+          americasMade: value,
+          worldWideMade: worldWideMade,
+          chineseMade: chineseMade
+        };
         break;
       case 'worldwide':
         setWorldWideMade(value);
         // Reset Chinese sub-option if turning off worldwide
-        if (!value) {
-          setChineseMade(false);
-        }
+        const newChineseMade = value ? chineseMade : false;
+        setChineseMade(newChineseMade);
+        updatedFilters = {
+          usaMade: usaMade,
+          americasMade: americasMade,
+          worldWideMade: value,
+          chineseMade: newChineseMade
+        };
         break;
       case 'chinese':
         setChineseMade(value);
+        updatedFilters = {
+          usaMade: usaMade,
+          americasMade: americasMade,
+          worldWideMade: worldWideMade,
+          chineseMade: value
+        };
         break;
       default:
         break;
     }
 
+    // Log changes to help with debugging
+    console.log(`OriginFilter: Changed ${filterType} to ${value}`, updatedFilters);
+    
     // Pass filter state to parent component
-    onFilterChange({
-      usaMade: filterType === 'usa' ? value : usaMade,
-      americasMade: filterType === 'americas' ? value : americasMade,
-      worldWideMade: filterType === 'worldwide' ? value : worldWideMade,
-      chineseMade: filterType === 'chinese' ? value : chineseMade
-    });
+    onFilterChange(updatedFilters);
   };
 
   return (

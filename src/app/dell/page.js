@@ -73,6 +73,7 @@ export default function DellPage() {
         if (origin.toLowerCase().includes('china')) {
           return originFilters.chineseMade;
         }
+        // For all other worldwide products (not Chinese), show them if worldwide is selected
         return true;
       }
       

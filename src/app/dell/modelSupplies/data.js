@@ -106,12 +106,12 @@ const ModelSupplies = () => {
             }
             
             if (originFilters.worldWideMade) {
-                // Only show Chinese products if the Chinese toggle is on
+                // If the product is from China, only show if Chinese products are allowed
                 if (origin.includes('china')) {
                     return originFilters.chineseMade;
                 }
-                // For all other worldwide products, show them
-                return !origin.includes('china') || originFilters.chineseMade;
+                // For all other worldwide products (not Chinese), show them if worldwide is selected
+                return true;
             }
             
             return false;
