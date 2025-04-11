@@ -4,7 +4,6 @@ import Head from "next/head";
 import Image from "next/image";
 import { Audio } from 'react-loader-spinner'
 import Header from "../components/Header";
-// import BestSellers from "./components/BestSellers";
 import Link from "next/link";
 import styles from "../page.module.css";
 import { CartContext } from "../providers/cart/index";
@@ -19,8 +18,7 @@ export default function Data() {
   const [recaptchaResponse, setRecaptchaResponse] = useState(false);
   const [inputData, setInputData] = useState('');
   const [searching, setSearching] = useState(false);
-  const [products, setProducts] = useState("");
-  const [token, setToken] = useState();
+  const [products, setProducts] = useState("");  
   const [searchResult, setSearchResult] = useState();
   const tawkMessengerRef = useRef();
   const captchaRef = useRef(null);
@@ -116,6 +114,9 @@ export default function Data() {
       };
       
       const response = await fetch('/api/products', requestOptions);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data1 = await response.json();
       setSearchResult(data1.cancel.products);
       setIsModelView(false); // Switch to product view when searching
@@ -153,6 +154,10 @@ export default function Data() {
       };
       
       const response = await fetch('/api/products', requestOptions);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data1 = await response.json();
       
       setSearching(true);
@@ -209,7 +214,6 @@ export default function Data() {
   return (
     <div className={styles.main}>
       <Header />
-
       <div className={styles.secondSection}>
         <div className={styles.flexSomething}>
           <div className={styles.flex}>
@@ -252,7 +256,6 @@ export default function Data() {
                 </button>
               </div>
             </div>
-
             <div className={styles.displayNone}>
               <Image
                 src="/static/Group.webp"
@@ -264,7 +267,7 @@ export default function Data() {
           </div>
         </div>
 
-        <section id={"toner"}></section>
+        <section id="toner"></section>
         <div className={styles.center}>
           {searching ? (
             <>
@@ -384,15 +387,3 @@ export default function Data() {
     </div>
   );
 }
-
-// import Toners from "./api/models/Toners"
-// (async () => {
-//   try{
-//     await Toners.create({name: "kale", email: "gmail.com"})
-//     await Toners.create({name: "jason", email: "j@gmail.com"})
-//     const toners = await Toner.findAll()
-//     console.log(toners, "these is tonersss")
-//   } catch(err){
-//     console.log(err)
-//   }
-// })

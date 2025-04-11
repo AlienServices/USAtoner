@@ -1,0 +1,36 @@
+// This is your Prisma schema file for ITC inventory,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("ITC_DATABASE_URL")
+}
+
+model ITCInventory {
+  id            Int      @id @default(autoincrement())
+  sku           String   @unique
+  description   String?
+  price         Float
+  quantity      Int
+  lastUpdated   DateTime @default(now())
+  
+  // Additional fields from ITC CSV
+  manufacturerName String?  @map("manufacturer")
+  mfgPartNumber   String?  @map("mfg_part_no")
+  listPrice       Float    @default(0)
+  upcCode         String?  @map("upc")
+  unitMeasure     String?  @map("unit_of_measure")
+  categoryName    String?  @map("category")
+  warehouse1Qty   Int      @default(0) @map("warehouse1")
+  warehouse2Qty   Int      @default(0) @map("warehouse2")
+  warehouse3Qty   Int      @default(0) @map("warehouse3")
+  warehouse4Qty   Int      @default(0) @map("warehouse4")
+  warehouse5Qty   Int      @default(0) @map("warehouse5")
+  warehouse6Qty   Int      @default(0) @map("warehouse6")
+
+  @@map("itc_inventory")
+} 

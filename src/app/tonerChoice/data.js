@@ -20,7 +20,7 @@ const TonerChoice = (props) => {
     const { cart, setCart, cartLook, setRealPrice, tonerOem } = useContext(CartContext);
     const [aboveOne, setAboveOne] = useState(false);
     const [quantity, setQuantity] = useState(1);
-    const [toner, setToner] = useState("");
+    const [toner, setToner] = useState([]);
     const [name, setName] = useState("");
     const [cartAccess, setCartAccess] = useState(true);
     const [email, setEmail] = useState("");
@@ -28,7 +28,7 @@ const TonerChoice = (props) => {
     const [message, setMessage] = useState("");
     const [orderId, setOrderId] = useState("");
     const [newPrice, setNewPrice] = useState();
-    const [token, setToken] = useState()
+    const [token, setToken] = useState();
 
     const tawkMessengerRef = useRef();
 
@@ -93,32 +93,91 @@ const TonerChoice = (props) => {
     };
 
     async function getProducts() {  
-        
-        const aToken = JSON.parse(localStorage.getItem("token"))          
-        const requestOptions = {
-            method: "POST",
-            body:
-                JSON.stringify({
-                    token: aToken.accessToken,
-                    search: `${oem}`
-                })
-        }
         try {
-            const response = await fetch('/api/products', requestOptions);
-            const data1 = await response.json();
-            console.log(data1.cancel.products, "this is the product response")
-            setToner(data1.cancel.products)
+            // First try to get from Clover
+            const tokenStr = localStorage.getItem("token");
+            if (!tokenStr) {
+                console.log("No token found in localStorage, skipping Clover search");
+                // Skip Clover search and go straight to ITC
+            } else {
+                const aToken = JSON.parse(tokenStr);          
+                const requestOptions = {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        token: aToken?.accessToken,
+                        search: `${oem}`
+                    })
+                }
+                
+                const response = await fetch('/api/products', requestOptions);
+                const data1 = await response.json();
+                
+                if (data1?.cancel?.products?.length > 0) {
+                    setToner(data1.cancel.products);
+                    return;
+                }
+            }
+
+            // If no Clover results or no token, try ITC inventory
+            const itcResponse = await fetch('/api/inventory');
+            const itcData = await itcResponse.json();
+            
+            const itcProduct = itcData.data.find(item => 
+                item.sku === oem || 
+                item.mfgPartNumber === oem
+            );
+
+            if (itcProduct) {
+                // Transform ITC product to match expected structure
+                const transformedProduct = {
+                    id: itcProduct.sku,
+                    title: itcProduct.description || 'ITC Product',
+                    price: itcProduct.price,
+                    images: ['/static/placeholder.svg'],
+                    description: itcProduct.description || '',
+                    category: 'ITC',
+                    quantity: itcProduct.quantity || 0,
+                    itcProduct: true,
+                    oemNos: [{
+                        oemNo: itcProduct.mfgPartNumber || itcProduct.sku
+                    }],
+                    serviceLevels: [{
+                        price: itcProduct.price
+                    }],
+                    manufacturerName: itcProduct.manufacturerName || getBrandFromSKU(itcProduct.sku),
+                    // Add default values for missing fields
+                    yield: 'N/A',
+                    productBoxDimensions: {
+                        weight: 'N/A'
+                    }
+                };
+                setToner([transformedProduct]);
+            }
         } catch (err) {
+            console.error('Error fetching products:', err);
         }
     }
+
+    // Helper function to detect brand from SKU
+    function getBrandFromSKU(sku) {
+        const skuLower = sku.toLowerCase();
+        if (skuLower.includes('br')) return 'Brother';
+        if (skuLower.includes('hp')) return 'HP';
+        if (skuLower.includes('lex')) return 'Lexmark';
+        if (skuLower.includes('xer')) return 'Xerox';
+        if (skuLower.includes('dell')) return 'Dell';
+        if (skuLower.includes('kon')) return 'Konica';
+        return 'Other';
+    }
+
     useEffect(() => {            
-            getProducts()        
-    }, [])
+        getProducts()        
+    }, [oem])
 
-
-
-  
-console.log(toner, "this is what were seeing")
+    console.log(toner, "this is what were seeing")
     return (
         <div className={styles.main}>
 
@@ -143,7 +202,7 @@ console.log(toner, "this is what were seeing")
                             <div className={styles.something}>
                                 <div className={styles.titleSmall}>
                                     <div className={styles.small}>
-                                        ${aboveOne ? newPrice : toner[0]?.serviceLevels[0].price}
+                                        ${aboveOne ? newPrice : (toner[0]?.serviceLevels?.[0]?.price || toner[0]?.price)}
                                     </div>
                                 </div>
                                 <div className={styles.line}></div>
@@ -154,12 +213,12 @@ console.log(toner, "this is what were seeing")
                                             Model: <div className={styles.small}>{oem}</div>{" "}
                                         </div>
                                         <div className={styles.titleSmall}>
-                                            Yield: <div className={styles.small}>{toner[0]?.yield}</div>{" "}
+                                            Yield: <div className={styles.small}>{toner[0]?.yield || 'N/A'}</div>{" "}
                                         </div>
                                     </div>
                                     <div className={styles.detailColumn}>
                                         <div className={styles.titleSmall}>
-                                            Shipping Weight: <div className={styles.titleSmall}>{toner[0]?.productBoxDimensions.weight}</div>
+                                            Shipping Weight: {" "}<div className={styles.titleSmall}>{toner[0]?.productBoxDimensions?.weight || 'N/A'}</div>
                                         </div>
 
                                         <div className={styles.titleSmall}>
@@ -191,7 +250,6 @@ console.log(toner, "this is what were seeing")
                                         if (quantity > 1) {
                                             setQuantity(quantity - 1)
                                         }
-
                                     }} className={styles.minus}>-</div>
                                 </div>
                             </div>
@@ -201,7 +259,6 @@ console.log(toner, "this is what were seeing")
                                 className={styles.buttonBlue}
                                 onClick={(e) => {
                                     getOrderData().then(() => {
-
                                         setOrderData().then(() => {
                                             sendSuccessEmail(e);
                                             createDistribution();
@@ -228,8 +285,6 @@ console.log(toner, "this is what were seeing")
                                                     },
                                                 ];
                                                 setCart(updatedCart);
-                                                // JSON.stringify(localStorage.setItem("cart", updatedCart))
-
                                             }}
                                         >
                                             Add To Cart
@@ -251,3 +306,4 @@ console.log(toner, "this is what were seeing")
 };
 
 export default TonerChoice;
+
