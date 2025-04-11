@@ -1527,8 +1527,17 @@ export default function XeroxPage() {
 
         <section id={"toner"}></section>
         <div className={`${styles.center} ${styles.verticalStack}`}>
-          <h2 className={styles.sectionHeader}>Choose Model</h2>
-          {renderSearchResults()}
+          <div style={{display: 'flex', justifyContent: 'space-between', padding: '0 20px', flexWrap: 'wrap', width: '100%'}}>
+            <div style={{flex: '1', minWidth: '300px', marginRight: '20px'}}>
+              <h2 className={styles.sectionHeader}>Choose Model</h2>
+              {renderSearchResults()}
+            </div>
+            
+            {/* Origin Filter */}
+            <div style={{width: 'auto', minWidth: '250px'}}>
+              <OriginFilter onFilterChange={handleOriginFilterChange} />
+            </div>
+          </div>
         </div>
       </div>
       <Footer />

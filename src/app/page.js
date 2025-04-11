@@ -37,6 +37,7 @@ export default function Data() {
   });
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const onLoad = () => {
     console.log("onLoad works!");
@@ -348,109 +349,256 @@ export default function Data() {
   };
 
   async function getProducts() {
-    let aToken;
+    setLoading(true);
+    setError(null);
+    
     try {
-      aToken = JSON.parse(localStorage.getItem("token"));
-      if (!aToken || !aToken.accessToken) {
-        console.log("No valid token found, attempting to refresh...");
-        aToken = { accessToken: await refreshToken() };
-      }
-    } catch (err) {
-      console.error("Error parsing token:", err);
-      try {
-        console.log("Attempting to refresh token after parse error...");
-        aToken = { accessToken: await refreshToken() };
-      } catch (refreshError) {
-        console.error("Failed to refresh token:", refreshError);
-        setError("Authentication error. Please refresh the page to continue.");
+      if (typeof window === 'undefined') {
+        setLoading(false);
         return;
       }
-    }
-
-    const requestOptions = {
-      method: "POST",
-      body: JSON.stringify({ token: aToken.accessToken, search: "" })
-    };
-
-    try {
-      const response = await fetch('/api/products', requestOptions);
       
-      if (response.status === 401) {
-        // Token expired, try to refresh
-        try {
-          const newToken = await refreshToken();
-          // Retry with new token
-          const retryResponse = await fetch('/api/products', {
-            method: "POST",
-            body: JSON.stringify({ token: newToken, search: "" })
-          });
+      let aToken;
+      try {
+        const tokenData = localStorage.getItem("token");
+        if (!tokenData) {
+          // No token found, redirect to login
+          window.location.href = '/login';
+          return;
+        }
+        aToken = JSON.parse(tokenData);
+        if (!aToken || !aToken.accessToken) {
+          // Invalid token, redirect to login
+          localStorage.removeItem("token");
+          window.location.href = '/login';
+          return;
+        }
+      } catch (tokenError) {
+        console.error("Token error:", tokenError);
+        localStorage.removeItem("token");
+        window.location.href = '/login';
+        return;
+      }
+      
+      const requestOptions = {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token: aToken.accessToken, search: "" })
+      };
+      
+      try {
+        const response = await fetch('/api/products', requestOptions);
+        
+        if (!response.ok) {
+          const errorData = await response.json();
           
-          if (!retryResponse.ok) {
-            throw new Error('Failed to fetch products after token refresh');
+          // Check for specific error cases
+          if (errorData.details && errorData.details.message === "Not Logged In") {
+            localStorage.removeItem("token");
+            window.location.href = '/login';
+            return;
           }
           
-          const data1 = await retryResponse.json();
+          // Check if token is expired
+          if (errorData.details && errorData.details.message === "Token expired") {
+            // Try to refresh the token
+            try {
+              const refreshResponse = await fetch('/api/auth/refresh', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ refreshToken: aToken.refreshToken })
+              });
+              
+              if (refreshResponse.ok) {
+                const newTokenData = await refreshResponse.json();
+                localStorage.setItem("token", JSON.stringify(newTokenData));
+                
+                // Retry the original request with new token
+                const newRequestOptions = {
+                  method: "POST",
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ token: newTokenData.accessToken, search: "" })
+                };
+                
+                const retryResponse = await fetch('/api/products', newRequestOptions);
+                if (!retryResponse.ok) {
+                  throw new Error(`API error after token refresh: ${retryResponse.status}`);
+                }
+                
+                const data1 = await retryResponse.json();
+                await processProducts(data1);
+              } else {
+                // If refresh fails, clear the token and redirect to login
+                localStorage.removeItem("token");
+                window.location.href = '/login';
+                return;
+              }
+            } catch (refreshError) {
+              console.error("Token refresh failed:", refreshError);
+              localStorage.removeItem("token");
+              window.location.href = '/login';
+              return;
+            }
+          } else {
+            throw new Error(`API error: ${response.status} - ${JSON.stringify(errorData)}`);
+          }
+        } else {
+          const data1 = await response.json();
           await processProducts(data1);
-        } catch (refreshError) {
-          console.error("Failed to refresh token:", refreshError);
-          setError("Session expired. Please refresh the page to continue.");
         }
-      } else if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      } else {
-        const data1 = await response.json();
-        await processProducts(data1);
+      } catch (apiError) {
+        console.error("API request failed:", apiError);
+        // Try to load from cache if available
+        const cachedProducts = localStorage.getItem("main");
+        if (cachedProducts) {
+          try {
+            const parsedCache = JSON.parse(cachedProducts);
+            if (Array.isArray(parsedCache) && parsedCache.length > 0) {
+              setProducts(parsedCache);
+              setFilteredProducts(parsedCache);
+              setLoading(false);
+              return;
+            }
+          } catch (cacheError) {
+            console.error("Error parsing cached products:", cacheError);
+          }
+        }
+        throw apiError;
       }
     } catch (err) {
-      console.error("Error fetching products:", err);
-      setError(err.message || "Failed to fetch products");
+      console.error("Error in getProducts:", err);
+      setError(err.message || "Failed to fetch products. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   }
 
   // Helper function to process products data
   async function processProducts(data1) {
-    if (data1.cancel && Array.isArray(data1.cancel.products)) {
-      setSearching(true);
-      localStorage.setItem("main", JSON.stringify(data1.cancel.products));
-      setProducts(data1.cancel.products);
+    try {
+      let products = [];
       
-      // Try to also get brand-specific inventories for popular brands
-      try {
-        const popularBrands = ['HP', 'Brother', 'Xerox', 'Lexmark', 'Dell', 'Konica Minolta'];
-        const brandProducts = [];
-        
-        for (const brand of popularBrands) {
-          const dmResponse = await fetch('/api/dm-brand-products', {
-            method: 'POST',
-            body: JSON.stringify({ brand })
-          });
-          
-          if (dmResponse.ok) {
-            const dmData = await dmResponse.json();
-            if (dmData.success && dmData.data && Array.isArray(dmData.data.products)) {
-              // Format these products to match the expected structure
-              const formattedDmProducts = dmData.data.products.map(product => ({
-                ...product,
-                serviceLevels: product.serviceLevels || [{ price: product.price || '0.00' }],
-                images: product.images || ['/static/toner-placeholder.webp'],
-                oemNos: product.oemNos || [{ oemNo: product.referenceNumber || 'Unknown', oem: product.manufacturer || brand }]
-              }));
-              
-              brandProducts.push(...formattedDmProducts);
+      // Handle different possible response formats
+      if (data1 && typeof data1 === 'object') {
+        if (data1.cancel && Array.isArray(data1.cancel.products)) {
+          products = data1.cancel.products;
+        } else if (data1.products && Array.isArray(data1.products)) {
+          products = data1.products;
+        } else if (Array.isArray(data1)) {
+          products = data1;
+        } else if (data1.data && Array.isArray(data1.data)) {
+          products = data1.data;
+        } else if (data1.results && Array.isArray(data1.results)) {
+          products = data1.results;
+        } else {
+          // Try to find any array in the response
+          for (const key in data1) {
+            if (Array.isArray(data1[key])) {
+              products = data1[key];
+              break;
+            } else if (data1[key] && typeof data1[key] === 'object') {
+              for (const subKey in data1[key]) {
+                if (Array.isArray(data1[key][subKey])) {
+                  products = data1[key][subKey];
+                  break;
+                }
+              }
+              if (products.length > 0) break;
             }
           }
         }
-        
-        if (brandProducts.length > 0) {
-          // Combine with regular products
-          const combinedProducts = [...data1.cancel.products, ...brandProducts];
-          localStorage.setItem("main", JSON.stringify(combinedProducts));
-          setProducts(combinedProducts);
-          setInventoryLoaded(true);
-        }
-      } catch (dmError) {
-        console.error("Error fetching additional brand inventory:", dmError);
       }
+      
+      // Validate products array
+      if (!Array.isArray(products) || products.length === 0) {
+        console.warn("No valid products found in response:", data1);
+        // Try to load from cache
+        const cachedProducts = localStorage.getItem("main");
+        if (cachedProducts) {
+          try {
+            const parsedCache = JSON.parse(cachedProducts);
+            if (Array.isArray(parsedCache) && parsedCache.length > 0) {
+              products = parsedCache;
+            }
+          } catch (cacheError) {
+            console.error("Error parsing cached products:", cacheError);
+          }
+        }
+      }
+      
+      if (products.length > 0) {
+        setSearching(true);
+        localStorage.setItem("main", JSON.stringify(products));
+        setProducts(products);
+        
+        // Try to also get brand-specific inventories for popular brands
+        try {
+          const popularBrands = ['HP', 'Brother', 'Xerox', 'Lexmark', 'Dell', 'Konica Minolta'];
+          const brandProducts = [];
+          
+          for (const brand of popularBrands) {
+            const dmResponse = await fetch('/api/dm-brand-products', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ brand })
+            });
+            
+            if (dmResponse.ok) {
+              const dmData = await dmResponse.json();
+              if (dmData.success && dmData.data && Array.isArray(dmData.data.products)) {
+                // Format these products to match the expected structure
+                const formattedDmProducts = dmData.data.products.map(product => ({
+                  ...product,
+                  serviceLevels: product.serviceLevels || [{ price: product.price || '0.00' }],
+                  images: product.images || ['/static/toner-placeholder.webp'],
+                  oemNos: product.oemNos || [{ oemNo: product.referenceNumber || 'Unknown', oem: product.manufacturer || brand }]
+                }));
+                
+                brandProducts.push(...formattedDmProducts);
+              }
+            }
+          }
+          
+          if (brandProducts.length > 0) {
+            // Combine with regular products
+            const combinedProducts = [...products, ...brandProducts];
+            localStorage.setItem("main", JSON.stringify(combinedProducts));
+            setProducts(combinedProducts);
+            setInventoryLoaded(true);
+          }
+        } catch (dmError) {
+          console.error("Error fetching additional brand inventory:", dmError);
+          // Continue with regular products even if DM products fail
+        }
+      } else {
+        console.warn("No products available to display");
+        setError("No products available at this time. Please try again later.");
+      }
+    } catch (processError) {
+      console.error("Error processing products:", processError);
+      // Try to load from cache as a last resort
+      const cachedProducts = localStorage.getItem("main");
+      if (cachedProducts) {
+        try {
+          const parsedCache = JSON.parse(cachedProducts);
+          if (Array.isArray(parsedCache) && parsedCache.length > 0) {
+            setProducts(parsedCache);
+            setFilteredProducts(parsedCache);
+            return;
+          }
+        } catch (cacheError) {
+          console.error("Error parsing cached products:", cacheError);
+        }
+      }
+      throw processError;
     }
   }
 

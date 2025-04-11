@@ -8,6 +8,7 @@ import Link from "next/link";
 import { CartContext } from "../../providers/cart";
 import { useSearchParams } from "next/navigation";
 import moduleStyles from "./modelSupplies.module.css";
+import OriginFilter from "../../components/OriginFilter";
 
 const ModelSupplies = () => {
     const searchParams = useSearchParams();
@@ -16,6 +17,12 @@ const ModelSupplies = () => {
     const [activeTab, setActiveTab] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [supplies, setSupplies] = useState({});
+    const [originFilters, setOriginFilters] = useState({
+        usaMade: false,
+        americasMade: false,
+        worldWideMade: false,
+        chineseMade: false
+    });
     
     // Define Dell part number to model mapping
     const partToModelMap = {
@@ -54,15 +61,81 @@ const ModelSupplies = () => {
         '593-BBKI': ['H625', 'H625cdw', 'H825', 'H825cdw', 'S2825', 'S2825cdn']  // Yellow
     };
 
+    // Handle origin filter changes
+    const handleOriginFilterChange = (filters) => {
+        setOriginFilters(filters);
+    };
+
+    // Filter products by origin
+    const filterProductsByOrigin = (products) => {
+        // Log the active filters
+        console.log("Dell - Active origin filters:", JSON.stringify(originFilters));
+        
+        // Safety check for null/undefined products
+        if (!products || !Array.isArray(products)) {
+            console.error("Dell - Products is not an array:", products);
+            return [];
+        }
+        
+        // If no filters are active, return all products
+        if (!originFilters.usaMade && !originFilters.americasMade && !originFilters.worldWideMade) {
+            console.log("Dell - No origin filters active, returning all products:", products.length);
+            return products;
+        }
+
+        // Log a sample of product origins
+        const sampleSize = Math.min(products.length, 5);
+        const originSamples = products.slice(0, sampleSize).map(p => p.origin || 'unknown');
+        console.log(`Dell - Origin samples from ${products.length} products:`, originSamples);
+
+        const filtered = products.filter(product => {
+            // Check if product has origin information
+            const origin = (product.origin || 'unknown').toLowerCase();
+            
+            // Apply filters
+            if (originFilters.usaMade && origin.includes('usa')) {
+                return true;
+            }
+            
+            if (originFilters.americasMade && 
+                (origin.includes('usa') || 
+                origin.includes('canada') || 
+                origin.includes('mexico') ||
+                origin.includes('americas'))) {
+                return true;
+            }
+            
+            if (originFilters.worldWideMade) {
+                // Only show Chinese products if the Chinese toggle is on
+                if (origin.includes('china')) {
+                    return originFilters.chineseMade;
+                }
+                // For all other worldwide products, show them
+                return !origin.includes('china') || originFilters.chineseMade;
+            }
+            
+            return false;
+        });
+        
+        console.log(`Dell - Filtered products: ${filtered.length} out of ${products.length}`);
+        return filtered;
+    };
+
     // Group supplies by their type (toner, drum, etc.)
     const groupSuppliesByType = (products) => {
         if (!products || !Array.isArray(products) || products.length === 0) {
             return {};
         }
         
+        // First filter by origin if any filters are active
+        const filteredProducts = filterProductsByOrigin(products);
+        if (!filteredProducts.length) {
+            return {};
+        }
+        
         const groupedSupplies = {};
         
-        products.forEach(product => {
+        filteredProducts.forEach(product => {
             if (!product || !product.title) return;
             
             const title = product.title.toUpperCase();
@@ -261,7 +334,7 @@ const ModelSupplies = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [modelNumber, partToModelMap]);
+    }, [modelNumber]);
 
     // Helper function to categorize Dell models
     const getCategoryFromModel = (modelNumber) => {
@@ -279,21 +352,34 @@ const ModelSupplies = () => {
     };
 
     useEffect(() => {
-        let isMounted = true;
-        
-        const initializeSupplies = async () => {
-            if (modelNumber && isMounted) {
-                await getModelSupplies();
-            }
-        };
-        
-        initializeSupplies();
-        
-        // Cleanup function
-        return () => {
-            isMounted = false;
-        };
+        if (modelNumber) {
+            getModelSupplies();
+        }
     }, [modelNumber, getModelSupplies]);
+
+    // Reset active tab when the origin filters change
+    useEffect(() => {
+        // Get raw products array from all categories
+        if (supplies && typeof supplies === 'object') {
+            const allProducts = [];
+            Object.values(supplies).forEach(categoryProducts => {
+                if (Array.isArray(categoryProducts)) {
+                    allProducts.push(...categoryProducts);
+                }
+            });
+            
+            // Regroup the products with the new filters applied
+            if (allProducts.length > 0) {
+                const groupedSupplies = groupSuppliesByType(allProducts);
+                setSupplies(groupedSupplies);
+                
+                // If current tab no longer exists after filtering, select the first available tab
+                if (!groupedSupplies[activeTab]) {
+                    setActiveTab(Object.keys(groupedSupplies)[0] || null);
+                }
+            }
+        }
+    }, [originFilters]);
 
     function extractPartNumber(product) {
         if (!product) return '';
@@ -400,6 +486,18 @@ const ModelSupplies = () => {
                     </div>
                 </div>
                 
+                <div style={{display: 'flex', justifyContent: 'space-between', padding: '0 20px', flexWrap: 'wrap'}}>
+                    {/* Tab Navigation */}
+                    <div style={{flex: '1', marginRight: '20px', minWidth: '300px'}}>
+                        {/* Tab controls would go here if needed */}
+                    </div>
+                    
+                    {/* Origin Filter */}
+                    <div style={{width: 'auto', minWidth: '250px'}}>
+                        <OriginFilter onFilterChange={handleOriginFilterChange} />
+                    </div>
+                </div>
+                
                 <div key="supplies-box" className={moduleStyles.suppliesBox}>
                     {activeTab && supplies[activeTab] && supplies[activeTab].length > 0 ? (
                         supplies[activeTab].map((product, index) => (
@@ -486,6 +584,18 @@ const ModelSupplies = () => {
                     <h2 className={moduleStyles.modelSubHeader}>
                         Dell {modelNumber} Supplies
                     </h2>
+                </div>
+                
+                <div style={{display: 'flex', justifyContent: 'space-between', padding: '0 20px', flexWrap: 'wrap'}}>
+                    {/* Tab Navigation */}
+                    <div style={{flex: '1', marginRight: '20px', minWidth: '300px'}}>
+                        {/* Tab controls would go here if needed */}
+                    </div>
+                    
+                    {/* Origin Filter */}
+                    <div style={{width: 'auto', minWidth: '250px'}}>
+                        <OriginFilter onFilterChange={handleOriginFilterChange} />
+                    </div>
                 </div>
                 
                 {renderSupplies()}

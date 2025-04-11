@@ -127,9 +127,14 @@ console.log(toner, "this is what were seeing")
                 <div className={styles.center}>
                     <div className={styles.column}>
 
-                        <div className={styles.titleSmall}> OEM #: {toner[0]?.oemNos[0].oemNo}</div>
+                        <div className={styles.titleSmall}> OEM #: {toner[0]?.oemNos?.[0]?.oemNo || 'N/A'}</div>
                         <div className={styles.imageContainer}>
-                            <Image src={toner[0]?.images[0]} width={300} height={250} />
+                            <Image 
+                                src={toner[0]?.images?.[0] || '/static/toner-placeholder.webp'} 
+                                width={300} 
+                                height={250} 
+                                alt={`${toner[0]?.title ? removeCloverImaging(toner[0].title) : 'Toner product'} image`}
+                            />
                         </div>
                     </div>
                     <div className={styles.centerFeature}>
@@ -215,11 +220,11 @@ console.log(toner, "this is what were seeing")
                                                 const updatedCart = [
                                                     ...cart,
                                                     {
-                                                        name: toner[0].title,
-                                                        oem: toner[0]?.oemNos[0].oemNo,
-                                                        price: toner[0]?.serviceLevels[0].price,
+                                                        name: toner[0]?.title || 'Unknown Product',
+                                                        oem: toner[0]?.oemNos?.[0]?.oemNo || 'Unknown OEM',
+                                                        price: toner[0]?.serviceLevels?.[0]?.price || '0.00',
                                                         quantity: quantity,
-                                                        image: toner[0]?.images[0],
+                                                        image: toner[0]?.images?.[0] || '/static/toner-placeholder.webp',
                                                     },
                                                 ];
                                                 setCart(updatedCart);

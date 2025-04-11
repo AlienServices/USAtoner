@@ -18,6 +18,10 @@ const OriginFilter = ({ onFilterChange }) => {
         break;
       case 'worldwide':
         setWorldWideMade(value);
+        // Reset Chinese sub-option if turning off worldwide
+        if (!value) {
+          setChineseMade(false);
+        }
         break;
       case 'chinese':
         setChineseMade(value);

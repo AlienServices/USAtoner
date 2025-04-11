@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState, useContext } from "react";
+import React, { useEffect, useRef, useState, useContext, useCallback } from "react";
 import Header from "../../components/Header";
 import Image from "next/image";
 import styles from "../../page.module.css";
@@ -55,13 +55,10 @@ const ModelSupplies = () => {
         'IU-310Y': ['Bizhub C350', 'Bizhub C351', 'Bizhub C450']  // Yellow
     };
 
-    useEffect(() => {
-        if (modelNumber) {
-            getModelSupplies();
-        }
-    }, [modelNumber]);
-
-    async function getModelSupplies() {
+    // Wrap getModelSupplies in useCallback to prevent it from changing on every render
+    const getModelSupplies = useCallback(async () => {
+        if (!modelNumber) return; // Early return if no model number
+        
         try {
             setIsLoading(true);
             let accessToken = null;
@@ -307,7 +304,13 @@ const ModelSupplies = () => {
         } finally {
             setIsLoading(false);
         }
-    }
+    }, [modelNumber]); // Only depend on modelNumber
+
+    useEffect(() => {
+        if (modelNumber) {
+            getModelSupplies();
+        }
+    }, [modelNumber, getModelSupplies]); // Add getModelSupplies to dependencies
 
     // Helper function to categorize Konica Minolta models
     const getCategoryFromModel = (modelNumber) => {

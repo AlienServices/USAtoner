@@ -8,6 +8,7 @@ import Link from "next/link";
 import { CartContext } from "../../../providers/cart";
 import { useSearchParams } from "next/navigation";
 import moduleStyles from "../../modelSupplies/modelSupplies.module.css";
+import OriginFilter from "../../../components/OriginFilter";
 
 const ModelSupplies = () => {
     const searchParams = useSearchParams();
@@ -16,12 +17,78 @@ const ModelSupplies = () => {
     const [activeTab, setActiveTab] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [supplies, setSupplies] = useState([]);
+    const [originFilters, setOriginFilters] = useState({
+        usaMade: false,
+        americasMade: false,
+        worldWideMade: false,
+        chineseMade: false
+    });
 
     useEffect(() => {
         if (modelNumber) {
             getModelSupplies();
         }
     }, [modelNumber]);
+
+    // Handle origin filter changes
+    const handleOriginFilterChange = (filters) => {
+        setOriginFilters(filters);
+    };
+
+    // Filter products by origin
+    const filterProductsByOrigin = (products) => {
+        // Log the active filters
+        console.log("HP - Active origin filters:", JSON.stringify(originFilters));
+        
+        // Safety check for null/undefined products
+        if (!products || !Array.isArray(products)) {
+            console.error("HP - Products is not an array:", products);
+            return [];
+        }
+        
+        // If no filters are active, return all products
+        if (!originFilters.usaMade && !originFilters.americasMade && !originFilters.worldWideMade) {
+            console.log("HP - No origin filters active, returning all products:", products.length);
+            return products;
+        }
+
+        // Log a sample of product origins
+        const sampleSize = Math.min(products.length, 5);
+        const originSamples = products.slice(0, sampleSize).map(p => p.origin || 'unknown');
+        console.log(`HP - Origin samples from ${products.length} products:`, originSamples);
+
+        const filtered = products.filter(product => {
+            // Check if product has origin information
+            const origin = (product.origin || 'unknown').toLowerCase();
+            
+            // Apply filters
+            if (originFilters.usaMade && origin.includes('usa')) {
+                return true;
+            }
+            
+            if (originFilters.americasMade && 
+                (origin.includes('usa') || 
+                origin.includes('canada') || 
+                origin.includes('mexico') ||
+                origin.includes('americas'))) {
+                return true;
+            }
+            
+            if (originFilters.worldWideMade) {
+                // Only show Chinese products if the Chinese toggle is on
+                if (origin.includes('china')) {
+                    return originFilters.chineseMade;
+                }
+                // For all other worldwide products, show them
+                return !origin.includes('china') || originFilters.chineseMade;
+            }
+            
+            return false;
+        });
+        
+        console.log(`HP - Filtered products: ${filtered.length} out of ${products.length}`);
+        return filtered;
+    };
 
     async function getModelSupplies() {
         try {
@@ -258,34 +325,37 @@ const ModelSupplies = () => {
     }
 
     const filterSuppliesByType = () => {
-        if (!supplies || supplies.length === 0) {
+        // First filter by origin
+        const originFiltered = filterProductsByOrigin(supplies);
+        
+        if (!originFiltered || originFiltered.length === 0) {
             return [];
         }
 
         // If no filter is active, return all supplies
         if (!activeTab) {
-            return supplies;
+            return originFiltered;
         }
 
         switch (activeTab) {
             case "toner":
-                return supplies.filter(item => 
+                return originFiltered.filter(item => 
                     item.title.toLowerCase().includes("toner") && 
                     !item.title.toLowerCase().includes("waste")
                 );
             case "waste":
-                return supplies.filter(item => 
+                return originFiltered.filter(item => 
                     item.title.toLowerCase().includes("waste") || 
                     item.title.toLowerCase().includes("collection")
                 );
             case "imaging":
-                return supplies.filter(item => 
+                return originFiltered.filter(item => 
                     item.title.toLowerCase().includes("imaging") || 
                     item.title.toLowerCase().includes("drum") || 
                     item.title.toLowerCase().includes("developer")
                 );
             default:
-                return supplies;
+                return originFiltered;
         }
     };
     
@@ -392,34 +462,42 @@ const ModelSupplies = () => {
                     </div>
                 </div>
 
-                <div className={moduleStyles.tabNavContainer}>
-                    <div className={moduleStyles.tabNav}>
-                        {activeTab && (
+                <div style={{display: 'flex', justifyContent: 'space-between', padding: '0 20px', flexWrap: 'wrap'}}>
+                    {/* Tab Navigation */}
+                    <div className={moduleStyles.tabNavContainer} style={{flex: '1', marginRight: '20px', minWidth: '300px'}}>
+                        <div className={moduleStyles.tabNav}>
+                            {activeTab && (
+                                <button 
+                                    className={moduleStyles.tabButton}
+                                    onClick={() => setActiveTab(null)}
+                                >
+                                    Clear Filters
+                                </button>
+                            )}
                             <button 
-                                className={moduleStyles.tabButton}
-                                onClick={() => setActiveTab(null)}
+                                className={`${moduleStyles.tabButton} ${activeTab === 'toner' ? moduleStyles.activeTab : ''}`}
+                                onClick={() => setActiveTab(activeTab === 'toner' ? null : 'toner')}
                             >
-                                Clear Filters
+                                Toner Cartridges
                             </button>
-                        )}
-                        <button 
-                            className={`${moduleStyles.tabButton} ${activeTab === 'toner' ? moduleStyles.activeTab : ''}`}
-                            onClick={() => setActiveTab(activeTab === 'toner' ? null : 'toner')}
-                        >
-                            Toner Cartridges
-                        </button>
-                        <button 
-                            className={`${moduleStyles.tabButton} ${activeTab === 'waste' ? moduleStyles.activeTab : ''}`}
-                            onClick={() => setActiveTab(activeTab === 'waste' ? null : 'waste')}
-                        >
-                            Waste Collection
-                        </button>
-                        <button 
-                            className={`${moduleStyles.tabButton} ${activeTab === 'imaging' ? moduleStyles.activeTab : ''}`}
-                            onClick={() => setActiveTab(activeTab === 'imaging' ? null : 'imaging')}
-                        >
-                            Imaging Units
-                        </button>
+                            <button 
+                                className={`${moduleStyles.tabButton} ${activeTab === 'waste' ? moduleStyles.activeTab : ''}`}
+                                onClick={() => setActiveTab(activeTab === 'waste' ? null : 'waste')}
+                            >
+                                Waste Collection
+                            </button>
+                            <button 
+                                className={`${moduleStyles.tabButton} ${activeTab === 'imaging' ? moduleStyles.activeTab : ''}`}
+                                onClick={() => setActiveTab(activeTab === 'imaging' ? null : 'imaging')}
+                            >
+                                Imaging Units
+                            </button>
+                        </div>
+                    </div>
+                    
+                    {/* Origin Filter */}
+                    <div style={{width: 'auto', minWidth: '250px'}}>
+                        <OriginFilter onFilterChange={handleOriginFilterChange} />
                     </div>
                 </div>
 

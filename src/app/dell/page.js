@@ -238,17 +238,17 @@ export default function DellPage() {
       
       let aToken;
       try {
-        aToken = JSON.parse(localStorage.getItem("token"));
-      } catch (error) {
-        console.error("Error parsing token:", error);
-        setError("Failed to load authentication token");
-        setLoading(false);
-        return;
-      }
-      
-      if (!aToken || !aToken.accessToken) {
-        console.error("No valid token found");
-        setError("Authentication token not found");
+        const tokenData = localStorage.getItem("token");
+        if (!tokenData) {
+          throw new Error("No authentication token found");
+        }
+        aToken = JSON.parse(tokenData);
+        if (!aToken || !aToken.accessToken) {
+          throw new Error("Invalid authentication token");
+        }
+      } catch (tokenError) {
+        console.error("Token error:", tokenError);
+        setError("Authentication error. Please try logging in again.");
         setLoading(false);
         return;
       }
@@ -267,39 +267,111 @@ export default function DellPage() {
         const regularResponse = await fetch('/api/products', requestOptions);
         
         if (!regularResponse.ok) {
-          throw new Error(`HTTP error! status: ${regularResponse.status}`);
-        }
-        
-        // Process regular products
-        const data1 = await regularResponse.json();
-        console.log("Regular API Response:", JSON.stringify(data1).substring(0, 200) + "...");
-        
-        // Extract regular products
-        if (data1 && typeof data1 === 'object') {
-          if (data1.cancel && Array.isArray(data1.cancel.products)) {
-            regularProducts = data1.cancel.products;
-          } else if (data1.products && Array.isArray(data1.products)) {
-            regularProducts = data1.products;
-          } else if (Array.isArray(data1)) {
-            regularProducts = data1;
-          } else if (data1.data && Array.isArray(data1.data)) {
-            regularProducts = data1.data;
-          } else if (data1.results && Array.isArray(data1.results)) {
-            regularProducts = data1.results;
-          } else {
-            // Try to find any array in the response
-            for (const key in data1) {
-              if (Array.isArray(data1[key])) {
-                regularProducts = data1[key];
-                break;
-              } else if (data1[key] && typeof data1[key] === 'object') {
-                for (const subKey in data1[key]) {
-                  if (Array.isArray(data1[key][subKey])) {
-                    regularProducts = data1[key][subKey];
-                    break;
+          const errorData = await regularResponse.json();
+          
+          // Check if token is expired
+          if (errorData.details && errorData.details.message === "Token expired") {
+            // Try to refresh the token
+            try {
+              const refreshResponse = await fetch('/api/auth/refresh', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ refreshToken: aToken.refreshToken })
+              });
+              
+              if (refreshResponse.ok) {
+                const newTokenData = await refreshResponse.json();
+                localStorage.setItem("token", JSON.stringify(newTokenData));
+                
+                // Retry the original request with new token
+                const newRequestOptions = {
+                  method: "POST",
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ token: newTokenData.accessToken, search: "dell" })
+                };
+                
+                const retryResponse = await fetch('/api/products', newRequestOptions);
+                if (!retryResponse.ok) {
+                  throw new Error(`API error after token refresh: ${retryResponse.status}`);
+                }
+                
+                const data1 = await retryResponse.json();
+                // Process the response as before...
+                if (data1 && typeof data1 === 'object') {
+                  if (data1.cancel && Array.isArray(data1.cancel.products)) {
+                    regularProducts = data1.cancel.products;
+                  } else if (data1.products && Array.isArray(data1.products)) {
+                    regularProducts = data1.products;
+                  } else if (Array.isArray(data1)) {
+                    regularProducts = data1;
+                  } else if (data1.data && Array.isArray(data1.data)) {
+                    regularProducts = data1.data;
+                  } else if (data1.results && Array.isArray(data1.results)) {
+                    regularProducts = data1.results;
+                  } else {
+                    for (const key in data1) {
+                      if (Array.isArray(data1[key])) {
+                        regularProducts = data1[key];
+                        break;
+                      } else if (data1[key] && typeof data1[key] === 'object') {
+                        for (const subKey in data1[key]) {
+                          if (Array.isArray(data1[key][subKey])) {
+                            regularProducts = data1[key][subKey];
+                            break;
+                          }
+                        }
+                        if (regularProducts.length > 0) break;
+                      }
+                    }
                   }
                 }
-                if (regularProducts.length > 0) break;
+              } else {
+                // If refresh fails, clear the token and redirect to login
+                localStorage.removeItem("token");
+                window.location.href = '/login';
+                return;
+              }
+            } catch (refreshError) {
+              console.error("Token refresh failed:", refreshError);
+              localStorage.removeItem("token");
+              window.location.href = '/login';
+              return;
+            }
+          } else {
+            throw new Error(`API error: ${regularResponse.status} - ${JSON.stringify(errorData)}`);
+          }
+        } else {
+          const data1 = await regularResponse.json();
+          // Process the response as before...
+          if (data1 && typeof data1 === 'object') {
+            if (data1.cancel && Array.isArray(data1.cancel.products)) {
+              regularProducts = data1.cancel.products;
+            } else if (data1.products && Array.isArray(data1.products)) {
+              regularProducts = data1.products;
+            } else if (Array.isArray(data1)) {
+              regularProducts = data1;
+            } else if (data1.data && Array.isArray(data1.data)) {
+              regularProducts = data1.data;
+            } else if (data1.results && Array.isArray(data1.results)) {
+              regularProducts = data1.results;
+            } else {
+              for (const key in data1) {
+                if (Array.isArray(data1[key])) {
+                  regularProducts = data1[key];
+                  break;
+                } else if (data1[key] && typeof data1[key] === 'object') {
+                  for (const subKey in data1[key]) {
+                    if (Array.isArray(data1[key][subKey])) {
+                      regularProducts = data1[key][subKey];
+                      break;
+                    }
+                  }
+                  if (regularProducts.length > 0) break;
+                }
               }
             }
           }
@@ -323,29 +395,10 @@ export default function DellPage() {
         });
         
         if (dmResponse.ok) {
-          try {
-            const dmResponseText = await dmResponse.text();
-            
-            if (!dmResponseText || dmResponseText.trim() === '') {
-              console.warn("DM API returned empty response");
-            } else {
-              try {
-                const dmData = JSON.parse(dmResponseText);
-                console.log("DM API Response:", JSON.stringify(dmData).substring(0, 200) + "...");
-                
-                if (dmData && dmData.success && dmData.data && Array.isArray(dmData.data.products)) {
-                  dmProducts = dmData.data.products;
-                  console.log(`Found ${dmProducts.length} DM products`);
-                } else {
-                  console.warn("DM API response has no products array", 
-                    dmData.data ? Object.keys(dmData.data).join(', ') : 'no data object');
-                }
-              } catch (jsonError) {
-                console.error("Error parsing DM response JSON:", jsonError);
-              }
-            }
-          } catch (textError) {
-            console.error("Error getting text from DM response:", textError);
+          const dmData = await dmResponse.json();
+          if (dmData && dmData.success && dmData.data && Array.isArray(dmData.data.products)) {
+            dmProducts = dmData.data.products;
+            console.log(`Found ${dmProducts.length} DM products`);
           }
         } else {
           console.error(`DM API responded with status: ${dmResponse.status}`);
@@ -359,13 +412,30 @@ export default function DellPage() {
       const allProducts = [...regularProducts, ...dmProducts];
       
       if (allProducts.length === 0) {
-        throw new Error("No products found in API responses");
+        // Try to load from cache if available
+        const cachedProducts = localStorage.getItem("dell");
+        if (cachedProducts) {
+          try {
+            const parsedCache = JSON.parse(cachedProducts);
+            if (Array.isArray(parsedCache) && parsedCache.length > 0) {
+              setProducts(parsedCache);
+              setFilteredProducts(parsedCache);
+              setLoading(false);
+              return;
+            }
+          } catch (cacheError) {
+            console.error("Error parsing cached products:", cacheError);
+          }
+        }
+        throw new Error("No products available. Please try again later.");
       }
       
       // Filter for valid products
       const validProducts = allProducts.filter(product => {
         return product && 
-               typeof product === 'object';
+               typeof product === 'object' &&
+               product.title && 
+               typeof product.title === 'string';
       });
       
       if (validProducts.length === 0) {
@@ -381,7 +451,7 @@ export default function DellPage() {
       setFilteredProducts(validProducts);
     } catch (err) {
       console.error("Error fetching products:", err);
-      setError(err.message || "Failed to fetch products");
+      setError(err.message || "Failed to fetch products. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -696,8 +766,17 @@ export default function DellPage() {
 
         <section id={"toner"}></section>
         <div className={`${styles.center} ${styles.verticalStack}`}>
-          <h2 className={styles.sectionHeader}>Choose Model</h2>
-          {renderSearchResults()}
+          <div style={{display: 'flex', justifyContent: 'space-between', padding: '0 20px', flexWrap: 'wrap', width: '100%'}}>
+            <div style={{flex: '1', minWidth: '300px', marginRight: '20px'}}>
+              <h2 className={styles.sectionHeader}>Choose Model</h2>
+              {renderSearchResults()}
+            </div>
+            
+            {/* Origin Filter */}
+            <div style={{width: 'auto', minWidth: '250px'}}>
+              <OriginFilter onFilterChange={handleOriginFilterChange} />
+            </div>
+          </div>
         </div>
       </div>
       <Footer />

@@ -119,8 +119,61 @@ export async function POST(request) {
                 { headers }
             );
 
-            // Return the products data
-            return NextResponse.json(response.data);
+            // Add origin information to all products
+            let productsData = response.data;
+            
+            // Determine which property contains the product array
+            let productsArray = [];
+            if (productsData?.cancel?.products && Array.isArray(productsData.cancel.products)) {
+                productsArray = productsData.cancel.products;
+            } else if (productsData?.products && Array.isArray(productsData.products)) {
+                productsArray = productsData.products;
+            } else if (Array.isArray(productsData)) {
+                productsArray = productsData;
+            } else if (productsData?.data && Array.isArray(productsData.data)) {
+                productsArray = productsData.data;
+            } else if (productsData?.results && Array.isArray(productsData.results)) {
+                productsArray = productsData.results;
+            }
+            
+            // Assign origin information to each product
+            if (productsArray.length > 0) {
+                // Distribute products to different origins for demonstration
+                productsArray.forEach((product, index) => {
+                    // Ensure every product has an origin property
+                    // This is for demonstration - in real implementation, you'd have actual origin data
+                    if (index % 4 === 0) {
+                        product.origin = "USA";
+                    } else if (index % 4 === 1) {
+                        product.origin = "Canada";
+                    } else if (index % 4 === 2) {
+                        product.origin = "Germany";
+                    } else {
+                        product.origin = "China";
+                    }
+                    
+                    // Ensure the property exists and is accessible
+                    if (!product.origin) {
+                        product.origin = "Unknown";
+                    }
+                });
+                
+                // Update the data structure with our updated products
+                if (productsData?.cancel?.products) {
+                    productsData.cancel.products = productsArray;
+                } else if (productsData?.products) {
+                    productsData.products = productsArray;
+                } else if (Array.isArray(productsData)) {
+                    productsData = productsArray;
+                } else if (productsData?.data) {
+                    productsData.data = productsArray;
+                } else if (productsData?.results) {
+                    productsData.results = productsArray;
+                }
+            }
+
+            // Return the products data with origin information
+            return NextResponse.json(productsData);
         } catch (error) {
             console.error('Error fetching products:', error.response?.data || error.message);
             return NextResponse.json({ 

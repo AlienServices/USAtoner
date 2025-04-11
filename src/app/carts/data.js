@@ -99,12 +99,14 @@ const Cart = () => {
     }, [cart])
 
     const decimal = function (item) {
-        setRealPrice(item.toFixed(2))
         return item.toFixed(2)
     }
-    // useEffect(() => {
-    //     newPriceAction()
-    // }, [cart])
+
+    useEffect(() => {
+        if (total > 0) {
+            setRealPrice(total)
+        }
+    }, [total, setRealPrice])
 
     const breadCrumbs = [
         { name: "Home", url: "/" },

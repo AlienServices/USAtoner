@@ -573,27 +573,49 @@ export default function KonikaPage() {
 
   const handleModelSelect = (model) => {
     try {
-      if (!model) return;
+      // Make sure we have a valid model string
+      if (!model || typeof model !== 'string') {
+        console.error('Invalid model selected:', model);
+        return;
+      }
       
-      // Store the selected model
+      // Clean up the model name for the URL
+      const cleanModel = model.trim()
+        .replace(/^Konica\s+Minolta\s+/i, '')
+        .replace(/^Konica\s+/i, '')
+        .replace(/^Minolta\s+/i, '')
+        .replace(/\s+/g, '-') // Replace spaces with hyphens
+        .replace(/[^a-zA-Z0-9-]/g, ''); // Remove special characters
+      
+      if (!cleanModel) {
+        console.error('Invalid model after cleaning:', model);
+        return;
+      }
+      
+      // Store the selected model so we can highlight it when returning
       setSelectedModel(model);
       
       // Set local storage for recently viewed models
       try {
-        const recentModels = JSON.parse(localStorage.getItem('recentKonikaModels') || '[]');
+        const recentModels = JSON.parse(localStorage.getItem('recentKonicaModels') || '[]');
+        // Add this model to the beginning of the array if it's not already the most recent
         if (recentModels[0] !== model) {
+          // Remove this model from the array if it exists
           const filtered = recentModels.filter(m => m !== model);
+          // Add it to the beginning
           filtered.unshift(model);
-          localStorage.setItem('recentKonikaModels', JSON.stringify(filtered.slice(0, 5)));
+          // Keep only the 5 most recent models
+          localStorage.setItem('recentKonicaModels', JSON.stringify(filtered.slice(0, 5)));
         }
       } catch (error) {
         console.error('Error updating recent models:', error);
       }
       
       // Navigate to the model supplies page
-      router.push(`/konika/modelSupplies?model=${encodeURIComponent(model)}`);
+      router.push(`/konika/model/${encodeURIComponent(cleanModel)}`);
     } catch (error) {
       console.error('Error in handleModelSelect:', error);
+      // Fallback to basic navigation if something went wrong
       router.push(`/konika/modelSupplies?model=${encodeURIComponent(model || '')}`);
     }
   };
@@ -757,7 +779,7 @@ export default function KonikaPage() {
                           }
                         </div>
                         <Link 
-                          href={`/konika/modelSupplies?model=${encodeURIComponent(model)}`}
+                          href={`/konika/model/${encodeURIComponent(model.replace(/^Konica\s+Minolta\s+/i, '').replace(/\s+/g, '-'))}`}
                           className={styles.viewSuppliesButton}
                         >
                           View Supplies
@@ -835,8 +857,17 @@ export default function KonikaPage() {
 
         <section id={"toner"}></section>
         <div className={`${styles.center} ${styles.verticalStack}`}>
-          <h2 className={styles.sectionHeader}>Choose Model</h2>
-          {renderSearchResults()}
+          <div style={{display: 'flex', justifyContent: 'space-between', padding: '0 20px', flexWrap: 'wrap', width: '100%'}}>
+            <div style={{flex: '1', minWidth: '300px', marginRight: '20px'}}>
+              <h2 className={styles.sectionHeader}>Choose Model</h2>
+              {renderSearchResults()}
+            </div>
+            
+            {/* Origin Filter */}
+            <div style={{width: 'auto', minWidth: '250px'}}>
+              <OriginFilter onFilterChange={handleOriginFilterChange} />
+            </div>
+          </div>
         </div>
       </div>
       <Footer />

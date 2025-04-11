@@ -105,7 +105,6 @@ function generateMockProducts(brand) {
     sellUOM: "Each",
     availability: 10,
     isDM: true,
-    origin: "DM Supplies",
     images: ["/static/toner-placeholder.webp"]
   };
   
@@ -118,6 +117,7 @@ function generateMockProducts(brand) {
         oemNos: [{ oemNo: "CF226A", oem: "HP" }],
         manufacturer: "HP",
         referenceNumber: "CF226A",
+        origin: "USA",
         ...commonProps
       },
       {
@@ -126,6 +126,7 @@ function generateMockProducts(brand) {
         oemNos: [{ oemNo: "CE278A", oem: "HP" }],
         manufacturer: "HP",
         referenceNumber: "CE278A",
+        origin: "Mexico",
         ...commonProps
       },
       {
@@ -134,6 +135,7 @@ function generateMockProducts(brand) {
         oemNos: [{ oemNo: "CE255X", oem: "HP" }],
         manufacturer: "HP",
         referenceNumber: "CE255X",
+        origin: "China",
         ...commonProps
       }
     );
@@ -145,6 +147,7 @@ function generateMockProducts(brand) {
         oemNos: [{ oemNo: "TN-321K", oem: "Konica Minolta" }],
         manufacturer: "Konica Minolta",
         referenceNumber: "A33K130",
+        origin: "USA",
         ...commonProps
       },
       {
@@ -153,6 +156,7 @@ function generateMockProducts(brand) {
         oemNos: [{ oemNo: "TNP22K", oem: "Konica Minolta" }],
         manufacturer: "Konica Minolta",
         referenceNumber: "A0X5130",
+        origin: "Canada",
         ...commonProps
       },
       {
@@ -161,6 +165,7 @@ function generateMockProducts(brand) {
         oemNos: [{ oemNo: "TN-512K", oem: "Konica Minolta" }],
         manufacturer: "Konica Minolta",
         referenceNumber: "A33K132",
+        origin: "Germany",
         ...commonProps
       }
     );
@@ -172,6 +177,7 @@ function generateMockProducts(brand) {
         oemNos: [{ oemNo: "50F1X00", oem: "Lexmark" }],
         manufacturer: "Lexmark",
         referenceNumber: "50F1X00",
+        origin: "USA",
         ...commonProps
       },
       {
@@ -180,6 +186,7 @@ function generateMockProducts(brand) {
         oemNos: [{ oemNo: "71B10K0", oem: "Lexmark" }],
         manufacturer: "Lexmark",
         referenceNumber: "71B10K0",
+        origin: "Mexico",
         ...commonProps
       },
       {
@@ -188,6 +195,7 @@ function generateMockProducts(brand) {
         oemNos: [{ oemNo: "51B1000", oem: "Lexmark" }],
         manufacturer: "Lexmark",
         referenceNumber: "51B1000",
+        origin: "China",
         ...commonProps
       }
     );
@@ -199,6 +207,7 @@ function generateMockProducts(brand) {
         oemNos: [{ oemNo: "106R02777", oem: "Xerox" }],
         manufacturer: "Xerox",
         referenceNumber: "106R02777",
+        origin: "USA",
         ...commonProps
       },
       {
@@ -207,6 +216,7 @@ function generateMockProducts(brand) {
         oemNos: [{ oemNo: "106R03580", oem: "Xerox" }],
         manufacturer: "Xerox",
         referenceNumber: "106R03580",
+        origin: "Canada",
         ...commonProps
       },
       {
@@ -215,6 +225,7 @@ function generateMockProducts(brand) {
         oemNos: [{ oemNo: "106R03624", oem: "Xerox" }],
         manufacturer: "Xerox",
         referenceNumber: "106R03624",
+        origin: "Japan",
         ...commonProps
       }
     );
@@ -226,6 +237,7 @@ function generateMockProducts(brand) {
         oemNos: [{ oemNo: "331-7328", oem: "Dell" }],
         manufacturer: "Dell",
         referenceNumber: "331-7328",
+        origin: "USA",
         ...commonProps
       },
       {
@@ -234,6 +246,7 @@ function generateMockProducts(brand) {
         oemNos: [{ oemNo: "593-BBKD", oem: "Dell" }],
         manufacturer: "Dell",
         referenceNumber: "593-BBKD",
+        origin: "Mexico",
         ...commonProps
       },
       {
@@ -242,6 +255,7 @@ function generateMockProducts(brand) {
         oemNos: [{ oemNo: "593-BBJX", oem: "Dell" }],
         manufacturer: "Dell",
         referenceNumber: "593-BBJX",
+        origin: "China",
         ...commonProps
       }
     );
@@ -254,6 +268,7 @@ function generateMockProducts(brand) {
         oemNos: [{ oemNo: "X001", oem: brand }],
         manufacturer: brand,
         referenceNumber: "X001",
+        origin: "USA",
         ...commonProps
       },
       {
@@ -262,6 +277,7 @@ function generateMockProducts(brand) {
         oemNos: [{ oemNo: "X002", oem: brand }],
         manufacturer: brand,
         referenceNumber: "X002",
+        origin: "Canada",
         ...commonProps
       }
     );

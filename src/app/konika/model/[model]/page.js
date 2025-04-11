@@ -36,16 +36,42 @@ const ModelSupplies = () => {
         cacheStatus: 'unchecked'
     });
 
-    // Define part number to model mapping for Lexmark
+    // Define part number to model mapping for Konica Minolta
     const partToModelMap = {
-        '71B10K0': ['CS317', 'CS417', 'CS517', 'CX317', 'CX417', 'CX517'], // Black
-        '71B10C0': ['CS317', 'CS417', 'CS517', 'CX317', 'CX417', 'CX517'], // Cyan
-        '71B10M0': ['CS317', 'CS417', 'CS517', 'CX317', 'CX417', 'CX517'], // Magenta
-        '71B10Y0': ['CS317', 'CS417', 'CS517', 'CX317', 'CX417', 'CX517'], // Yellow
-        '71B1HK0': ['CS317', 'CS417', 'CS517', 'CX317', 'CX417', 'CX517'], // Black High Yield
-        '71B1HC0': ['CS317', 'CS417', 'CS517', 'CX317', 'CX417', 'CX517'], // Cyan High Yield
-        '71B1HM0': ['CS317', 'CS417', 'CS517', 'CX317', 'CX417', 'CX517'], // Magenta High Yield
-        '71B1HY0': ['CS317', 'CS417', 'CS517', 'CX317', 'CX417', 'CX517']  // Yellow High Yield
+        // Bizhub Series
+        'TN-414': ['Bizhub 363', 'Bizhub 423'],
+        'TN-415': ['Bizhub 36', 'Bizhub 42'],
+        'TN-513': ['Bizhub 454e', 'Bizhub 554e'],
+        'TN-514': ['Bizhub 454e', 'Bizhub 554e'],
+        'TN-616K': ['Bizhub C6000', 'Bizhub C7000'], // Black
+        'TN-616C': ['Bizhub C6000', 'Bizhub C7000'], // Cyan
+        'TN-616M': ['Bizhub C6000', 'Bizhub C7000'], // Magenta
+        'TN-616Y': ['Bizhub C6000', 'Bizhub C7000'], // Yellow
+        'TN-319K': ['Bizhub C360', 'Bizhub C280', 'Bizhub C220'], // Black
+        'TN-319C': ['Bizhub C360', 'Bizhub C280', 'Bizhub C220'], // Cyan
+        'TN-319M': ['Bizhub C360', 'Bizhub C280', 'Bizhub C220'], // Magenta
+        'TN-319Y': ['Bizhub C360', 'Bizhub C280', 'Bizhub C220'], // Yellow
+        
+        // Magicolor Series
+        'A0DK132': ['Magicolor 4650', 'Magicolor 4690', 'Magicolor 4695'], // Black
+        'A0DK232': ['Magicolor 4650', 'Magicolor 4690', 'Magicolor 4695'], // Cyan
+        'A0DK332': ['Magicolor 4650', 'Magicolor 4690', 'Magicolor 4695'], // Magenta
+        'A0DK432': ['Magicolor 4650', 'Magicolor 4690', 'Magicolor 4695'], // Yellow
+        'A0V301F': ['Magicolor 1600', 'Magicolor 1650', 'Magicolor 1680', 'Magicolor 1690'], // Black
+        'A0V30HF': ['Magicolor 1600', 'Magicolor 1650', 'Magicolor 1680', 'Magicolor 1690'], // Cyan
+        'A0V30CF': ['Magicolor 1600', 'Magicolor 1650', 'Magicolor 1680', 'Magicolor 1690'], // Magenta
+        'A0V306F': ['Magicolor 1600', 'Magicolor 1650', 'Magicolor 1680', 'Magicolor 1690'], // Yellow
+        
+        // PagePro Series
+        '1710567-001': ['PagePro 1300', 'PagePro 1350', 'PagePro 1380', 'PagePro 1390'],
+        '1710511-001': ['PagePro 1200', 'PagePro 1250'],
+        '1710517-001': ['PagePro 6', 'PagePro 1100'],
+        
+        // Drum Units
+        'IU-310K': ['Bizhub C350', 'Bizhub C351', 'Bizhub C450'],
+        'IU-310C': ['Bizhub C350', 'Bizhub C351', 'Bizhub C450'], // Cyan
+        'IU-310M': ['Bizhub C350', 'Bizhub C351', 'Bizhub C450'], // Magenta
+        'IU-310Y': ['Bizhub C350', 'Bizhub C351', 'Bizhub C450']  // Yellow
     };
 
     useEffect(() => {
@@ -142,10 +168,10 @@ const ModelSupplies = () => {
                 return;
             }
 
-            // First try to get Lexmark products from cache
+            // First try to get Konica Minolta products from cache
             let cachedProducts = [];
             try {
-                const cachedData = localStorage.getItem("lexmark");
+                const cachedData = localStorage.getItem("konika");
                 if (cachedData) {
                     cachedProducts = JSON.parse(cachedData);
                     setDebugInfo(prev => ({...prev, cacheStatus: `found ${cachedProducts.length} items`}));
@@ -158,16 +184,22 @@ const ModelSupplies = () => {
             }
 
             // Normalize model number
-            const normalizedModel = modelNumber.trim().toUpperCase();
+            const normalizedModel = modelNumber.trim().toUpperCase()
+                .replace(/^KONICA\s+/i, '')
+                .replace(/^MINOLTA\s+/i, '')
+                .replace(/^KONICA\s+MINOLTA\s+/i, '');
+            
             setDebugInfo(prev => ({...prev, modelDetected: normalizedModel}));
             
             // Create various patterns to match the model with different prefixes/formats
             const modelVariants = [
                 normalizedModel,
-                `CS${normalizedModel}`,
-                `CX${normalizedModel}`,
-                `MS${normalizedModel}`,
-                `MX${normalizedModel}`
+                `BIZHUB ${normalizedModel.replace(/^BIZHUB\s*/, '')}`,
+                `MAGICOLOR ${normalizedModel.replace(/^MAGICOLOR\s*/, '')}`,
+                `PAGEPRO ${normalizedModel.replace(/^PAGEPRO\s*/, '')}`,
+                `KONICA ${normalizedModel}`,
+                `MINOLTA ${normalizedModel}`,
+                `KONICA MINOLTA ${normalizedModel}`
             ];
 
             // If we have cached products, filter them by model number OR by compatible part numbers
@@ -221,9 +253,10 @@ const ModelSupplies = () => {
 
             // If no cached products match or cache is empty, make API request
             const searchVariants = [
-                `lexmark ${modelNumber}`,
-                `lexmark cx${modelNumber}`,
-                `lexmark cs${modelNumber}`
+                `konica minolta ${normalizedModel}`,
+                `bizhub ${normalizedModel.replace(/^BIZHUB\s*/, '')}`,
+                `magicolor ${normalizedModel.replace(/^MAGICOLOR\s*/, '')}`,
+                `pagepro ${normalizedModel.replace(/^PAGEPRO\s*/, '')}`
             ];
 
             let foundProducts = [];
@@ -337,28 +370,87 @@ const ModelSupplies = () => {
             
             if (foundProducts.length > 0) {
                 setSupplies(foundProducts);
-                // Save to both lexmark cache and model-specific cache
-                localStorage.setItem("lexmark", JSON.stringify([...cachedProducts, ...foundProducts]));
-                localStorage.setItem(`lexmark_model_${modelNumber}`, JSON.stringify(foundProducts));
+                // Save to both konika cache and model-specific cache
+                localStorage.setItem("konika", JSON.stringify([...cachedProducts, ...foundProducts]));
+                localStorage.setItem(`konika_model_${modelNumber}`, JSON.stringify(foundProducts));
                 setDebugInfo(prev => ({...prev, productsFound: foundProducts.length, source: 'api'}));
             } else {
                 // Create fallback products based on known part numbers
                 const fallbackProducts = [];
                 
-                // Check if current model matches any in our part mapping
-                for (const [partNumber, compatibleModels] of Object.entries(partToModelMap)) {
-                    if (compatibleModels.some(model => 
-                        modelVariants.some(variant => variant.includes(model)))) {
-                        
-                        // Add appropriate fallback products
-                        fallbackProducts.push({
-                            id: `${partNumber}-fallback`,
-                            title: `Lexmark ${partNumber} Toner Cartridge (Compatible with ${normalizedModel})`,
-                            oemNos: [{ oemNo: partNumber }],
-                            serviceLevels: [{ price: 89.99 }],
-                            images: ["/static/toner-placeholder.webp"]
-                        });
-                    }
+                // Common Konica Minolta models
+                const bizhubMatch = normalizedModel.match(/BIZHUB\s*([A-Z]?[0-9]+[a-z]*(?:-[0-9]+[a-z]*)?)/i);
+                const magicolorMatch = normalizedModel.match(/MAGICOLOR\s*([0-9]+[a-z]*(?:-[0-9]+[a-z]*)?)/i);
+                const pageproMatch = normalizedModel.match(/PAGEPRO\s*([0-9]+[a-z]*(?:-[0-9]+[a-z]*)?)/i);
+                
+                // Extract model number without series prefix
+                const modelWithoutPrefix = bizhubMatch ? bizhubMatch[1] : 
+                                          magicolorMatch ? magicolorMatch[1] : 
+                                          pageproMatch ? pageproMatch[1] : 
+                                          normalizedModel;
+                
+                // Determine if it's likely a color model
+                const isColor = normalizedModel.includes('C') || 
+                                magicolorMatch !== null || 
+                                ['BIZHUB C', 'C SERIES', 'COLOR'].some(term => normalizedModel.includes(term));
+                
+                // Generate fallback products
+                if (isColor) {
+                    // Black toner
+                    fallbackProducts.push({
+                        id: `fallback-${normalizedModel}-K`,
+                        title: `Konica Minolta ${normalizedModel} Black Toner Cartridge`,
+                        oemNos: [{ oemNo: `TN-${modelWithoutPrefix}K` }],
+                        serviceLevels: [{ price: 79.99 }],
+                        images: ["/static/toner.webp"]
+                    });
+                    
+                    // Cyan toner
+                    fallbackProducts.push({
+                        id: `fallback-${normalizedModel}-C`,
+                        title: `Konica Minolta ${normalizedModel} Cyan Toner Cartridge`,
+                        oemNos: [{ oemNo: `TN-${modelWithoutPrefix}C` }],
+                        serviceLevels: [{ price: 89.99 }],
+                        images: ["/static/toner-c.webp"]
+                    });
+                    
+                    // Magenta toner
+                    fallbackProducts.push({
+                        id: `fallback-${normalizedModel}-M`,
+                        title: `Konica Minolta ${normalizedModel} Magenta Toner Cartridge`,
+                        oemNos: [{ oemNo: `TN-${modelWithoutPrefix}M` }],
+                        serviceLevels: [{ price: 89.99 }],
+                        images: ["/static/toner-m.webp"]
+                    });
+                    
+                    // Yellow toner
+                    fallbackProducts.push({
+                        id: `fallback-${normalizedModel}-Y`,
+                        title: `Konica Minolta ${normalizedModel} Yellow Toner Cartridge`,
+                        oemNos: [{ oemNo: `TN-${modelWithoutPrefix}Y` }],
+                        serviceLevels: [{ price: 89.99 }],
+                        images: ["/static/toner-y.webp"]
+                    });
+                } else {
+                    // Black toner for monochrome models
+                    fallbackProducts.push({
+                        id: `fallback-${normalizedModel}`,
+                        title: `Konica Minolta ${normalizedModel} Black Toner Cartridge`,
+                        oemNos: [{ oemNo: `TN-${modelWithoutPrefix}` }],
+                        serviceLevels: [{ price: 69.99 }],
+                        images: ["/static/toner.webp"]
+                    });
+                }
+                
+                // Add drum unit for Bizhub models
+                if (bizhubMatch) {
+                    fallbackProducts.push({
+                        id: `fallback-drum-${normalizedModel}`,
+                        title: `Konica Minolta ${normalizedModel} Drum Unit`,
+                        oemNos: [{ oemNo: `IU-${modelWithoutPrefix}` }],
+                        serviceLevels: [{ price: 129.99 }],
+                        images: ["/static/drum.webp"]
+                    });
                 }
                 
                 if (fallbackProducts.length > 0) {
@@ -449,24 +541,24 @@ const ModelSupplies = () => {
     // Filter products by origin
     const filterProductsByOrigin = (products) => {
         // Log the active filters
-        console.log("Lexmark - Active origin filters:", JSON.stringify(originFilters));
+        console.log("Konica - Active origin filters:", JSON.stringify(originFilters));
         
         // Safety check for null/undefined products
         if (!products || !Array.isArray(products)) {
-            console.error("Lexmark - Products is not an array:", products);
+            console.error("Konica - Products is not an array:", products);
             return [];
         }
         
         // If no filters are active, return all products
         if (!originFilters.usaMade && !originFilters.americasMade && !originFilters.worldWideMade) {
-            console.log("Lexmark - No origin filters active, returning all products:", products.length);
+            console.log("Konica - No origin filters active, returning all products:", products.length);
             return products;
         }
 
         // Log a sample of product origins
         const sampleSize = Math.min(products.length, 5);
         const originSamples = products.slice(0, sampleSize).map(p => p.origin || 'unknown');
-        console.log(`Lexmark - Origin samples from ${products.length} products:`, originSamples);
+        console.log(`Konica - Origin samples from ${products.length} products:`, originSamples);
 
         const filtered = products.filter(product => {
             // Check if product has origin information
@@ -497,7 +589,7 @@ const ModelSupplies = () => {
             return false;
         });
         
-        console.log(`Lexmark - Filtered products: ${filtered.length} out of ${products.length}`);
+        console.log(`Konica - Filtered products: ${filtered.length} out of ${products.length}`);
         return filtered;
     };
 
@@ -541,7 +633,7 @@ const ModelSupplies = () => {
     const preparedSupplies = useMemo(() => {
         return filterSuppliesByType().map(product => ({
             ...product,
-            key: product.id || (product.oemNos?.[0]?.oemNo + '-' + Math.random().toString(36).substring(7)),
+            key: product.id || `product-${Math.random().toString(36).substring(7)}`,
             partNumber: extractPartNumber(product),
             compatInfo: getCompatibilityInfo(product),
             price: getProductPrice(product)
@@ -656,9 +748,9 @@ const ModelSupplies = () => {
             <Header />
 
             <div style={headerStyle}>
-                <h1>Lexmark Supplies</h1>
+                <h1>Konica Minolta Supplies</h1>
                 <div>
-                    <Link href="/lexmark" style={{color: '#0066cc', textDecoration: 'none'}}>
+                    <Link href="/konika" style={{color: '#0066cc', textDecoration: 'none'}}>
                         &laquo; Back to All Models
                     </Link>
                 </div>
