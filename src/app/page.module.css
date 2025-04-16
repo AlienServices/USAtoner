@@ -287,6 +287,8 @@
   border-radius: 10px;
 }
 
+.shade:hover {}
+
 .sectionBig {
   box-shadow: 1px 1px 9px gray;
   width: 500px;

@@ -1,2 +1,0 @@
-Starting inventory update with CRON_SECRET from environment
-Error: request to http://127.0.0.1:3000/api/update-inventory failed, reason: connect ECONNREFUSED 127.0.0.1:3000

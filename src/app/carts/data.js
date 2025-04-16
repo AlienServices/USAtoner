@@ -84,23 +84,19 @@ const Cart = () => {
         let arr = [0]
 
         cart.map((item) => {
-            // Ensure price and quantity are numbers and multiply
-            const price = parseFloat(item.price) || 0;
-            const quantity = parseInt(item.quantity) || 0;
-            arr.push(price * quantity);
-        });
+            arr.push(item.quantity * item.price)
 
-        // Sum all items and add shipping
-        let result = arr.reduce((acc, item) => acc + item, 0);
-        let addedResult = result + 2.99;
-        
-        // Format to exactly 2 decimal places
-        setTotal(addedResult.toFixed(2));
+        })
+        let result = arr?.reduce((acc, item) => {
+            return acc + item
+        })
+        let addedResult = result + 2.99
+        setTotal(addedResult.toFixed(2))
+
     }
-
     useEffect(() => {
-        newPriceAction();
-    }, [cart]);
+        newPriceAction()
+    }, [cart])
 
     const decimal = function (item) {
         return item.toFixed(2)
@@ -237,8 +233,9 @@ const Cart = () => {
                                                 </div>
                                             </div>
                                             <div className={styles.removeBox}>
+
                                                 <div className={styles.priceRight}>
-                                                    ${decimal((parseFloat(toner.price) || 0) * (parseInt(toner.quantity) || 0))}
+                                                    ${decimal(toner.price * toner.quantity)}
                                                 </div>
                                             </div>
                                         </div>
